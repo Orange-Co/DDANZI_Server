@@ -1,7 +1,10 @@
 package co.orange.ddanzi.common.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -9,17 +12,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@RequiredArgsConstructor
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+@Builder
 public class ErrorResponse {
+
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd HH:mm:ss",
+            locale = "Asia/Seoul"
+    )
 
     private int status;
     private String message;
-    private LocalDateTime time;
+    private LocalDateTime timestamp;
     private String path;
-    private String trace;
     private List<VaildationError> vaildErrors;
+
+    public static ErrorResponse onFailure(Error error, HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .status(error.getHttpStatus().value())
+                .message(error.getMessage())
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+    }
+
+    public static ErrorResponse onFailure(Error error, String message) {
+        return ErrorResponse.builder()
+                .status(error.getHttpStatus().value())
+                .message(message)
+                .build();
+    }
 
     @Data
     @RequiredArgsConstructor
@@ -35,10 +58,5 @@ public class ErrorResponse {
         vaildErrors.add(new VaildationError(field, message));
     }
 
-    public ErrorResponse(int status, String message, String path, LocalDateTime time) {
-        this.status = status;
-        this.message = message;
-        this.path = path;
-        this.time = time;
-    }
+
 }

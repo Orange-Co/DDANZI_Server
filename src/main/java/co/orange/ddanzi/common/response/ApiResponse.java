@@ -1,5 +1,6 @@
 package co.orange.ddanzi.common.response;
 
+import co.orange.ddanzi.common.exception.Error;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Builder;

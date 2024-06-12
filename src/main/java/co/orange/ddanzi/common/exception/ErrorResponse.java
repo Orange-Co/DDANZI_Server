@@ -1,4 +1,4 @@
-package co.orange.ddanzi.common.response;
+package co.orange.ddanzi.common.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.servlet.http.HttpServletRequest;

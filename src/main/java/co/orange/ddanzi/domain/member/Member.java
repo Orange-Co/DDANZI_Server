@@ -25,16 +25,16 @@ public class Member extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private LoginType type;
+    private LoginType type;     //로그인 타입(KAKAO/APPLE)
 
     @Column(name = "nickname")
-    private String nickname;
+    private String nickname;    // 닉네임 -> 자동생성
 
     @Column(name = "is_authenticated")
-    private Boolean isAuthenticated;
+    private Boolean isAuthenticated = Boolean.FALSE;    //본인 인증 여부
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private MemberStatus status;
+    private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
 
 }

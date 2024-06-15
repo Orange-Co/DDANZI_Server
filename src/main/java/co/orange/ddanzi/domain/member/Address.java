@@ -24,16 +24,16 @@ public class Address {
     private Member member;
 
     @Column(name = "zip_code", nullable = false, length = 5)
-    private String zipCode;
+    private String zipCode;         //우편번호
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private AddressType type;
+    private AddressType type;       //주소종류(ROAD/LOT)
 
     @Column(name = "address", nullable = false)
-    private String address;
+    private String address;         //주소지
 
     @Column(name = "detail_address")
-    private String detailAddress;
+    private String detailAddress;   //상세주호
 
 }

@@ -1,4 +1,4 @@
-package co.orange.ddanzi.domain;
+package co.orange.ddanzi.domain.member;
 
 import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.enums.LoginType;

@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -36,5 +39,12 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
+
+    //Mapping Relationship
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addressList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Account> accountList = new ArrayList<>();
 
 }

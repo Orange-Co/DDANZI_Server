@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
@@ -16,9 +17,11 @@ public class pushAlarm {
     @MapsId
     @OneToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member member;          //member id (PK)
 
-    private Boolean isAllowed;
+    @Column(name = "is_allowed", nullable = false)
+    @ColumnDefault("false")
+    private Boolean isAllowed;      //푸시 알람 허용 여부 (default false)
 
     @Builder
     public pushAlarm(Member member, Boolean isAllowed) {

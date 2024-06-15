@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 
@@ -40,13 +41,13 @@ public class Authentication extends BaseTimeEntity {
     private Sex sex;                        //성별
 
     @Enumerated(EnumType.STRING)
+    @ColumnDefault("'KOR'")
     @Column(name = "nation", nullable = false)
-    private Nation nation = Nation.KOR;     //국가,디폴트 한국
+    private Nation nation;     //국가,디폴트 한국
 
 
     @Builder
-    public Authentication(Long id, Member member, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
-        this.id = id;
+    public Authentication(Member member, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
         this.member = member;
         this.name = name;
         this.email = email;

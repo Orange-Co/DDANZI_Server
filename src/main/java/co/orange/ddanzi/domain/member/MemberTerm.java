@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
@@ -15,10 +16,11 @@ import lombok.NoArgsConstructor;
 public class MemberTerm extends BaseTimeEntity{
     @EmbeddedId
     @Column(name = "member_term_id")
-    private MemberTermId id;
+    private MemberTermId id;        //회원가입 약관 고유 ID
 
     @Column(name = "is_agreed", nullable = false)
-    private Boolean isAgreed;
+    @ColumnDefault("false")
+    private Boolean isAgreed;       //약관 동의 여부
 
     @Builder
     public MemberTerm(final MemberTermId id, final Boolean isAgreed){

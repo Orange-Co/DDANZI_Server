@@ -19,10 +19,6 @@ public class Address {
     @Column(name = "address_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
     @Column(name = "zip_code", nullable = false, length = 5)
     private String zipCode;         //우편번호
 
@@ -34,6 +30,10 @@ public class Address {
     private String address;         //주소지
 
     @Column(name = "detail_address")
-    private String detailAddress;   //상세주호
+    private String detailAddress;   //상세 주소
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;          //회원:주소=1:N
 
 }

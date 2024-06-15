@@ -19,25 +19,25 @@ public class Product {
     private Long id;        //상품 고유 ID
 
     @Column(name = "name", nullable = false)
-    private String name;
+    private String name;    //상품명
 
     @Column(name = "origin_price", nullable = false)
-    private Integer originPrice;
+    private Integer originPrice;    //정가=선물하기 가격
 
     @Column(name = "discount_price", nullable = false)
-    private Integer discountPrice;
+    private Integer discountPrice;  //할인 금액
 
     @ColumnDefault("0")
     @Column(name = "stock", nullable = false)
-    private Integer stock;
+    private Integer stock;          //재고 수
 
     @Column(name = "img_url")
-    private String imgUrl;
+    private String imgUrl;          //상품 이미지
 
     @Column(name = "info_url")
-    private String infoUrl;
+    private String infoUrl;         //상품 상세 정보 url
 
     @ColumnDefault("0")
     @Column(name = "interest_count", nullable = false)
-    private Integer interestCount;
+    private Integer interestCount;  //찜 수
 }

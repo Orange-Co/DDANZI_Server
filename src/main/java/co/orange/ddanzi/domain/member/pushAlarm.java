@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class pushAlarm {
     @Id
     @Column(name = "member_id")
-    private Long memberId;
+    private Long id;
 
     @MapsId
     @OneToOne

@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class Authentication extends BaseTimeEntity {
     @Id
     @Column(name = "member_id")
-    private Long memberId;      //멤버 고유 ID (PK/FK)
+    private Long id;      //멤버 고유 ID (PK/FK)
 
     @MapsId
     @OneToOne
@@ -46,8 +46,8 @@ public class Authentication extends BaseTimeEntity {
 
 
     @Builder
-    public Authentication(Long memberId, Member member, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
-        this.memberId = memberId;
+    public Authentication(Long id, Member member, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
+        this.id = id;
         this.member = member;
         this.name = name;
         this.email = email;

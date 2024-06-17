@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@Table(name = "term_orders")
 @Entity
 public class TermOrder extends BaseTimeEntity {
     @Id

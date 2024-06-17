@@ -3,21 +3,19 @@ package co.orange.ddanzi.domain.member;
 
 import co.orange.ddanzi.domain.member.enums.AddressType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "addresses")
 @Entity
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "address_id")
-    private Long id;
+    private Long id;                //주소 고유 ID
 
     @Column(name = "zip_code", nullable = false, length = 5)
     private String zipCode;         //우편번호
@@ -34,6 +32,14 @@ public class Address {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;          //회원:주소=1:N
+    private User user;          //회원:주소=1:N
 
+    @Builder
+    public Address(String zipCode, AddressType type, String address, String detailAddress, User user) {
+        this.zipCode = zipCode;
+        this.type = type;
+        this.address = address;
+        this.detailAddress = detailAddress;
+        this.user = user;
+    }
 }

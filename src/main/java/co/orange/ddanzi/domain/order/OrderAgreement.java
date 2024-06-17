@@ -11,8 +11,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 
 @NoArgsConstructor
-@Entity
 @Table(name = "order_agreements")
+@Entity
 public class OrderAgreement {
     @EmbeddedId
     @Column(name = "order_agreement_id")

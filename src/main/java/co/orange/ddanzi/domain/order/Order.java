@@ -1,6 +1,6 @@
 package co.orange.ddanzi.domain.order;
 
-import co.orange.ddanzi.domain.member.Member;
+import co.orange.ddanzi.domain.member.User;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class Order {
     private Integer totalPrice;             //최종 금액
 
     @Enumerated(EnumType.STRING)
+    @ColumnDefault("'ORDER_PLACE")
     @Column(name = "status", nullable = false)
     private OrderStatus status;             //주문 상태(입금완료/배송중/거래완료/거래취소)
 
@@ -48,7 +50,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id")
-    private Member buyer;                   //구매자
+    private User buyer;                   //구매자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "selected_option_detail_id")

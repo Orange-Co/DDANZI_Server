@@ -4,24 +4,22 @@ import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.member.enums.LoginType;
 import co.orange.ddanzi.domain.member.enums.MemberStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "users")
 @Entity
-public class Member extends BaseTimeEntity {
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
-    private Long id;
+    @Column(name = "user_id")
+    private Long id;            //유저 고유 ID
 
     @Column(name = "login_id")
-    private String loginId;
+    private String loginId;     //로그인 ID
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -37,11 +35,11 @@ public class Member extends BaseTimeEntity {
     @Column(name = "status")
     private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
 
-    //Mapping Relationship
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Address> addressList = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Account> accountList = new ArrayList<>();
-
+    @Builder
+    public User(String loginId, LoginType type, String nickname, MemberStatus status) {
+        this.loginId = loginId;
+        this.nickname = nickname;
+        this.type = type;
+        this.status = status;
+    }
 }

@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum OptionType {
-    COLOR("COLOR"),
-    SIZE("SIZE"),
-    IMPRINT("IMPRINT"),
-    ETC("ETC")
+    COLOR("색상"),
+    SIZE("사이즈"),
+    IMPRINT("각인"),
+    ETC("기타")
     ;
 
     private final String optionType;

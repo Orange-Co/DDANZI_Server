@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 @Embeddable
 @Data
-public class ItemTermId implements Serializable {
+public class ItemAgreementId implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;

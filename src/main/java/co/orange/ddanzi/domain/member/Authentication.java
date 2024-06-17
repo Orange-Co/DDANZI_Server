@@ -13,16 +13,17 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
+@Table(name = "authentications")
 @Entity
 public class Authentication extends BaseTimeEntity {
     @Id
-    @Column(name = "member_id")
+    @Column(name = "user_id")
     private Long id;      //멤버 고유 ID (PK/FK)
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;                    //이름
@@ -43,12 +44,12 @@ public class Authentication extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'KOR'")
     @Column(name = "nation", nullable = false)
-    private Nation nation;     //국가,디폴트 한국
+    private Nation nation;                  //국가,디폴트 한국
 
 
     @Builder
-    public Authentication(Member member, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
-        this.member = member;
+    public Authentication(User user, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
+        this.user = user;
         this.name = name;
         this.email = email;
         this.phone = phone;

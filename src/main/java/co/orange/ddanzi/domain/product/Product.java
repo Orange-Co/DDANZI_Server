@@ -1,16 +1,14 @@
 package co.orange.ddanzi.domain.product;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "products")
 @Entity
 public class Product {
     @Id
@@ -40,4 +38,15 @@ public class Product {
     @ColumnDefault("0")
     @Column(name = "interest_count", nullable = false)
     private Integer interestCount;  //찜 수
+
+    @Builder
+    public Product (String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Integer interestCount) {
+        this.name = name;
+        this.originPrice = originPrice;
+        this.discountPrice = discountPrice;
+        this.imgUrl = imgUrl;
+        this.infoUrl = infoUrl;
+        this.stock = stock;
+        this.interestCount = interestCount;
+    }
 }

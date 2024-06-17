@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
+@Table(name = "option_details")
 @Entity
 public class OptionDetail {
     @Id

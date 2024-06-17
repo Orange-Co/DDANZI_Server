@@ -1,10 +1,11 @@
-package co.orange.ddanzi.domain.member;
+package co.orange.ddanzi.domain.product;
 
 import co.orange.ddanzi.common.domain.BaseTimeEntity;
-import co.orange.ddanzi.domain.member.pk.MemberTermId;
+import co.orange.ddanzi.domain.product.pk.ItemAgreementId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,20 +13,20 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
+@Table(name = "item_agreements")
 @Entity
-public class MemberTerm extends BaseTimeEntity{
+public class ItemAgreement extends BaseTimeEntity {
     @EmbeddedId
-    @Column(name = "member_term_id")
-    private MemberTermId id;        //회원가입 약관 고유 ID
+    @Column(name = "item_agreement_id")
+    private ItemAgreementId id;
 
     @Column(name = "is_agreed", nullable = false)
     @ColumnDefault("false")
-    private Boolean isAgreed;       //약관 동의 여부
+    private Boolean isAgreed;
 
     @Builder
-    public MemberTerm(final MemberTermId id, final Boolean isAgreed){
+    public ItemAgreement(ItemAgreementId id, Boolean isAgreed) {
         this.id = id;
         this.isAgreed = isAgreed;
     }
-
 }

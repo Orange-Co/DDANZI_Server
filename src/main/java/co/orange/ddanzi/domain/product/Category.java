@@ -12,23 +12,24 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@Table(name = "categories")
 @Entity
 public class Category extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
-    private Long id;
+    private Long id;                           //카테고리 고유 ID
 
     @Column(name = "content")
-    private String content;
+    private String content;                     //카테고리 이름
 
     @ColumnDefault("false")
     @Column(name = "is_forbidden", nullable = false)
-    private Boolean isForbidden;
+    private Boolean isForbidden;                //금지 여부
 
     @ColumnDefault("0.3")
     @Column(name = "discount_rate")
-    private Float discountRate;
+    private Float discountRate;                 //할인율
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentCategory", cascade = CascadeType.ALL)
     private List<Category> childrenCategory = new ArrayList<>();

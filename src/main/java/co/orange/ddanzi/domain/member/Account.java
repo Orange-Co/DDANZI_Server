@@ -2,15 +2,13 @@ package co.orange.ddanzi.domain.member;
 
 import co.orange.ddanzi.domain.member.enums.Bank;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "accounts")
 @Entity
 public class Account {
     @Id
@@ -26,7 +24,13 @@ public class Account {
     private String number;          //계좌 번호
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;          //계좌 보유 유저
 
+    @Builder
+    public Account(Bank bank, String number, User user) {
+        this.bank = bank;
+        this.number = number;
+        this.user = user;
+    }
 }

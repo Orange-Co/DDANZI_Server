@@ -17,15 +17,15 @@ public class pushAlarm {
     @MapsId
     @OneToOne
     @JoinColumn(name = "member_id")
-    private Member member;          //member id (PK)
+    private User user;          //member id (PK)
 
     @Column(name = "is_allowed", nullable = false)
     @ColumnDefault("false")
     private Boolean isAllowed;      //푸시 알람 허용 여부 (default false)
 
     @Builder
-    public pushAlarm(Member member, Boolean isAllowed) {
-        this.member = member;
+    public pushAlarm(User user, Boolean isAllowed) {
+        this.user = user;
         this.isAllowed = isAllowed;
     }
 }

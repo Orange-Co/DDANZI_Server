@@ -1,6 +1,6 @@
 package co.orange.ddanzi.domain.member.pk;
 
-import co.orange.ddanzi.domain.member.Member;
+import co.orange.ddanzi.domain.member.User;
 import co.orange.ddanzi.domain.product.Product;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -11,8 +11,8 @@ import java.io.Serializable;
 @Data
 public class InterestProductId implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

@@ -1,11 +1,10 @@
 package co.orange.ddanzi.domain.order;
 
-import co.orange.ddanzi.domain.member.User;
+import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +15,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "orders")
 @Entity
@@ -33,7 +30,7 @@ public class Order {
     private Integer totalPrice;             //최종 금액
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("'ORDER_PLACE")
+    @ColumnDefault("'ORDER_PLACE'")
     @Column(name = "status", nullable = false)
     private OrderStatus status;             //주문 상태(입금완료/배송중/거래완료/거래취소)
 
@@ -57,4 +54,17 @@ public class Order {
     private OptionDetail selectedOptionDetail;      //선택된 옵션
 
 
+    @Builder
+    public Order(UUID id, Integer charge, Integer totalPrice, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer, OptionDetail selectedOptionDetail) {
+        this.id = id;
+        this.charge = charge;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.completedAt = completedAt;
+        this.item = item;
+        this.buyer = buyer;
+        this.selectedOptionDetail = selectedOptionDetail;
+
+    }
 }

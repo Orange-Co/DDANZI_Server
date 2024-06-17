@@ -9,9 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Builder
 @AllArgsConstructor
@@ -30,7 +27,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "type")
     private LoginType type;     //로그인 타입(KAKAO/APPLE)
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false, length = 10)
     private String nickname;    // 닉네임 -> 자동생성
 
     @Column(name = "is_authenticated")
@@ -41,10 +38,10 @@ public class Member extends BaseTimeEntity {
     private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
 
     //Mapping Relationship
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Address> addressList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Account> accountList = new ArrayList<>();
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<Address> addressList = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<Account> accountList = new ArrayList<>();
 
 }

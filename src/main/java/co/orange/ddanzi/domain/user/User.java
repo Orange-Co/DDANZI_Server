@@ -1,8 +1,8 @@
-package co.orange.ddanzi.domain.member;
+package co.orange.ddanzi.domain.user;
 
 import co.orange.ddanzi.common.domain.BaseTimeEntity;
-import co.orange.ddanzi.domain.member.enums.LoginType;
-import co.orange.ddanzi.domain.member.enums.MemberStatus;
+import co.orange.ddanzi.domain.user.enums.LoginType;
+import co.orange.ddanzi.domain.user.enums.MemberStatus;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

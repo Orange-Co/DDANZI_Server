@@ -1,7 +1,7 @@
-package co.orange.ddanzi.domain.member;
+package co.orange.ddanzi.domain.user;
 
 
-import co.orange.ddanzi.domain.member.enums.AddressType;
+import co.orange.ddanzi.domain.user.enums.AddressType;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

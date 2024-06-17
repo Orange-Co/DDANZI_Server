@@ -1,4 +1,4 @@
-package co.orange.ddanzi.domain.member;
+package co.orange.ddanzi.domain.user;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
+@Table(name = "push_alarms")
 @Entity
 public class pushAlarm {
     @Id
@@ -16,7 +17,7 @@ public class pushAlarm {
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "user_id")
     private User user;          //member id (PK)
 
     @Column(name = "is_allowed", nullable = false)

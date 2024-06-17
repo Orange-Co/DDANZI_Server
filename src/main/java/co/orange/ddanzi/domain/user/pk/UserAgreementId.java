@@ -1,6 +1,6 @@
-package co.orange.ddanzi.domain.member.pk;
+package co.orange.ddanzi.domain.user.pk;
 
-import co.orange.ddanzi.domain.member.User;
+import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.term.TermJoin;
 import jakarta.persistence.*;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package co.orange.ddanzi.domain.member.enums;
+package co.orange.ddanzi.domain.user.enums;
 
 import lombok.Getter;
 

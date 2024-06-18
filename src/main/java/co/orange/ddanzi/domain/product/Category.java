@@ -45,4 +45,12 @@ public class Category extends BaseTimeEntity {
         this.isForbidden = isForbidden;
         this.discountRate = discountRate;
     }
+
+    public String getFullPath(){
+        if (parentCategory != null) {
+            return parentCategory.getFullPath() + "/" + content;
+        } else {
+            return content;
+        }
+    }
 }

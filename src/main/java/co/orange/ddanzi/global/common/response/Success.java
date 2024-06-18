@@ -13,7 +13,8 @@ public enum Success {
     SUCCESS(HttpStatus.OK, "Request successfully processed"),
 
     // 200 OK SUCCESS
-
+    GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
+    GET_PRODUCT_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved product details."),
     // 201 CREATED
 
     ;

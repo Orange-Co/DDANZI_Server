@@ -21,7 +21,8 @@ public class Discount extends BaseTimeEntity {
     @Column(name = "rate", nullable = false)
     private Float rate;
 
-    @OneToOne(mappedBy = "discount")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
     @Builder

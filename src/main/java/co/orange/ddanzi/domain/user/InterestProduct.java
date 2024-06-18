@@ -1,5 +1,6 @@
 package co.orange.ddanzi.domain.user;
 
+import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.pk.InterestProductId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -21,5 +22,15 @@ public class InterestProduct {
     @Builder
     public InterestProduct(final InterestProductId id) {
         this.id=id;
+    }
+
+    public InterestProduct toEntity(User user, Product product) {
+        InterestProductId interestProductId = new InterestProductId();
+        interestProductId.setUser(user);
+        interestProductId.setProduct(product);
+
+        return InterestProduct.builder()
+                .id(interestProductId)
+                .build();
     }
 }

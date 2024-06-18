@@ -28,16 +28,7 @@ public class HomeService {
     @Transactional
     public ApiResponse<?> getProductList(){
         List<Product> productList = productRepository.findAllByStock(0);
-        List<ProductInfo> productInfoList = new ArrayList<>();
-        for(Product product : productList){
-            productInfoList.add(ProductInfo.builder()
-                            .productId(product.getId())
-                            .name(product.getName())
-                            .originPrice(product.getOriginPrice())
-                            .salePrice(product.getOriginPrice() - product.getDiscountPrice())
-                            .interestCount(product.getInterestCount())
-                    .build());
-        }
+        List<ProductInfo> productInfoList = getProductList(productList);
         HomeResponseDto responseDto = HomeResponseDto.builder().productList(productInfoList).build();
         return ApiResponse.onSuccess(Success.GET_HOME_INFO_SUCCESS, responseDto);
     }
@@ -83,6 +74,19 @@ public class HomeService {
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
     }
 
+    public static List<ProductInfo> getProductList(List<Product> productList){
+        List<ProductInfo> productInfoList = new ArrayList<>();
+        for(Product product : productList){
+            productInfoList.add(ProductInfo.builder()
+                    .productId(product.getId())
+                    .name(product.getName())
+                    .originPrice(product.getOriginPrice())
+                    .salePrice(product.getOriginPrice() - product.getDiscountPrice())
+                    .interestCount(product.getInterestCount())
+                    .build());
+        }
+        return productInfoList;
+    }
     private List<OptionInfo> getOptionList(Long productId){
         List<Option> optionList = optionRepository.findAllByProductId(productId);
         List<OptionInfo> optionInfoList = new ArrayList<>();

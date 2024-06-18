@@ -8,4 +8,5 @@ import lombok.Getter;
 public class OptionDetailInfo {
     private Long optionDetailId;
     private String content;
+    private Boolean isAvailable;
 }

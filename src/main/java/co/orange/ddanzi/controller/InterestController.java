@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.*;
 public class InterestController {
     private final InterestService interestService;
 
-    @PostMapping("{productId}")
+    @PostMapping("/{productId}")
     ApiResponse<?> addInterest(@PathVariable Long productId) {
         return interestService.addInterest(productId);
     }
 
+    @DeleteMapping("/{productId}")
+    ApiResponse<?> deleteInterest(@PathVariable Long productId) {
+        return interestService.deleteInterest(productId);
+    }
 }

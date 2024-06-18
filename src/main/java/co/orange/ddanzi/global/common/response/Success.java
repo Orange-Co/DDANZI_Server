@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Success {
     // Default
-    SUCCESS(HttpStatus.OK, "Request successfully processed"),
+    SUCCESS(HttpStatus.OK, "Request successfully processed."),
 
     // 200 OK SUCCESS
     GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
@@ -18,8 +18,12 @@ public enum Success {
 
     GET_SEARCH_SCREEN_SUCCESS(HttpStatus.OK, "Successfully retrieved the search screen."),
     GET_SEARCH_RESULTS_SUCCESS(HttpStatus.OK, "Successfully performed the search."),
-    
+
+    DELETE_INTEREST_SUCCESS(HttpStatus.OK, "Successfully removed the product from interest List."),
+
     // 201 CREATED
+    CREATE_INTEREST_SUCCESS(HttpStatus.CREATED, "Successfully added the product to interest List."),
+
 
     ;
 

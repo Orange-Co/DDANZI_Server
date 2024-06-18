@@ -1,4 +1,4 @@
-package co.orange.ddanzi.common.response;
+package co.orange.ddanzi.global.common.response;
 
 
 import lombok.AccessLevel;

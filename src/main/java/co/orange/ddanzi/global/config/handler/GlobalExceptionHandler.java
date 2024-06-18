@@ -1,7 +1,7 @@
-package co.orange.ddanzi.config.handler;
+package co.orange.ddanzi.global.config.handler;
 
-import co.orange.ddanzi.common.exception.Error;
-import co.orange.ddanzi.common.exception.ErrorResponse;
+import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

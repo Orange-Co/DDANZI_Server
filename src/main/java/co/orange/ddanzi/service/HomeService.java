@@ -1,11 +1,7 @@
 package co.orange.ddanzi.service;
 
-import co.orange.ddanzi.domain.product.Category;
-import co.orange.ddanzi.domain.product.Discount;
-import co.orange.ddanzi.domain.product.Product;
-import co.orange.ddanzi.dto.home.HomeDetailResponseDto;
-import co.orange.ddanzi.dto.home.HomeResponseDto;
-import co.orange.ddanzi.dto.home.ProductInfo;
+import co.orange.ddanzi.domain.product.*;
+import co.orange.ddanzi.dto.home.*;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
@@ -61,22 +57,50 @@ public class HomeService {
         }
         log.info("카테고리 조회 성공");
         String categoryFullPath = leafCategory.get().getFullPath();
+
+        log.info("해당 카테고리의 할인율 조회");
         Float discountRateFloat = discountRepository.findByCategoryId(leafCategory.get().getId()).getRate() * 100;
         Integer discountRate = discountRateFloat.intValue();
 
+        log.info("해당 상품의 옵션 조회");
+        List<OptionInfo> optionList = getOptionList(productId);
 
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
                 .category(categoryFullPath)
-                .isOptionExist()
-                .isImminent()
+                .isOptionExist(!optionList.isEmpty())
+                .isImminent(true)
                 .discountRate(discountRate)
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
                 .interestCount(product.getInterestCount())
-                .optionList()
+                .optionList(optionList)
                 .build();
 
-        return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,);
+        return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
+    }
+
+    private List<OptionInfo> getOptionList(Long productId){
+        List<Option> optionList = optionRepository.findAllByProductId(productId);
+        List<OptionInfo> optionInfoList = new ArrayList<>();
+        for(Option option : optionList){
+            log.info("{} 옵션 ID의  세부 옵션 조회", option.getId());
+            List<OptionDetail> optionDetailList = optionDetailRepository.findAllByOptionId(option.getId());
+            List<OptionDetailInfo> optionDetailInfoList = new ArrayList<>();
+            for(OptionDetail optionDetail : optionDetailList){
+                optionDetailInfoList.add(OptionDetailInfo.builder()
+                                .optionDetailId(optionDetail.getId())
+                               .content(optionDetail.getContent())
+                                .build());
+            }
+            log.info("{} 옵션 ID의  세부 옵션 조회 성공", option.getId());
+            optionInfoList.add(OptionInfo.builder()
+                            .optionId(option.getId())
+                            .type(option.getType())
+                            .optionDetailList(optionDetailInfoList)
+                    .build());
+            log.info("해당 상품의 옵션 조회 성공");
+        }
+        return optionInfoList;
     }
 }

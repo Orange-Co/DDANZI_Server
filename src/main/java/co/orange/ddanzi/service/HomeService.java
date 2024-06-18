@@ -44,22 +44,25 @@ public class HomeService {
 
     @Transactional
     public ApiResponse<?> getProductDetail(Long productId){
-        log.info("상품 고유 ID가 {} 인 상품 찾기", productId);
+        log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);
         if(product == null){
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
         }
-
         log.info("해당 상품의 리프 카테고리 찾기");
-        Optional<Category> leafCategory = categoryRepository.findLeafCategoryByProductId(productId);
-        if(leafCategory.isEmpty()){
+        if(product.getLeafCategory() == null){
             ApiResponse.onFailure(Error.CATEGORY_NOT_FOUND, null);
         }
-        log.info("카테고리 조회 성공");
-        String categoryFullPath = leafCategory.get().getFullPath();
+        Category leafCategory = product.getLeafCategory();
+        log.info("카테고리 조회 성공 -> catgory_id: {}", leafCategory.getId());
+        String categoryFullPath = leafCategory.getFullPath();
 
-        log.info("해당 카테고리의 할인율 조회");
-        Float discountRateFloat = discountRepository.findByCategoryId(leafCategory.get().getId()).getRate() * 100;
+        log.info("카테고리의 할인율 조회 -> catgory_id: {}",leafCategory.getId());
+        Discount discountEntity = discountRepository.findByCategoryId(leafCategory.getId());
+        if(discountEntity == null){
+            ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
+        }
+        Float discountRateFloat = discountEntity.getRate() * 100;
         Integer discountRate = discountRateFloat.intValue();
 
         log.info("해당 상품의 옵션 조회");
@@ -84,7 +87,7 @@ public class HomeService {
         List<Option> optionList = optionRepository.findAllByProductId(productId);
         List<OptionInfo> optionInfoList = new ArrayList<>();
         for(Option option : optionList){
-            log.info("{} 옵션 ID의  세부 옵션 조회", option.getId());
+            log.info("세부 옵션 조회  -> option_id: {}", option.getId());
             List<OptionDetail> optionDetailList = optionDetailRepository.findAllByOptionId(option.getId());
             List<OptionDetailInfo> optionDetailInfoList = new ArrayList<>();
             for(OptionDetail optionDetail : optionDetailList){
@@ -93,14 +96,14 @@ public class HomeService {
                                .content(optionDetail.getContent())
                                 .build());
             }
-            log.info("{} 옵션 ID의  세부 옵션 조회 성공", option.getId());
+            log.info("세부 옵션 조회 성공 -> option_id: {}", option.getId());
             optionInfoList.add(OptionInfo.builder()
                             .optionId(option.getId())
                             .type(option.getType())
                             .optionDetailList(optionDetailInfoList)
                     .build());
-            log.info("해당 상품의 옵션 조회 성공");
         }
+        log.info("해당 상품의 전체 옵션 조회 성공 -> product_id: {}",productId);
         return optionInfoList;
     }
 }

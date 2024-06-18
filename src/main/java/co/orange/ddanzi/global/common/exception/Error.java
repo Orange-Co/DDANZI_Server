@@ -21,7 +21,7 @@ public enum Error {
 
 
     // 404 NOT FOUND
-
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "The product does not exist."),
 
     // 405 METHOD_NOT_ALLOWED
 

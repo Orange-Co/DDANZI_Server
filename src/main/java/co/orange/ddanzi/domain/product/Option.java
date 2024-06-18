@@ -16,6 +16,7 @@ public class Option {
     @Column(name = "option_id")
     private Long id;            //옵션 고유 ID
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private OptionType type;    //옵션 종류
 

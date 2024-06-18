@@ -15,6 +15,10 @@ public enum Success {
     // 200 OK SUCCESS
     GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
     GET_PRODUCT_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved product details."),
+
+    GET_SEARCH_SCREEN_SUCCESS(HttpStatus.OK, "Successfully retrieved the search screen."),
+    GET_SEARCH_RESULTS_SUCCESS(HttpStatus.OK, "Successfully performed the search."),
+    
     // 201 CREATED
 
     ;

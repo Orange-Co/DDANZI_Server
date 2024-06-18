@@ -93,7 +93,8 @@ public class HomeService {
             for(OptionDetail optionDetail : optionDetailList){
                 optionDetailInfoList.add(OptionDetailInfo.builder()
                                 .optionDetailId(optionDetail.getId())
-                               .content(optionDetail.getContent())
+                                .content(optionDetail.getContent())
+                                .isAvailable(optionDetail.getIsAvailable())
                                 .build());
             }
             log.info("세부 옵션 조회 성공 -> option_id: {}", option.getId());

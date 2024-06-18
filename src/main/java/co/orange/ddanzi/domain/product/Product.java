@@ -39,6 +39,10 @@ public class Product {
     @Column(name = "interest_count", nullable = false)
     private Integer interestCount;  //찜 수
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leaf_category_id")
+    private Category leafCategory;
+
     @Builder
     public Product (String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Integer interestCount) {
         this.name = name;

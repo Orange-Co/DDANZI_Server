@@ -2,6 +2,7 @@ package co.orange.ddanzi.controller;
 
 import co.orange.ddanzi.dto.setting.AccountRequestDto;
 import co.orange.ddanzi.dto.setting.AddressRequestDto;
+import co.orange.ddanzi.dto.setting.PushAlarmRequestDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.service.SettingService;
 import lombok.RequiredArgsConstructor;
@@ -56,5 +57,10 @@ public class SettingController {
     @DeleteMapping("/account/{id}")
     ApiResponse<?> deleteAccount(@PathVariable Long id){
         return settingService.deleteAccount(id);
+    }
+
+    @PutMapping("/pushAlarm")
+    ApiResponse<?> updatePushAlarm(@RequestBody PushAlarmRequestDto requestDto){
+        return settingService.updatePushAlarm(requestDto);
     }
 }

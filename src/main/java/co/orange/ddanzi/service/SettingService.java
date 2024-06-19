@@ -1,15 +1,13 @@
 package co.orange.ddanzi.service;
 
-import co.orange.ddanzi.domain.user.Account;
-import co.orange.ddanzi.domain.user.Address;
-import co.orange.ddanzi.domain.user.Authentication;
-import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.*;
 import co.orange.ddanzi.dto.setting.*;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
+import co.orange.ddanzi.repository.PushAlarmRepository;
 import co.orange.ddanzi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,7 @@ public class SettingService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final AccountRepository accountRepository;
+    private final PushAlarmRepository pushAlarmRepository;
 
     @Transactional
     public ApiResponse<?> getSetting(){
@@ -138,6 +137,16 @@ public class SettingService {
         return ApiResponse.onSuccess(Success.DELETE_ACCOUNT_SUCCESS, null);
     }
 
+    @Transactional
+    public ApiResponse<?> updatePushAlarm(PushAlarmRequestDto requestDto){
+        User user = userRepository.findById(1L).orElse(null);
+        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user);
+        if(pushAlarm == null){
+            return ApiResponse.onFailure(Error.PUSH_ALARM_NOT_FOUND, null);
+        }
+        pushAlarm.update(requestDto);
+        return ApiResponse.onSuccess(Success.PUT_PUSH_ALARM_SUCCESS, null);
+    }
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){
         return AddressResponseDto.builder()
                 .addressId(address != null ? address.getId() : null)

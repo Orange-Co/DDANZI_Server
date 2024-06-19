@@ -1,5 +1,6 @@
 package co.orange.ddanzi.domain.user;
 
+import co.orange.ddanzi.dto.setting.PushAlarmRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,5 +29,9 @@ public class PushAlarm {
     public PushAlarm(User user, Boolean isAllowed) {
         this.user = user;
         this.isAllowed = isAllowed;
+    }
+
+    public void update(PushAlarmRequestDto requestDto) {
+        this.isAllowed = requestDto.getIsAllowed();
     }
 }

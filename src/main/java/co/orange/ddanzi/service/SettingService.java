@@ -146,6 +146,7 @@ public class SettingService {
 
     private AccountResponseDto setAccountDto(Account account, Authentication authentication){
         return AccountResponseDto.builder()
+                .accountId(account != null ? account.getId() : null)
                 .name(authentication != null ? authentication.getName() : null)
                 .bank(account != null ? account.getBank() : null)
                 .accountNumber(account != null ? account.getNumber() : null)

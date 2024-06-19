@@ -12,6 +12,7 @@ public enum Error {
     ERROR(HttpStatus.BAD_REQUEST, "Request processing failed"),
 
     // 400 BAD REQUEST
+    ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
 
 
     // 401 UNAUTHORIZED
@@ -31,8 +32,8 @@ public enum Error {
     // 405 METHOD_NOT_ALLOWED
 
 
-    // 409 CONFLICT
-    ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.CONFLICT, "The account name does not match to user name."),
+    // 409 CONFLICT,
+    ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
 
 
 

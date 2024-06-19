@@ -35,22 +35,17 @@ public class Product {
     @Column(name = "info_url")
     private String infoUrl;         //상품 상세 정보 url
 
-    @ColumnDefault("0")
-    @Column(name = "interest_count", nullable = false)
-    private Integer interestCount;  //찜 수
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leaf_category_id")
     private Category leafCategory;
 
     @Builder
-    public Product (String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Integer interestCount) {
+    public Product (String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock) {
         this.name = name;
         this.originPrice = originPrice;
         this.discountPrice = discountPrice;
         this.imgUrl = imgUrl;
         this.infoUrl = infoUrl;
         this.stock = stock;
-        this.interestCount = interestCount;
     }
 }

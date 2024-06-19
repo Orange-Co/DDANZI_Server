@@ -32,4 +32,9 @@ public class SettingController {
         return  settingService.updateAddress(id, requestDto);
     }
 
+    @DeleteMapping("/address/{id}")
+    ApiResponse<?> deleteAddress(@PathVariable Long id){
+        return  settingService.deleteAddress(id);
+    }
+
 }

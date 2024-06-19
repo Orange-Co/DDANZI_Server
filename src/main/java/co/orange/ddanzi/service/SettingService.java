@@ -72,6 +72,16 @@ public class SettingService {
         return ApiResponse.onSuccess(Success.PUT_ADDRESS_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ApiResponse<?> deleteAddress(Long addressId){
+        Address deletedAddress = addressRepository.findById(addressId).orElse(null);
+        if(deletedAddress == null){
+            return ApiResponse.onFailure(Error.ADDRESS_NOT_FOUND, null);
+        }
+        addressRepository.delete(deletedAddress);
+        return ApiResponse.onSuccess(Success.DELETE_ADDRESS_SUCCESS, null);
+    }
+
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){
         return AddressResponseDto.builder()
                 .addressId(address != null ? address.getId() : null)

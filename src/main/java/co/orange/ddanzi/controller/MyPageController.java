@@ -18,4 +18,9 @@ public class MyPageController {
     ApiResponse<?> getMyPage(){
         return myPageService.getMyPage();
     }
+
+    @GetMapping("/interest")
+    ApiResponse<?> getInterest(){
+        return myPageService.getInterest();
+    }
 }

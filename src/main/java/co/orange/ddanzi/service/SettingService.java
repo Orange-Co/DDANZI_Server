@@ -48,7 +48,7 @@ public class SettingService {
     @Transactional
     public ApiResponse<?> getAddress(){
         User user = userRepository.findById(1L).orElse(null);
-        Address address = addressRepository.findById(user.getId()).orElse(null);
+        Address address = addressRepository.findByUser(user);
         AddressResponseDto responseDto = setAddressDto(address, user.getAuthentication());
         return ApiResponse.onSuccess(Success.GET_SETTING_ADDRESS_SUCCESS, responseDto);
     }

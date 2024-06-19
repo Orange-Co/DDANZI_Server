@@ -24,6 +24,8 @@ public enum Error {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "The product does not exist."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "The category of the product does not exist."),
     DISCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The discount info of the category does not exist."),
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "The address does not exist."),
+
     // 405 METHOD_NOT_ALLOWED
 
 

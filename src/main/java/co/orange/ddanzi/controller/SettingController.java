@@ -17,4 +17,9 @@ public class SettingController {
     ApiResponse<?> getSetting(){
         return settingService.getSetting();
     }
+
+    @GetMapping("/address")
+    ApiResponse<?> getAddress(){
+        return  settingService.getAddress();
+    }
 }

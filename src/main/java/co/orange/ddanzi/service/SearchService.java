@@ -1,7 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.Product;
-import co.orange.ddanzi.dto.home.ProductInfo;
+import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.search.SearchResultResponseDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;

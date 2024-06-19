@@ -4,21 +4,19 @@ import co.orange.ddanzi.domain.user.Account;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.Authentication;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.setting.AccountResponseDto;
-import co.orange.ddanzi.dto.setting.AddressRequestDto;
-import co.orange.ddanzi.dto.setting.AddressResponseDto;
-import co.orange.ddanzi.dto.setting.SettingResponseDto;
+import co.orange.ddanzi.dto.setting.*;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
-import co.orange.ddanzi.repository.AuthenticationRepository;
 import co.orange.ddanzi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SettingService {
@@ -90,6 +88,25 @@ public class SettingService {
         Account account = accountRepository.findByUserId(user);
         AccountResponseDto responseDto = setAccountDto(account, user.getAuthentication());
         return ApiResponse.onSuccess(Success.GET_SETTING_ACCOUNT_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> addAccount(AccountRequestDto requestDto){
+        User user = userRepository.findById(1L).orElse(null);
+        Authentication authentication = user.getAuthentication();
+        log.info("본인인증 여부 확인");
+        if(authentication == null)
+            return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
+        log.info("회원 이름과 예금주가 동일한지 검증");
+        if(!authentication.getName().equals(requestDto.getAccountName()))
+            return ApiResponse.onFailure(Error.ACCOUNT_NAME_DOES_NOT_MATCH, null);
+
+        log.info("계좌 생성");
+        Account newAccount = requestDto.toEntity(user);
+        newAccount = accountRepository.save(newAccount);
+
+        AccountResponseDto responseDto = setAccountDto(newAccount, user.getAuthentication());
+        return ApiResponse.onSuccess(Success.CREATE_ACCOUNT_SUCCESS, null);
     }
 
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){

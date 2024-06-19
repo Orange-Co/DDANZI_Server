@@ -1,5 +1,6 @@
 package co.orange.ddanzi.controller;
 
+import co.orange.ddanzi.dto.setting.AccountRequestDto;
 import co.orange.ddanzi.dto.setting.AddressRequestDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.service.SettingService;
@@ -41,5 +42,11 @@ public class SettingController {
     ApiResponse<?> getAccount(){
         return settingService.getAccount();
     }
+
+    @PostMapping("/account")
+    ApiResponse<?> addAccount(@RequestBody AccountRequestDto requestDto){
+        return settingService.addAccount(requestDto);
+    }
+
 
 }

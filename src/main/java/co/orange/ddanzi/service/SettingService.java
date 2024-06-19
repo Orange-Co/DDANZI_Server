@@ -121,6 +121,17 @@ public class SettingService {
         return ApiResponse.onSuccess(Success.PUT_ACCOUNT_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ApiResponse<?> deleteAccount(AccountRequestDto requestDto){
+        User user = userRepository.findById(1L).orElse(null);
+        Account deeletedAccount= accountRepository.findByNumber(requestDto.getAccountNumber());
+        if(deeletedAccount == null){
+            return ApiResponse.onFailure(Error.ACCOUNT_NOT_FOUND, null);
+        }
+        accountRepository.delete(deeletedAccount);
+        return ApiResponse.onSuccess(Success.PUT_ACCOUNT_SUCCESS, null);
+    }
+
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){
         return AddressResponseDto.builder()
                 .addressId(address != null ? address.getId() : null)

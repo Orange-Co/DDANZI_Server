@@ -52,4 +52,9 @@ public class SettingController {
     ApiResponse<?> updateAccount(@RequestBody AccountRequestDto requestDto){
         return settingService.updateAccount(requestDto);
     }
+
+    @DeleteMapping("/account")
+    ApiResponse<?> deleteAccount(@RequestBody AccountRequestDto requestDto){
+        return settingService.deleteAccount(requestDto);
+    }
 }

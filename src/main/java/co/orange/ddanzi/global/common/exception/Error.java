@@ -12,6 +12,7 @@ public enum Error {
     ERROR(HttpStatus.BAD_REQUEST, "Request processing failed"),
 
     // 400 BAD REQUEST
+    ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
 
 
     // 401 UNAUTHORIZED
@@ -21,13 +22,19 @@ public enum Error {
 
 
     // 404 NOT FOUND
+    AUTHENTICATION_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The Authentication of user does not exist."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "The product does not exist."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "The category of the product does not exist."),
     DISCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The discount info of the category does not exist."),
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "The address does not exist."),
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "The account does not exist."),
+    PUSH_ALARM_NOT_FOUND(HttpStatus.NOT_FOUND, "The push alarm of user does not exist."),
+
     // 405 METHOD_NOT_ALLOWED
 
 
-    // 409 CONFLICT
+    // 409 CONFLICT,
+    ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
 
 
 

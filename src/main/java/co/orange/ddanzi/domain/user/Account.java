@@ -1,6 +1,7 @@
 package co.orange.ddanzi.domain.user;
 
 import co.orange.ddanzi.domain.user.enums.Bank;
+import co.orange.ddanzi.dto.setting.AccountRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,5 +33,10 @@ public class Account {
         this.bank = bank;
         this.number = number;
         this.user = user;
+    }
+
+    public void update(AccountRequestDto requestDto) {
+        this.bank = requestDto.getBank();
+        this.number = requestDto.getAccountNumber();
     }
 }

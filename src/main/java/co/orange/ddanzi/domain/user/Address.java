@@ -2,6 +2,7 @@ package co.orange.ddanzi.domain.user;
 
 
 import co.orange.ddanzi.domain.user.enums.AddressType;
+import co.orange.ddanzi.dto.setting.AddressRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,5 +42,12 @@ public class Address {
         this.address = address;
         this.detailAddress = detailAddress;
         this.user = user;
+    }
+
+    public void update(AddressRequestDto requestDto){
+        this.zipCode = requestDto.getZipCode();
+        this.type = requestDto.getType();
+        this.address = requestDto.getAddress();
+        this.detailAddress = requestDto.getDetailAddress();
     }
 }

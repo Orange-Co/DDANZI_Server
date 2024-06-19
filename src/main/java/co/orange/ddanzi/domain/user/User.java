@@ -28,12 +28,13 @@ public class User extends BaseTimeEntity {
     @Column(name = "nickname", nullable = false, length = 10)
     private String nickname;    // 닉네임 -> 자동생성
 
-    @Column(name = "is_authenticated")
-    private Boolean isAuthenticated = Boolean.FALSE;    //본인 인증 여부
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authentication_id")
+    private Authentication authentication;
 
     @Builder
     public User(String loginId, LoginType type, String nickname, MemberStatus status) {

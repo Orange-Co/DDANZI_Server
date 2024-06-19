@@ -48,13 +48,13 @@ public class SettingController {
         return settingService.addAccount(requestDto);
     }
 
-    @PutMapping("/account")
-    ApiResponse<?> updateAccount(@RequestBody AccountRequestDto requestDto){
-        return settingService.updateAccount(requestDto);
+    @PutMapping("/account/{id}")
+    ApiResponse<?> updateAccount(@PathVariable Long id, @RequestBody AccountRequestDto requestDto){
+        return settingService.updateAccount(id, requestDto);
     }
 
-    @DeleteMapping("/account")
-    ApiResponse<?> deleteAccount(@RequestBody AccountRequestDto requestDto){
-        return settingService.deleteAccount(requestDto);
+    @DeleteMapping("/account/{id}")
+    ApiResponse<?> deleteAccount(@PathVariable Long id){
+        return settingService.deleteAccount(id);
     }
 }

@@ -94,25 +94,32 @@ public class SettingService {
     public ApiResponse<?> addAccount(AccountRequestDto requestDto){
         User user = userRepository.findById(1L).orElse(null);
         Authentication authentication = user.getAuthentication();
+
         log.info("본인인증 여부 확인");
         if(authentication == null)
             return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
+
         log.info("회원 이름과 예금주가 동일한지 검증");
         if(!authentication.getName().equals(requestDto.getAccountName()))
             return ApiResponse.onFailure(Error.ACCOUNT_NAME_DOES_NOT_MATCH, null);
+
+        log.info("계좌 중복 여부 확인");
+        boolean accountExists = accountRepository.existsByNumber(requestDto.getAccountNumber());
+        if (accountExists)
+            return ApiResponse.onFailure(Error.ACCOUNT_ALREADY_EXISTS, null);
 
         log.info("계좌 생성");
         Account newAccount = requestDto.toEntity(user);
         newAccount = accountRepository.save(newAccount);
 
         AccountResponseDto responseDto = setAccountDto(newAccount, user.getAuthentication());
-        return ApiResponse.onSuccess(Success.CREATE_ACCOUNT_SUCCESS, null);
+        return ApiResponse.onSuccess(Success.CREATE_ACCOUNT_SUCCESS, responseDto);
     }
 
     @Transactional
-    public ApiResponse<?> updateAccount(AccountRequestDto requestDto){
+    public ApiResponse<?> updateAccount(Long accountId, AccountRequestDto requestDto){
         User user = userRepository.findById(1L).orElse(null);
-        Account updatedAccount = accountRepository.findByNumber(requestDto.getAccountNumber());
+        Account updatedAccount = accountRepository.findById(accountId).orElse(null);
         if(updatedAccount == null){
             return ApiResponse.onFailure(Error.ACCOUNT_NOT_FOUND, null);
         }
@@ -122,14 +129,13 @@ public class SettingService {
     }
 
     @Transactional
-    public ApiResponse<?> deleteAccount(AccountRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
-        Account deeletedAccount= accountRepository.findByNumber(requestDto.getAccountNumber());
+    public ApiResponse<?> deleteAccount(Long accountId){
+        Account deeletedAccount= accountRepository.findById(accountId).orElse(null);
         if(deeletedAccount == null){
             return ApiResponse.onFailure(Error.ACCOUNT_NOT_FOUND, null);
         }
         accountRepository.delete(deeletedAccount);
-        return ApiResponse.onSuccess(Success.PUT_ACCOUNT_SUCCESS, null);
+        return ApiResponse.onSuccess(Success.DELETE_ACCOUNT_SUCCESS, null);
     }
 
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){

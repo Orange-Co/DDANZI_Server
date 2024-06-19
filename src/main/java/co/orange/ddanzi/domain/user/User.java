@@ -35,6 +35,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "status")
     private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private Authentication authentication;
+
     @Builder
     public User(String loginId, LoginType type, String nickname, MemberStatus status) {
         this.loginId = loginId;

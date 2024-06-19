@@ -3,6 +3,7 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.Authentication;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.dto.setting.AddressRequestDto;
 import co.orange.ddanzi.dto.setting.AddressResponseDto;
 import co.orange.ddanzi.dto.setting.SettingResponseDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
@@ -44,10 +45,18 @@ public class SettingService {
     @Transactional
     public ApiResponse<?> getAddress(){
         User user = userRepository.findById(1L).orElse(null);
-        Authentication authentication = authenticationRepository.findById(user.getId()).orElse(null);
         Address address = addressRepository.findById(user.getId()).orElse(null);
-        AddressResponseDto responseDto = setAddressDto(address, authentication);
+        AddressResponseDto responseDto = setAddressDto(address, user.getAuthentication());
         return ApiResponse.onSuccess(Success.GET_SETTING_ADDRESS_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> addAddress(AddressRequestDto requestDto){
+        User user = userRepository.findById(1L).orElse(null);
+        Address newAddress = requestDto.toEntity(user);
+        newAddress = addressRepository.save(newAddress);
+        AddressResponseDto responseDto = setAddressDto(newAddress, user.getAuthentication());
+        return ApiResponse.onSuccess(Success.CREATE_ADDRESS_SUCCESS, responseDto);
     }
 
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){

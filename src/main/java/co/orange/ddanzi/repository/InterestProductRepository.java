@@ -9,11 +9,16 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface InterestProductRepository extends JpaRepository<InterestProduct, Long> {
 
     @Query("SELECT CASE WHEN COUNT(ip) > 1000 THEN 999 ELSE COUNT(ip) END FROM InterestProduct ip " +
             "WHERE ip.id.product.id = :productId")
     Integer countByProductIdWithLimit(@Param("productId") Long productId);
+
+    @Query("SELECT ip.id.product FROM InterestProduct ip WHERE ip.id.user.id = :userId")
+    List<Product> findProductsByUserId(@Param("userId") Long userId);
 
     @Modifying //데이터베이스를 수정하는 작업(INSERT, UPDATE, DELETE)임을 명시
     @Transactional

@@ -10,9 +10,9 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor
 @Table(name = "push_alarms")
 @Entity
-public class pushAlarm {
+public class PushAlarm {
     @Id
-    @Column(name = "member_id")
+    @Column(name = "user_id")
     private Long id;
 
     @MapsId
@@ -25,7 +25,7 @@ public class pushAlarm {
     private Boolean isAllowed;      //푸시 알람 허용 여부 (default false)
 
     @Builder
-    public pushAlarm(User user, Boolean isAllowed) {
+    public PushAlarm(User user, Boolean isAllowed) {
         this.user = user;
         this.isAllowed = isAllowed;
     }

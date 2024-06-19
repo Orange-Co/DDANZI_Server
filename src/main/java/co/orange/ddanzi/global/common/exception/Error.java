@@ -28,6 +28,7 @@ public enum Error {
     DISCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The discount info of the category does not exist."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "The address does not exist."),
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "The account does not exist."),
+    PUSH_ALARM_NOT_FOUND(HttpStatus.NOT_FOUND, "The push alarm of user does not exist."),
 
     // 405 METHOD_NOT_ALLOWED
 

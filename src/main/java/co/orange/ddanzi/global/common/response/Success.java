@@ -30,6 +30,7 @@ public enum Success {
 
     PUT_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully updated the delivery address."),
     PUT_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully updated the account."),
+    PUT_PUSH_ALARM_SUCCESS(HttpStatus.OK, "Successfully updated the push alarm status."),
 
     DELETE_INTEREST_SUCCESS(HttpStatus.OK, "Successfully removed the product from interest List."),
     DELETE_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully deleted the delivery address."),

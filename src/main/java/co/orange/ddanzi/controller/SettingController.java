@@ -27,4 +27,9 @@ public class SettingController {
         return  settingService.addAddress(requestDto);
     }
 
+    @PutMapping("/address/{id}")
+    ApiResponse<?> updateAddress(@PathVariable Long id, @RequestBody AddressRequestDto requestDto){
+        return  settingService.updateAddress(id, requestDto);
+    }
+
 }

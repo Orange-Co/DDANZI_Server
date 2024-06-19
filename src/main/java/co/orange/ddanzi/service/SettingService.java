@@ -6,6 +6,7 @@ import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.setting.AddressRequestDto;
 import co.orange.ddanzi.dto.setting.AddressResponseDto;
 import co.orange.ddanzi.dto.setting.SettingResponseDto;
+import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.repository.AddressRepository;
@@ -57,6 +58,18 @@ public class SettingService {
         newAddress = addressRepository.save(newAddress);
         AddressResponseDto responseDto = setAddressDto(newAddress, user.getAuthentication());
         return ApiResponse.onSuccess(Success.CREATE_ADDRESS_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> updateAddress(Long addressId, AddressRequestDto requestDto){
+        User user = userRepository.findById(1L).orElse(null);
+        Address updatedAddress = addressRepository.findById(addressId).orElse(null);
+        if(updatedAddress == null){
+            return ApiResponse.onFailure(Error.ADDRESS_NOT_FOUND, null);
+        }
+        updatedAddress.update(requestDto);
+        AddressResponseDto responseDto = setAddressDto(updatedAddress, user.getAuthentication());
+        return ApiResponse.onSuccess(Success.PUT_ADDRESS_SUCCESS, responseDto);
     }
 
     private AddressResponseDto setAddressDto(Address address, Authentication authentication){

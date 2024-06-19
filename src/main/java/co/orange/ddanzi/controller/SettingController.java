@@ -48,5 +48,8 @@ public class SettingController {
         return settingService.addAccount(requestDto);
     }
 
-
+    @PutMapping("/account")
+    ApiResponse<?> updateAccount(@RequestBody AccountRequestDto requestDto){
+        return settingService.updateAccount(requestDto);
+    }
 }

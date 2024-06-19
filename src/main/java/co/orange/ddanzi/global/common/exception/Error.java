@@ -32,7 +32,7 @@ public enum Error {
 
 
     // 409 CONFLICT
-    ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.NOT_FOUND, "The account name does not match to user name."),
+    ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.CONFLICT, "The account name does not match to user name."),
 
 
 

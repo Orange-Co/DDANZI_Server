@@ -37,4 +37,9 @@ public class SettingController {
         return  settingService.deleteAddress(id);
     }
 
+    @GetMapping("/account")
+    ApiResponse<?> getAccount(){
+        return settingService.getAccount();
+    }
+
 }

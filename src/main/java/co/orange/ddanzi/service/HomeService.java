@@ -13,22 +13,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class HomeService {
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
     private final DiscountRepository discountRepository;
     private final OptionRepository optionRepository;
     private final OptionDetailRepository optionDetailRepository;
+    private final InterestProductRepository interestProductRepository;
 
     @Transactional
     public ApiResponse<?> getProductList(){
         List<Product> productList = productRepository.findAllByStock(0);
-        List<ProductInfo> productInfoList = getProductList(productList);
+        List<ProductInfo> productInfoList = getProductList(productList, interestProductRepository);
         HomeResponseDto responseDto = HomeResponseDto.builder().productList(productInfoList).build();
         return ApiResponse.onSuccess(Success.GET_HOME_INFO_SUCCESS, responseDto);
     }
@@ -59,6 +58,10 @@ public class HomeService {
         log.info("해당 상품의 옵션 조회");
         List<OptionInfo> optionList = getOptionList(productId);
 
+        log.info("해당 상품의 찜 개수 조회");
+        Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
+
+
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
                 .category(categoryFullPath)
@@ -67,14 +70,14 @@ public class HomeService {
                 .discountRate(discountRate)
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
-                .interestCount(product.getInterestCount())
+                .interestCount(interestCount)
                 .optionList(optionList)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
     }
 
-    public static List<ProductInfo> getProductList(List<Product> productList){
+    public static List<ProductInfo> getProductList(List<Product> productList, InterestProductRepository interestProductRepository){
         List<ProductInfo> productInfoList = new ArrayList<>();
         for(Product product : productList){
             productInfoList.add(ProductInfo.builder()
@@ -82,7 +85,7 @@ public class HomeService {
                     .name(product.getName())
                     .originPrice(product.getOriginPrice())
                     .salePrice(product.getOriginPrice() - product.getDiscountPrice())
-                    .interestCount(product.getInterestCount())
+                    .interestCount(interestProductRepository.countByProductIdWithLimit(product.getId()))
                     .build());
         }
         return productInfoList;

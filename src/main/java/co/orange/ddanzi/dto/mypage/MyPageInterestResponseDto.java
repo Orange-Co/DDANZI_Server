@@ -1,4 +1,4 @@
-package co.orange.ddanzi.dto.home;
+package co.orange.ddanzi.dto.mypage;
 
 import co.orange.ddanzi.dto.ProductInfo;
 import lombok.Builder;
@@ -8,6 +8,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class HomeResponseDto {
+public class MyPageInterestResponseDto {
+    private Integer totalCount;
     private List<ProductInfo> productList;
 }

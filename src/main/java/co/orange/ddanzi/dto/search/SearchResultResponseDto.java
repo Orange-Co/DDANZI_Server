@@ -1,6 +1,6 @@
 package co.orange.ddanzi.dto.search;
 
-import co.orange.ddanzi.dto.home.ProductInfo;
+import co.orange.ddanzi.dto.ProductInfo;
 import lombok.Builder;
 import lombok.Getter;
 

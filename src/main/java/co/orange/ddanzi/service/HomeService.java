@@ -1,6 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.*;
+import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.home.*;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
@@ -27,7 +28,7 @@ public class HomeService {
     @Transactional
     public ApiResponse<?> getProductList(){
         List<Product> productList = productRepository.findAllByStock(0);
-        List<ProductInfo> productInfoList = getProductList(productList, interestProductRepository);
+        List<ProductInfo> productInfoList = setProductList(productList, interestProductRepository);
         HomeResponseDto responseDto = HomeResponseDto.builder().productList(productInfoList).build();
         return ApiResponse.onSuccess(Success.GET_HOME_INFO_SUCCESS, responseDto);
     }
@@ -77,7 +78,7 @@ public class HomeService {
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
     }
 
-    public static List<ProductInfo> getProductList(List<Product> productList, InterestProductRepository interestProductRepository){
+    public static List<ProductInfo> setProductList(List<Product> productList, InterestProductRepository interestProductRepository){
         List<ProductInfo> productInfoList = new ArrayList<>();
         for(Product product : productList){
             productInfoList.add(ProductInfo.builder()

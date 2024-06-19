@@ -1,7 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.Product;
-import co.orange.ddanzi.dto.home.ProductInfo;
+import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.search.SearchResultResponseDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
@@ -22,7 +22,7 @@ public class SearchService {
     @Transactional
     public ApiResponse<?> searchKeyword(String keyword) {
         List<Product> productList = productRepository.findAllByName(keyword);
-        List<ProductInfo> productInfoList = HomeService.getProductList(productList, interestProductRepository);
+        List<ProductInfo> productInfoList = HomeService.setProductList(productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_RESULTS_SUCCESS, SearchResultResponseDto.builder()
                 .searchedProductList(productInfoList).build());
     }

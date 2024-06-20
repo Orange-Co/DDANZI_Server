@@ -9,5 +9,6 @@ import java.util.List;
 @Getter
 @Builder
 public class SearchResultResponseDto {
+    private List<String> topSearchedList;
     private List<ProductInfo> searchedProductList;
 }

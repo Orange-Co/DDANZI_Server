@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,9 +22,12 @@ public class SearchService {
 
     @Transactional
     public ApiResponse<?> searchKeyword(String keyword) {
+        List<String> topSearchedList = new ArrayList<>();
         List<Product> productList = productRepository.findAllByName(keyword);
         List<ProductInfo> productInfoList = HomeService.setProductList(productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_RESULTS_SUCCESS, SearchResultResponseDto.builder()
-                .searchedProductList(productInfoList).build());
+                        .topSearchedList(topSearchedList)
+                        .searchedProductList(productInfoList)
+                        .build());
     }
 }

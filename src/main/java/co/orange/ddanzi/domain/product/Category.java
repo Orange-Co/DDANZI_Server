@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,5 +52,18 @@ public class Category extends BaseTimeEntity {
         } else {
             return content;
         }
+    }
+
+    // 루트 카테고리와 전체 경로를 반환하는 함수 추가
+    public Pair<Category, String> getRootCategoryAndFullPath() {
+        Category currentCategory = this;
+        StringBuilder fullPath = new StringBuilder(content);
+
+        while (currentCategory.getParentCategory() != null) {
+            currentCategory = currentCategory.getParentCategory();
+            fullPath.insert(0, currentCategory.getContent() + "/");
+        }
+
+        return Pair.of(currentCategory, fullPath.toString());
     }
 }

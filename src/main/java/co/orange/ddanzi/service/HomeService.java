@@ -10,6 +10,7 @@ import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,10 +47,14 @@ public class HomeService {
         }
         Category leafCategory = product.getLeafCategory();
         log.info("카테고리 조회 성공 -> catgory_id: {}", leafCategory.getId());
-        String categoryFullPath = leafCategory.getFullPath();
 
-        log.info("카테고리의 할인율 조회 -> catgory_id: {}",leafCategory.getId());
-        Discount discountEntity = discountRepository.findByCategoryId(leafCategory.getId());
+        log.info("루트 카테고리와 full path 조회");
+        Pair<Category, String> rootCategoryAndFullPath = leafCategory.getRootCategoryAndFullPath();
+        Category rootCategory = rootCategoryAndFullPath.getFirst();
+        String categoryFullPath = rootCategoryAndFullPath.getSecond();
+
+        log.info("루트 카테고리의 할인율 조회 -> catgory_id: {}",rootCategory.getId());
+        Discount discountEntity = discountRepository.findByCategoryId(rootCategory.getId());
         if(discountEntity == null){
             ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
         }

@@ -19,18 +19,13 @@ public class OptionDetail {
     @Column(name = "content")
     private String content;     //세부 옵션 내용
 
-    @ColumnDefault("true")
-    @Column(name = "is_available")
-    private Boolean isAvailable;     //선택 가능 여부
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_id")
     private Option option;    //참조하는 옵션
 
     @Builder
-    public OptionDetail(String content, Boolean isAvailable, Option option) {
+    public OptionDetail(String content, Option option) {
         this.content = content;
-        this.isAvailable = isAvailable;
         this.option = option;
     }
 }

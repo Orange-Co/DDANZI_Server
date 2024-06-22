@@ -10,6 +10,7 @@ import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,18 +47,23 @@ public class HomeService {
         }
         Category leafCategory = product.getLeafCategory();
         log.info("카테고리 조회 성공 -> catgory_id: {}", leafCategory.getId());
-        String categoryFullPath = leafCategory.getFullPath();
 
-        log.info("카테고리의 할인율 조회 -> catgory_id: {}",leafCategory.getId());
-        Discount discountEntity = discountRepository.findByCategoryId(leafCategory.getId());
+        log.info("루트 카테고리와 full path 조회");
+        Pair<Category, String> rootCategoryAndFullPath = leafCategory.getRootCategoryAndFullPath();
+        Category rootCategory = rootCategoryAndFullPath.getFirst();
+        String categoryFullPath = rootCategoryAndFullPath.getSecond();
+
+        log.info("루트 카테고리의 할인율 조회 -> catgory_id: {}",rootCategory.getId());
+        Discount discountEntity = discountRepository.findByCategoryId(rootCategory.getId());
         if(discountEntity == null){
             ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
         }
         Float discountRateFloat = discountEntity.getRate() * 100;
         Integer discountRate = discountRateFloat.intValue();
 
-        log.info("해당 상품의 옵션 조회");
-        List<OptionInfo> optionList = getOptionList(productId);
+        // 옵션 관련 정보 삭제
+        //log.info("해당 상품의 옵션 조회");
+        //List<OptionInfo> optionList = getOptionList(productId);
 
         log.info("해당 상품의 찜 개수 조회");
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
@@ -66,13 +72,13 @@ public class HomeService {
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
                 .category(categoryFullPath)
-                .isOptionExist(!optionList.isEmpty())
+                //.isOptionExist(!optionList.isEmpty())
                 .isImminent(true)
                 .discountRate(discountRate)
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
                 .interestCount(interestCount)
-                .optionList(optionList)
+                //.optionList(optionList)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
@@ -83,6 +89,7 @@ public class HomeService {
         for(Product product : productList){
             productInfoList.add(ProductInfo.builder()
                     .productId(product.getId())
+                    .kakaoProductId(product.getKakaoProductId())
                     .name(product.getName())
                     .originPrice(product.getOriginPrice())
                     .salePrice(product.getOriginPrice() - product.getDiscountPrice())
@@ -91,6 +98,7 @@ public class HomeService {
         }
         return productInfoList;
     }
+
     private List<OptionInfo> getOptionList(Long productId){
         List<Option> optionList = optionRepository.findAllByProductId(productId);
         List<OptionInfo> optionInfoList = new ArrayList<>();
@@ -102,7 +110,7 @@ public class HomeService {
                 optionDetailInfoList.add(OptionDetailInfo.builder()
                                 .optionDetailId(optionDetail.getId())
                                 .content(optionDetail.getContent())
-                                .isAvailable(optionDetail.getIsAvailable())
+                                //.isAvailable(optionDetail.getIsAvailable())
                                 .build());
             }
             log.info("세부 옵션 조회 성공 -> option_id: {}", option.getId());

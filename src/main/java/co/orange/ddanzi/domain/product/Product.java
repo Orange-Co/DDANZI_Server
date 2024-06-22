@@ -16,6 +16,9 @@ public class Product {
     @Column(name = "product_id")
     private Long id;        //상품 고유 ID
 
+    @Column(name = "kakao_product_id", nullable = false, unique = true)
+    private Long kakaoProductId;  //카카오톡 선물하기 상품 ID
+
     @Column(name = "name", nullable = false)
     private String name;    //상품명
 
@@ -40,7 +43,8 @@ public class Product {
     private Category leafCategory;
 
     @Builder
-    public Product (String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock) {
+    public Product (Long kakaoProductId, String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock) {
+        this.kakaoProductId = kakaoProductId;
         this.name = name;
         this.originPrice = originPrice;
         this.discountPrice = discountPrice;

@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 public class ProductInfo {
     private Long productId;
+    private Long kakaoProductId;
     private String name;
     private String imgUrl;
     private Integer originPrice;

@@ -4,6 +4,8 @@ import co.orange.ddanzi.domain.product.Category;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
 import co.orange.ddanzi.dto.item.ConfirmProductResponseDto;
+import co.orange.ddanzi.dto.item.SaveItemRequestDto;
+import co.orange.ddanzi.dto.item.SaveItemResponseDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.repository.ItemRepository;
@@ -28,6 +30,7 @@ public class ItemService {
         if(product == null){
             Pair<Category, Float> leafCategoryAndDiscountRate = categoryService.createOrGetCategory(requestDto.getCategory(), requestDto.getIsForbidden());
             log.info("leaf category 찾기 성공 category_id -> {}",leafCategoryAndDiscountRate.getFirst().getId());
+
             Integer discountPrice = (int)(requestDto.getOriginPrice()* leafCategoryAndDiscountRate.getSecond());
             log.info("할인가 계산 완료 -> {}",discountPrice);
 
@@ -37,11 +40,17 @@ public class ItemService {
             log.info("상품 등록 완료 -> product_id: {}",product.getId());
         }
         ConfirmProductResponseDto responseDto = ConfirmProductResponseDto.builder()
-                .productId(product.getId())
-                .productName(product.getName())
-                .originPrice(product.getOriginPrice())
-                .salePrice(product.getOriginPrice() - product.getDiscountPrice())
-                .build();
+                        .productId(product.getId())
+                        .productName(product.getName())
+                        .originPrice(product.getOriginPrice())
+                        .salePrice(product.getOriginPrice() - product.getDiscountPrice())
+                        .build();
         return ApiResponse.onSuccess(Success.CREATE_PRODUCT_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
+        SaveItemResponseDto responseDto = SaveItemResponseDto.builder().build();
+        return ApiResponse.onSuccess(Success.CREATE_ITEM_SUCCESS, responseDto);
     }
 }

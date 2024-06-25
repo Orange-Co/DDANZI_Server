@@ -40,16 +40,17 @@ public class Category extends BaseTimeEntity {
     private Category parentCategory;                                //부모 카테고리
 
     @Builder
-    public Category(Long id, String content, Boolean isForbidden, Category parentCategory) {
+    public Category(Long id, String content, Boolean isForbidden, Category parentCategory, Discount discount) {
         this.id = id;
         this.content = content;
         this.isForbidden = isForbidden;
         this.parentCategory = parentCategory;
+        this.discount = discount;
     }
 
     public String getFullPath(){
         if (parentCategory != null) {
-            return parentCategory.getFullPath() + "/" + content;
+            return parentCategory.getFullPath() + ">" + content;
         } else {
             return content;
         }
@@ -62,7 +63,7 @@ public class Category extends BaseTimeEntity {
 
         while (currentCategory.getParentCategory() != null) {
             currentCategory = currentCategory.getParentCategory();
-            fullPath.insert(0, currentCategory.getContent() + "/");
+            fullPath.insert(0, currentCategory.getContent() + ">");
         }
 
         return Pair.of(currentCategory, fullPath.toString());

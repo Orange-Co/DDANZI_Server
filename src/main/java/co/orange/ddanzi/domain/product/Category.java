@@ -40,10 +40,11 @@ public class Category extends BaseTimeEntity {
     private Category parentCategory;                                //부모 카테고리
 
     @Builder
-    public Category(Long id, String content, Boolean isForbidden) {
+    public Category(Long id, String content, Boolean isForbidden, Category parentCategory) {
         this.id = id;
         this.content = content;
         this.isForbidden = isForbidden;
+        this.parentCategory = parentCategory;
     }
 
     public String getFullPath(){

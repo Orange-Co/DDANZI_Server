@@ -8,6 +8,7 @@ import co.orange.ddanzi.dto.TermInfo;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 public class SaveItemRequestDto {
@@ -15,7 +16,7 @@ public class SaveItemRequestDto {
     private String productName;
     private String itemImgUrl;
     private LocalDate dueDate;
-    private TermInfo termItem;
+    private List<TermInfo> termItem;
 
     public Item toItem(User user, Product product){
         return Item.builder()

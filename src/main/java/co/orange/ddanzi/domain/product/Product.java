@@ -53,4 +53,8 @@ public class Product {
         this.stock = stock;
         this.leafCategory = leafCategory;
     }
+
+    public void updateStock(Integer stock) {
+        this.stock = stock;
+    }
 }

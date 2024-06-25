@@ -19,16 +19,16 @@ public class CategoryService {
 
     @Transactional
     public Pair<Category, Float> createOrGetCategory(String fullPath, Boolean isForbidden){
-        log.info("카테고리 생성 시작");
+        log.info("카테고리 조회 후 생성 시작");
         String[] categories = fullPath.split(">");
         Category parentCategory = null;
         Float discountRate = 0.3f;
 
         for (String categoryContent : categories) {
-            log.info("카테고리 생성 -> {}", categoryContent);
+            log.info("카테고리 -> {}", categoryContent);
             if (parentCategory == null) {
                 // 루트 카테고리의 경우
-                parentCategory = getRootCategoryOrCreate(categoryContent, null, isForbidden);
+                parentCategory = getRootCategoryOrCreate(categoryContent, isForbidden);
                 discountRate = parentCategory.getDiscount().getRate();
             }
             else {
@@ -39,23 +39,23 @@ public class CategoryService {
         return Pair.of(parentCategory, discountRate);
     }
 
-    public Category getRootCategoryOrCreate(String content, Category parentCategory, Boolean isForbidden) {
-        return categoryRepository.findByContentAndParentCategory(content, parentCategory)
+    public Category getRootCategoryOrCreate(String content, Boolean isForbidden) {
+        return categoryRepository.findByContent(content)
                 .orElseGet(() -> {
                     Discount newDiscount = createDiscount();
-                    log.info("root category 객체 생성");
+                    log.info("discount 객체 생성 discount_id -> {}", newDiscount.getId());
                     Category newCategory = Category.builder()
                             .content(content)
                             .isForbidden(isForbidden)
-                            .parentCategory(parentCategory)
+                            .parentCategory(null)
                             .discount(newDiscount)
                             .build();
+                    log.info("root category 객체 생성 category_id -> {}", newCategory.getId());
                     return categoryRepository.save(newCategory);
                 });
     }
 
     public Discount createDiscount(){
-        log.info("discount 객체 생성");
         Discount newDiscount = Discount.builder()
                 .rate(0.3f)
                 .build();
@@ -69,8 +69,11 @@ public class CategoryService {
                             .content(content)
                             .isForbidden(isForbidden)
                             .parentCategory(parentCategory)
+                            .discount(null)
                             .build();
-                    return categoryRepository.save(newCategory);
+                    categoryRepository.save(newCategory);
+                    log.info("새로운 category 객체 생성 category_id -> {}", newCategory.getId());
+                    return newCategory;
                 });
     }
 }

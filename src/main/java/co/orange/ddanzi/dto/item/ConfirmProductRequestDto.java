@@ -14,14 +14,7 @@ public class ConfirmProductRequestDto {
     private String category;
     private Boolean isForbidden;
 
-    public Category toCategory(String content){
-        return Category.builder()
-                .content(content)
-                .isForbidden(isForbidden)
-                .build();
-    }
-
-    public Product toProduct(Integer discountPrice){
+    public Product toProduct(Integer discountPrice, Category leafCategory){
         return Product.builder()
                 .kakaoProductId(kakaoProductId)
                 .name(productName)
@@ -29,6 +22,7 @@ public class ConfirmProductRequestDto {
                 .discountPrice(discountPrice)
                 .imgUrl(imgUrl)
                 .infoUrl(infoUrl)
+                .leafCategory(leafCategory)
                 .stock(0)
                 .build();
     }

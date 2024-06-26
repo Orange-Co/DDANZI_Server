@@ -14,8 +14,9 @@ public class ConfirmProductRequestDto {
     private String category;
     private Boolean isForbidden;
 
-    public Product toProduct(Integer discountPrice, Category leafCategory){
+    public Product toProduct(String id, Integer discountPrice, Category leafCategory){
         return Product.builder()
+                .id(id)
                 .kakaoProductId(kakaoProductId)
                 .name(productName)
                 .originPrice(originPrice)

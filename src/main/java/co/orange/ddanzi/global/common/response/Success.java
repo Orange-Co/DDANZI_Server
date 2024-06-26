@@ -19,6 +19,9 @@ public enum Success {
     GET_SEARCH_SCREEN_SUCCESS(HttpStatus.OK, "Successfully retrieved the search screen."),
     GET_SEARCH_RESULTS_SUCCESS(HttpStatus.OK, "Successfully performed the search."),
 
+    GET_ITEM_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved item details."),
+    GET_ORDER_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully retrieved the address of the order."),
+
     GET_MY_PAGE_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved mypage information."),
     GET_MY_ORDER_LIST_SUCCESS(HttpStatus.OK, "Successfully retrieved my order list."),
     GET_MY_ITEM_LIST_SUCCESS(HttpStatus.OK, "Successfully retrieved my item list."),
@@ -38,6 +41,8 @@ public enum Success {
 
 
     // 201 CREATED
+    CREATE_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully confirmed the product."),
+    CREATE_ITEM_SUCCESS(HttpStatus.OK, "Successfully listed the item for sale."),
     CREATE_INTEREST_SUCCESS(HttpStatus.CREATED, "Successfully added the product to interest List."),
     CREATE_ADDRESS_SUCCESS(HttpStatus.CREATED, "Successfully added the delivery address."),
     CREATE_ACCOUNT_SUCCESS(HttpStatus.CREATED, "Successfully added the account."),

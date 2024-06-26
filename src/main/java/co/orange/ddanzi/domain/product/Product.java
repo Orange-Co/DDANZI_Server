@@ -43,13 +43,18 @@ public class Product {
     private Category leafCategory;
 
     @Builder
-    public Product (Long kakaoProductId, String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock) {
+    public Product (Long kakaoProductId, String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Category leafCategory) {
         this.kakaoProductId = kakaoProductId;
         this.name = name;
         this.originPrice = originPrice;
         this.discountPrice = discountPrice;
         this.imgUrl = imgUrl;
         this.infoUrl = infoUrl;
+        this.stock = stock;
+        this.leafCategory = leafCategory;
+    }
+
+    public void updateStock(Integer stock) {
         this.stock = stock;
     }
 }

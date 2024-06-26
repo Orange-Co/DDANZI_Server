@@ -13,7 +13,7 @@ public enum Error {
 
     // 400 BAD REQUEST
     ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
-
+    DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
 
     // 401 UNAUTHORIZED
 
@@ -29,6 +29,9 @@ public enum Error {
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "The address does not exist."),
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "The account does not exist."),
     PUSH_ALARM_NOT_FOUND(HttpStatus.NOT_FOUND, "The push alarm of user does not exist."),
+    TERM_JOIN_NOT_FOUND(HttpStatus.NOT_FOUND, "The term for sign up does not exist."),
+    TERM_ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "The term for order does not exist."),
+    TERM_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "The term for registering item does not exist."),
 
     // 405 METHOD_NOT_ALLOWED
 

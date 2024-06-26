@@ -21,14 +21,13 @@ public class Discount extends BaseTimeEntity {
     @Column(name = "rate", nullable = false)
     private Float rate;             //할인율, 디폴트 30%
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "root_category_id", nullable = true)
-    private Category rootCategory;      //카테고리 = root category
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "root_category_id", nullable = true)
+//    private Category rootCategory;      //카테고리 = root category
 
     @Builder
-    public Discount(Long id, Float rate, Category rootCategory) {
+    public Discount(Long id, Float rate) {
         this.id = id;
         this.rate = rate;
-        this.rootCategory = rootCategory;
     }
 }

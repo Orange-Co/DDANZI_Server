@@ -8,8 +8,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
@@ -17,9 +19,13 @@ import java.time.LocalDate;
 @Entity
 public class Item {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
-    private Long id;            //제품 고유 ID
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private UUID id;            //제품 고유 ID
 
     @Column(name = "img_url")
     private String imgUrl;      //등록시 업로드한 이미지

@@ -18,8 +18,9 @@ public class SaveItemRequestDto {
     private LocalDate dueDate;
     private List<TermInfo> termItem;
 
-    public Item toItem(User user, Product product){
+    public Item toItem(String id, User user, Product product){
         return Item.builder()
+                .id(id)
                 .product(product)
                 .seller(user)
                 .imgUrl(itemImgUrl)

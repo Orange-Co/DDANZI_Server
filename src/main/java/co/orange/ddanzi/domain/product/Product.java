@@ -14,7 +14,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private Long id;        //상품 고유 ID
+    private String id;        //상품 고유 ID
 
     @Column(name = "kakao_product_id", nullable = false, unique = true)
     private Long kakaoProductId;  //카카오톡 선물하기 상품 ID

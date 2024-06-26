@@ -11,22 +11,18 @@ import co.orange.ddanzi.dto.item.SaveItemResponseDto;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
-import co.orange.ddanzi.repository.ItemRepository;
-import co.orange.ddanzi.repository.ProductRepository;
-import co.orange.ddanzi.repository.UserRepository;
+import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class ItemService {
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
     private final CategoryService categoryService;
@@ -56,15 +52,10 @@ public class ItemService {
     }
 
     @Transactional
-    public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
-
+    public ApiResponse<?> saveItem(User user, SaveItemRequestDto requestDto){
         Product product = productRepository.findById(requestDto.getProductId()).orElse(null);
         if(product == null)
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
-
-        if(requestDto.getDueDate().isBefore(LocalDate.now()))
-            return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
 
         Item newItem = requestDto.toItem(user, product);
         newItem = itemRepository.save(newItem);

@@ -8,6 +8,7 @@ import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.UserRepository;
 import co.orange.ddanzi.service.ItemService;
+import co.orange.ddanzi.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +18,15 @@ import java.time.LocalDate;
 @RequestMapping("/api/v1/item")
 @RestController
 public class ItemController {
+    private final ProductService productService;
     private final ItemService itemService;
+
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
 
     @PostMapping("/confirm")
     ApiResponse<?> confirmProduct(@RequestBody ConfirmProductRequestDto requestDto){
-        return itemService.confirmProduct(requestDto);
+        return productService.confirmProduct(requestDto);
     }
 
     @PostMapping

@@ -25,31 +25,6 @@ import org.springframework.stereotype.Service;
 public class ItemService {
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
-    private final CategoryService categoryService;
-
-    @Transactional
-    public ApiResponse<?> confirmProduct(ConfirmProductRequestDto requestDto){
-        Product product = productRepository.findByKakaoProductId(requestDto.getKakaoProductId());
-        if(product == null){
-            Pair<Category, Float> leafCategoryAndDiscountRate = categoryService.createOrGetCategory(requestDto.getCategory(), requestDto.getIsForbidden());
-            log.info("leaf category 찾기 성공 category_id -> {}",leafCategoryAndDiscountRate.getFirst().getId());
-
-            Integer discountPrice = (int)(requestDto.getOriginPrice()* leafCategoryAndDiscountRate.getSecond());
-            log.info("할인가 계산 완료 -> {}",discountPrice);
-
-            Product newProduct = requestDto.toProduct(discountPrice, leafCategoryAndDiscountRate.getFirst());
-            productRepository.save(newProduct);
-            product = newProduct;
-            log.info("상품 등록 완료 -> product_id: {}",product.getId());
-        }
-        ConfirmProductResponseDto responseDto = ConfirmProductResponseDto.builder()
-                        .productId(product.getId())
-                        .productName(product.getName())
-                        .originPrice(product.getOriginPrice())
-                        .salePrice(product.getOriginPrice() - product.getDiscountPrice())
-                        .build();
-        return ApiResponse.onSuccess(Success.CREATE_PRODUCT_SUCCESS, responseDto);
-    }
 
     @Transactional
     public ApiResponse<?> saveItem(User user, SaveItemRequestDto requestDto){

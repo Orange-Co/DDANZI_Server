@@ -15,7 +15,7 @@ public interface InterestProductRepository extends JpaRepository<InterestProduct
 
     @Query("SELECT CASE WHEN COUNT(ip) > 1000 THEN 999 ELSE COUNT(ip) END FROM InterestProduct ip " +
             "WHERE ip.id.product.id = :productId")
-    Integer countByProductIdWithLimit(@Param("productId") Long productId);
+    Integer countByProductIdWithLimit(@Param("productId") String productId);
 
     @Query("SELECT ip.id.product FROM InterestProduct ip WHERE ip.id.user.id = :userId")
     List<Product> findProductsByUserId(@Param("userId") Long userId);

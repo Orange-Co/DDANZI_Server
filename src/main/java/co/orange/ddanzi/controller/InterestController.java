@@ -12,12 +12,12 @@ public class InterestController {
     private final InterestService interestService;
 
     @PostMapping("/{productId}")
-    ApiResponse<?> addInterest(@PathVariable Long productId) {
+    ApiResponse<?> addInterest(@PathVariable String productId) {
         return interestService.addInterest(productId);
     }
 
     @DeleteMapping("/{productId}")
-    ApiResponse<?> deleteInterest(@PathVariable Long productId) {
+    ApiResponse<?> deleteInterest(@PathVariable String productId) {
         return interestService.deleteInterest(productId);
     }
 }

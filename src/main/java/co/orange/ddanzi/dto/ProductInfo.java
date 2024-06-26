@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ProductInfo {
-    private Long productId;
+    private String productId;
     private Long kakaoProductId;
     private String name;
     private String imgUrl;

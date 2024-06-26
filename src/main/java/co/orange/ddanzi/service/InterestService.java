@@ -25,7 +25,7 @@ public class InterestService {
     private final InterestProductRepository interestProductRepository;
 
     @Transactional
-    public ApiResponse<?> addInterest(Long productId) {
+    public ApiResponse<?> addInterest(String productId) {
         log.info("사용자 조회", productId);
         User user = userRepository.findById(1L).orElse(null);
 
@@ -48,7 +48,7 @@ public class InterestService {
     }
 
     @Transactional
-    public ApiResponse<?> deleteInterest(Long productId) {
+    public ApiResponse<?> deleteInterest(String productId) {
         log.info("사용자 조회", productId);
         User user = userRepository.findById(1L).orElse(null);
 

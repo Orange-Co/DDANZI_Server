@@ -22,7 +22,7 @@ public class HomeController {
     }
 
     @GetMapping("/product/{id}")
-    public ApiResponse<?> homeDetail(@PathVariable Long id) {
+    public ApiResponse<?> homeDetail(@PathVariable String id) {
         return homeService.getProductDetail(id);
     }
 }

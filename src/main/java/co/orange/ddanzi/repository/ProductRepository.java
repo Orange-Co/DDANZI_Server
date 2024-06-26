@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Query("SELECT MAX(CAST(SUBSTRING(p.id, 4, 4) AS integer)) FROM Product p WHERE p.leafCategory = :leafCategory")
     Integer findMaxSequenceNumberByCategory(@Param("leafCategory") Category leafCategory);

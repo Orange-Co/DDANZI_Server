@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 public class SaveItemRequestDto {
-    private Long productId;
+    private String productId;
     private String productName;
     private String itemImgUrl;
     private LocalDate dueDate;

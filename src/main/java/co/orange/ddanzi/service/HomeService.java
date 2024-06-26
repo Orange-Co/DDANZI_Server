@@ -35,7 +35,7 @@ public class HomeService {
     }
 
     @Transactional
-    public ApiResponse<?> getProductDetail(Long productId){
+    public ApiResponse<?> getProductDetail(String productId){
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);
         if(product == null){
@@ -99,7 +99,7 @@ public class HomeService {
         return productInfoList;
     }
 
-    private List<OptionInfo> getOptionList(Long productId){
+    private List<OptionInfo> getOptionList(String productId){
         List<Option> optionList = optionRepository.findAllByProductId(productId);
         List<OptionInfo> optionInfoList = new ArrayList<>();
         for(Option option : optionList){

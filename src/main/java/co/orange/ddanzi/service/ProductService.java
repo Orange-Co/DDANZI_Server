@@ -23,6 +23,8 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
+    private final CategoryRepository categoryRepository;
+
     @Transactional
     public ApiResponse<?> confirmProduct(ConfirmProductRequestDto requestDto){
         Product product = productRepository.findByKakaoProductId(requestDto.getKakaoProductId());
@@ -33,7 +35,8 @@ public class ProductService {
             Integer discountPrice = (int)(requestDto.getOriginPrice()* leafCategoryAndDiscountRate.getSecond());
             log.info("할인가 계산 완료 -> {}",discountPrice);
 
-            Product newProduct = requestDto.toProduct(discountPrice, leafCategoryAndDiscountRate.getFirst());
+            String productId = createProductId(leafCategoryAndDiscountRate.getFirst());
+            Product newProduct = requestDto.toProduct(productId, discountPrice, leafCategoryAndDiscountRate.getFirst());
             productRepository.save(newProduct);
             product = newProduct;
             log.info("상품 등록 완료 -> product_id: {}",product.getId());
@@ -47,4 +50,17 @@ public class ProductService {
         return ApiResponse.onSuccess(Success.CREATE_PRODUCT_SUCCESS, responseDto);
     }
 
+    public String createProductId(Category leafCategory) {
+        log.info("{} 카테고리의 max sequenceNumber 찾기",leafCategory.getContent());
+        Integer maxSequenceNumber = productRepository.findMaxSequenceNumberByCategory(leafCategory);
+        int nextSequenceNumber = (maxSequenceNumber != null ? maxSequenceNumber + 1 : 1);
+        log.info("{} 카테고리의 next sequenceNumber -> {}",leafCategory.getContent(),nextSequenceNumber);
+
+        String categoryIdStr = String.format("%03d", leafCategory.getId());
+        String sequenceNumberStr = String.format("%04d", nextSequenceNumber);
+        String productId = categoryIdStr + sequenceNumberStr;
+        log.info("product_id 생성 완료 -> {}",productId);
+
+        return productId;
+    }
 }

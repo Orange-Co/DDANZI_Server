@@ -21,7 +21,7 @@ import java.util.UUID;
 public class Order {
     @Id
     @Column(name = "order_id")
-    private UUID id;                        //주문 고유 ID = UUID
+    private String id;                        //주문 고유 ID = UUID
 
     @Column(name = "charge")
     private Integer charge;                 //수수료
@@ -55,7 +55,7 @@ public class Order {
 
 
     @Builder
-    public Order(UUID id, Integer charge, Integer totalPrice, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer, OptionDetail selectedOptionDetail) {
+    public Order(String id, Integer charge, Integer totalPrice, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer, OptionDetail selectedOptionDetail) {
         this.id = id;
         this.charge = charge;
         this.totalPrice = totalPrice;

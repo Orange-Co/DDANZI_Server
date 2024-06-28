@@ -19,7 +19,7 @@ public enum Success {
     GET_SEARCH_SCREEN_SUCCESS(HttpStatus.OK, "Successfully retrieved the search screen."),
     GET_SEARCH_RESULTS_SUCCESS(HttpStatus.OK, "Successfully performed the search."),
 
-    GET_ORDER_ORDER_SUCCESS(HttpStatus.OK, "Successfully retrieved product for order information."),
+    GET_ORDER_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully retrieved product for order information."),
     GET_ORDER_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved order details."),
 
     GET_ITEM_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved item details."),

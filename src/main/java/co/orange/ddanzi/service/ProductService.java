@@ -23,7 +23,12 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
-    private final CategoryRepository categoryRepository;
+    @Transactional
+    public ApiResponse<?> checkOrderProduct(String productId){
+        return ApiResponse.onSuccess(Success.GET_ORDER_PRODUCT_SUCCESS, null);
+    }
+
+
 
     @Transactional
     public ApiResponse<?> confirmProduct(ConfirmProductRequestDto requestDto){

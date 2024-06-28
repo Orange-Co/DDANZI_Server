@@ -19,6 +19,9 @@ public enum Success {
     GET_SEARCH_SCREEN_SUCCESS(HttpStatus.OK, "Successfully retrieved the search screen."),
     GET_SEARCH_RESULTS_SUCCESS(HttpStatus.OK, "Successfully performed the search."),
 
+    GET_ORDER_ORDER_SUCCESS(HttpStatus.OK, "Successfully retrieved product for order information."),
+    GET_ORDER_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved order details."),
+
     GET_ITEM_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved item details."),
     GET_ORDER_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully retrieved the address of the order."),
 
@@ -31,6 +34,8 @@ public enum Success {
     GET_SETTING_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully retrieved the delivery address."),
     GET_SETTING_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully retrieved the account."),
 
+    PATCH_ORDER_STATUS_SUCCESS(HttpStatus.OK, "Successfully updated the order status."),
+
     PUT_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully updated the delivery address."),
     PUT_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully updated the account."),
     PUT_PUSH_ALARM_SUCCESS(HttpStatus.OK, "Successfully updated the push alarm status."),
@@ -42,6 +47,7 @@ public enum Success {
 
     // 201 CREATED
     CREATE_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully confirmed the product."),
+    CREATE_ORDER_SUCCESS(HttpStatus.OK, "Successfully completed the order"),
     CREATE_ITEM_SUCCESS(HttpStatus.OK, "Successfully listed the item for sale."),
     CREATE_INTEREST_SUCCESS(HttpStatus.CREATED, "Successfully added the product to interest List."),
     CREATE_ADDRESS_SUCCESS(HttpStatus.CREATED, "Successfully added the delivery address."),

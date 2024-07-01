@@ -12,9 +12,8 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private Long id;        //상품 고유 ID
+    private String id;        //상품 고유 ID
 
     @Column(name = "kakao_product_id", nullable = false, unique = true)
     private Long kakaoProductId;  //카카오톡 선물하기 상품 ID
@@ -43,7 +42,8 @@ public class Product {
     private Category leafCategory;
 
     @Builder
-    public Product (Long kakaoProductId, String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Category leafCategory) {
+    public Product (String id, Long kakaoProductId, String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Category leafCategory) {
+        this.id = id;
         this.kakaoProductId = kakaoProductId;
         this.name = name;
         this.originPrice = originPrice;

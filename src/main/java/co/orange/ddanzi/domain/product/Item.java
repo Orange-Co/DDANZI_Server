@@ -3,12 +3,10 @@ package co.orange.ddanzi.domain.product;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -20,12 +18,7 @@ import java.util.UUID;
 public class Item {
     @Id
     @Column(name = "item_id")
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private UUID id;            //제품 고유 ID
+    private String id;            //제품 고유 ID
 
     @Column(name = "img_url")
     private String imgUrl;      //등록시 업로드한 이미지
@@ -48,7 +41,8 @@ public class Item {
 
 
     @Builder
-    public Item(String imgUrl, LocalDate dueDate, ItemStatus status, User seller, Product product) {
+    public Item(String id, String imgUrl, LocalDate dueDate, ItemStatus status, User seller, Product product) {
+        this.id = id;
         this.imgUrl = imgUrl;
         this.dueDate = dueDate;
         this.status = status;

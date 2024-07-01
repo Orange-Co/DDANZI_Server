@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class InterestResponseDto {
     private String nickname;
-    private Long productId;
+    private String productId;
 }

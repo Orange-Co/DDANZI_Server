@@ -40,7 +40,7 @@ tasks.named('test') {
 
 task copyYML(type: Copy){
     copy{
-        from './DDANZI-Server-yml'
+        from './DDANZI_Server_yml'
         include "*.yml"
         into './src/main/resources'
     }

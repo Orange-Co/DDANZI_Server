@@ -37,3 +37,11 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+task copyYML(type: Copy){
+    copy{
+        from './DDANZI_Server_yml'
+        include "*.yml"
+        into './src/main/resources'
+    }
+}

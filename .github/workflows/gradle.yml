@@ -57,7 +57,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: build-artifacts
-        path: ./build/libs
+        path: build/libs
 
     ## Docker build & push
     - name: Docker build and push

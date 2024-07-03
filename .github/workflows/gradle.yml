@@ -46,6 +46,13 @@ jobs:
           token: ${{ secrets.TOKEN }}
           submodules: true
 
+    ## 아티팩트 다운로드
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: ./build/libs
+
     ## Docker build & push
     - name: Docker build and push
       run: |

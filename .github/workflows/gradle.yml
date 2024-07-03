@@ -32,6 +32,12 @@ jobs:
       with:
         arguments: clean build -x test
 
+    ## 아티팩트 업로드
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: build/libs/  # Gradle 빌드 결과물 경로
     
   # Docker Push
   docker_push:

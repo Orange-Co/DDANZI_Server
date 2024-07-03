@@ -1,0 +1,33 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "deploy" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    ## 체크아웃
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+          token: ${{ secrets.TOKEN }}
+          submodules: true
+    ## JDK 17
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    ## Gradle build (Test 제외)
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      with:
+        arguments: clean build -x test

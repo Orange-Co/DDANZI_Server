@@ -1,0 +1,3 @@
+[submodule "DDANZI_Server_yml"]
+	path = DDANZI_Server_yml
+	url = https://github.com/Orange-Co/DDANZI_Server_yml

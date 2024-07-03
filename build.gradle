@@ -30,11 +30,18 @@ dependencies {
     //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    //devtool
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+task copyYML(type: Copy){
+    copy{
+        from './DDANZI_Server_yml'
+        include "*.yml"
+        into './src/main/resources'
+    }
 }

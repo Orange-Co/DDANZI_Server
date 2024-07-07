@@ -28,6 +28,7 @@ public class HomeService {
 
     @Transactional
     public ApiResponse<?> getProductList(){
+        //TODO : homeImgUrl 리턴
         List<Product> productList = productRepository.findAllByStock(0);
         List<ProductInfo> productInfoList = setProductList(productList, interestProductRepository);
         HomeResponseDto responseDto = HomeResponseDto.builder().productList(productInfoList).build();

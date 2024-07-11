@@ -1,5 +1,6 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.domain.Banner;
 import co.orange.ddanzi.domain.product.*;
 import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.home.*;
@@ -21,6 +22,7 @@ import java.util.List;
 @Service
 public class HomeService {
     private final ProductRepository productRepository;
+    private final BannerRepository bannerRepository;
     private final DiscountRepository discountRepository;
     private final OptionRepository optionRepository;
     private final OptionDetailRepository optionDetailRepository;
@@ -28,10 +30,12 @@ public class HomeService {
 
     @Transactional
     public ApiResponse<?> getProductList(){
-        //TODO : homeImgUrl 리턴
+        Banner banner = bannerRepository.findByIsSelected(Boolean.TRUE);
         List<Product> productList = productRepository.findAllByStock(0);
         List<ProductInfo> productInfoList = setProductList(productList, interestProductRepository);
-        HomeResponseDto responseDto = HomeResponseDto.builder().productList(productInfoList).build();
+        HomeResponseDto responseDto = HomeResponseDto.builder()
+                .homeImgUrl(banner.getImgUrl())
+                .productList(productInfoList).build();
         return ApiResponse.onSuccess(Success.GET_HOME_INFO_SUCCESS, responseDto);
     }
 

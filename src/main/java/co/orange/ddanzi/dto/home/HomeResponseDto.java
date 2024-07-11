@@ -9,5 +9,6 @@ import java.util.List;
 @Getter
 @Builder
 public class HomeResponseDto {
+    private String homeImgUrl;
     private List<ProductInfo> productList;
 }

@@ -94,6 +94,7 @@ public class HomeService {
                     .name(product.getName())
                     .originPrice(product.getOriginPrice())
                     .salePrice(product.getOriginPrice() - product.getDiscountPrice())
+                    .imgUrl(product.getImgUrl())
                     .interestCount(interestProductRepository.countByProductIdWithLimit(product.getId()))
                     .build());
         }

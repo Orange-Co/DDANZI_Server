@@ -21,6 +21,9 @@ public class Product {
     @Column(name = "name", nullable = false)
     private String name;    //상품명
 
+    @Column(name = "origin_name", nullable = false, unique = true)
+    private String originName;    //변경 전 상품명
+
     @Column(name = "origin_price", nullable = false)
     private Integer originPrice;    //정가=선물하기 가격
 
@@ -42,10 +45,11 @@ public class Product {
     private Category leafCategory;
 
     @Builder
-    public Product (String id, Long kakaoProductId, String name, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Category leafCategory) {
+    public Product (String id, Long kakaoProductId, String name, String originName, Integer originPrice, Integer discountPrice, String imgUrl, String infoUrl, Integer stock, Category leafCategory) {
         this.id = id;
         this.kakaoProductId = kakaoProductId;
         this.name = name;
+        this.originName = originName;
         this.originPrice = originPrice;
         this.discountPrice = discountPrice;
         this.imgUrl = imgUrl;

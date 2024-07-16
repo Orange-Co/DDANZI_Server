@@ -29,7 +29,7 @@ public class Category extends BaseTimeEntity {
     private Boolean isForbidden;                //금지 여부
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "discount_id", nullable = true)
+    @JoinColumn(name = "default_discount_id", nullable = true)
     private DefaultDiscount defaultDiscount;                  //할인율
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentCategory", cascade = CascadeType.ALL)

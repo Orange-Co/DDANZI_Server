@@ -29,8 +29,8 @@ public class Category extends BaseTimeEntity {
     private Boolean isForbidden;                //금지 여부
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "discount_id", nullable = true)
-    private Discount discount;                  //할인율
+    @JoinColumn(name = "default_discount_id", nullable = true)
+    private DefaultDiscount defaultDiscount;                  //할인율
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentCategory", cascade = CascadeType.ALL)
     private List<Category> childrenCategory = new ArrayList<>();    //자식 카테고리
@@ -40,12 +40,12 @@ public class Category extends BaseTimeEntity {
     private Category parentCategory;                                //부모 카테고리
 
     @Builder
-    public Category(Long id, String content, Boolean isForbidden, Category parentCategory, Discount discount) {
+    public Category(Long id, String content, Boolean isForbidden, Category parentCategory, DefaultDiscount defaultDiscount) {
         this.id = id;
         this.content = content;
         this.isForbidden = isForbidden;
         this.parentCategory = parentCategory;
-        this.discount = discount;
+        this.defaultDiscount = defaultDiscount;
     }
 
     public String getFullPath(){

@@ -32,6 +32,7 @@ public class HomeService {
     public ApiResponse<?> getProductList(){
         Banner banner = bannerRepository.findByIsSelected(Boolean.TRUE);
         List<Product> productList = productRepository.findAllByStock(0);
+
         List<ProductInfo> productInfoList = setProductList(productList, interestProductRepository);
         HomeResponseDto responseDto = HomeResponseDto.builder()
                 .homeImgUrl(banner.getImgUrl())
@@ -53,22 +54,19 @@ public class HomeService {
         Category leafCategory = product.getLeafCategory();
         log.info("카테고리 조회 성공 -> catgory_id: {}", leafCategory.getId());
 
-        log.info("루트 카테고리와 full path 조회");
-        Pair<Category, String> rootCategoryAndFullPath = leafCategory.getRootCategoryAndFullPath();
-        Category rootCategory = rootCategoryAndFullPath.getFirst();
-        String categoryFullPath = rootCategoryAndFullPath.getSecond();
+        log.info("카테고리 full path 조회");
+        String categoryFullPath = leafCategory.getFullPath();
 
-        log.info("루트 카테고리의 할인율 조회 -> catgory_id: {}",rootCategory.getId());
-        Discount discountEntity = discountRepository.findByCategoryId(rootCategory.getId());
-        if(discountEntity == null){
+        log.info("상품 할인율 조회 -> product_id: {}",productId);
+        Discount discount = discountRepository.findById(productId).orElse(null);
+        if(discount == null){
             ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
         }
-        Float discountRateFloat = discountEntity.getRate() * 100;
+        Float discountRateFloat = discount.getDiscountRate() * 100;
         Integer discountRate = discountRateFloat.intValue();
 
-        // 옵션 관련 정보 삭제
-        //log.info("해당 상품의 옵션 조회");
-        //List<OptionInfo> optionList = getOptionList(productId);
+        log.info("해당 상품의 옵션 조회");
+        List<OptionInfo> optionList = getOptionList(productId);
 
         log.info("해당 상품의 찜 개수 조회");
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
@@ -77,27 +75,28 @@ public class HomeService {
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
                 .category(categoryFullPath)
-                //.isOptionExist(!optionList.isEmpty())
+                .isOptionExist(!optionList.isEmpty())
                 .isImminent(true)
                 .discountRate(discountRate)
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
                 .interestCount(interestCount)
-                //.optionList(optionList)
+                .optionList(optionList)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
     }
 
-    public static List<ProductInfo> setProductList(List<Product> productList, InterestProductRepository interestProductRepository){
+    public List<ProductInfo> setProductList(List<Product> productList, InterestProductRepository interestProductRepository){
         List<ProductInfo> productInfoList = new ArrayList<>();
         for(Product product : productList){
+            Discount discount = discountRepository.findById(product.getId()).orElse(null);
             productInfoList.add(ProductInfo.builder()
                     .productId(product.getId())
                     .kakaoProductId(product.getKakaoProductId())
                     .name(product.getName())
                     .originPrice(product.getOriginPrice())
-                    .salePrice(product.getOriginPrice() - product.getDiscountPrice())
+                    .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
                     .imgUrl(product.getImgUrl())
                     .interestCount(interestProductRepository.countByProductIdWithLimit(product.getId()))
                     .build());
@@ -116,17 +115,76 @@ public class HomeService {
                 optionDetailInfoList.add(OptionDetailInfo.builder()
                                 .optionDetailId(optionDetail.getId())
                                 .content(optionDetail.getContent())
-                                //.isAvailable(optionDetail.getIsAvailable())
+                                .isAvailable(optionDetail.getIsAvailable())
                                 .build());
             }
             log.info("세부 옵션 조회 성공 -> option_id: {}", option.getId());
             optionInfoList.add(OptionInfo.builder()
                             .optionId(option.getId())
-                            .type(option.getType())
+                            .type(option.getContent())
                             .optionDetailList(optionDetailInfoList)
                     .build());
         }
         log.info("해당 상품의 전체 옵션 조회 성공 -> product_id: {}",productId);
         return optionInfoList;
     }
+
+
+
+
+
+    @Transactional
+    public ApiResponse<?> getProductDetail_oldVersion(String productId){
+        log.info("상품 조회 -> product_id: {}", productId);
+        Product product = productRepository.findById(productId).orElse(null);
+        if(product == null){
+            return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
+        }
+        log.info("해당 상품의 리프 카테고리 찾기");
+        if(product.getLeafCategory() == null){
+            ApiResponse.onFailure(Error.CATEGORY_NOT_FOUND, null);
+        }
+        Category leafCategory = product.getLeafCategory();
+        log.info("카테고리 조회 성공 -> catgory_id: {}", leafCategory.getId());
+
+        log.info("루트 카테고리와 full path 조회");
+        Pair<Category, String> rootCategoryAndFullPath = leafCategory.getRootCategoryAndFullPath();
+        Category rootCategory = rootCategoryAndFullPath.getFirst();
+        String categoryFullPath = rootCategoryAndFullPath.getSecond();
+
+        log.info("루트 카테고리의 할인율 조회 -> catgory_id: {}",rootCategory.getId());
+        //DefaultDiscount defaultDiscountEntity = defaultDiscountRepository.findByCategoryId(rootCategory.getId());
+//        if(defaultDiscountEntity == null){
+//            ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
+//        }
+//        Float discountRateFloat = defaultDiscountEntity.getRate() * 100;
+//        Integer discountRate = discountRateFloat.intValue();
+
+        log.info("해당 상품의 옵션 조회");
+        List<OptionInfo> optionList = getOptionList(productId);
+
+        log.info("해당 상품의 찜 개수 조회");
+        Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
+
+
+        HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
+                .name(product.getName())
+                .category(categoryFullPath)
+                .isOptionExist(!optionList.isEmpty())
+                .isImminent(true)
+                //.discountRate(discountRate)
+                .stockCount(product.getStock())
+                .infoUrl(product.getInfoUrl())
+                .interestCount(interestCount)
+                .optionList(optionList)
+                .build();
+
+        return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
+    }
+
 }
+
+
+
+
+

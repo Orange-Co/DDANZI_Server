@@ -1,6 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.Category;
+import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
@@ -11,17 +12,13 @@ import co.orange.ddanzi.dto.order.CheckProductResponseDto;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
-import co.orange.ddanzi.repository.AddressRepository;
-import co.orange.ddanzi.repository.CategoryRepository;
-import co.orange.ddanzi.repository.ProductRepository;
-import co.orange.ddanzi.repository.UserRepository;
+import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +26,7 @@ import java.util.Optional;
 public class ProductService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final DiscountRepository discountRepository;
     private final AddressRepository addressRepository;
     private final CategoryService categoryService;
 
@@ -38,6 +36,7 @@ public class ProductService {
         if(product == null){
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
         }
+        Discount discount = discountRepository.findById(productId).orElse(null);
         User user = userRepository.findById(1L).orElse(null);
         Address address = addressRepository.findByUser(user);
 
@@ -53,9 +52,9 @@ public class ProductService {
                 .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressInfo)
-                .discountPrice(product.getDiscountPrice())
+                .discountPrice(discount.getDiscountPrice())
                 .charge(null)
-                .totalPrice(product.getOriginPrice() - product.getDiscountPrice())
+                .totalPrice(product.getOriginPrice() - discount.getDiscountPrice())
                 .build();
         return ApiResponse.onSuccess(Success.GET_ORDER_PRODUCT_SUCCESS, responseDto);
     }
@@ -78,11 +77,12 @@ public class ProductService {
             product = newProduct;
             log.info("상품 등록 완료 -> product_id: {}",product.getId());
         }
+        Discount discount = discountRepository.findById(product.getId()).orElse(null);
         ConfirmProductResponseDto responseDto = ConfirmProductResponseDto.builder()
                 .productId(product.getId())
                 .productName(product.getName())
                 .originPrice(product.getOriginPrice())
-                .salePrice(product.getOriginPrice() - product.getDiscountPrice())
+                .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_PRODUCT_SUCCESS, responseDto);
     }

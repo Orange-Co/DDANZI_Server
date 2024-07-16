@@ -10,6 +10,6 @@ import java.util.List;
 @Builder
 public class OptionInfo {
     private Long optionId;
-    private OptionType type;
+    private String type;
     private List<OptionDetailInfo> optionDetailList;
 }

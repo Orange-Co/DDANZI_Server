@@ -1,9 +1,9 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.Category;
-import co.orange.ddanzi.domain.product.Discount;
+import co.orange.ddanzi.domain.product.DefaultDiscount;
 import co.orange.ddanzi.repository.CategoryRepository;
-import co.orange.ddanzi.repository.DiscountRepository;
+import co.orange.ddanzi.repository.DefaultDiscountRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final DiscountRepository discountRepository;
+    private final DefaultDiscountRepository defaultDiscountRepository;
 
     @Transactional
     public Pair<Category, Float> createOrGetCategory(String fullPath, Boolean isForbidden){
@@ -29,7 +29,7 @@ public class CategoryService {
             if (parentCategory == null) {
                 // 루트 카테고리의 경우
                 parentCategory = getRootCategoryOrCreate(categoryContent, isForbidden);
-                discountRate = parentCategory.getDiscount().getRate();
+                discountRate = parentCategory.getDefaultDiscount().getRate();
             }
             else {
                 parentCategory = getCategoryOrCreate(categoryContent, parentCategory, isForbidden);
@@ -42,24 +42,24 @@ public class CategoryService {
     public Category getRootCategoryOrCreate(String content, Boolean isForbidden) {
         return categoryRepository.findByContent(content)
                 .orElseGet(() -> {
-                    Discount newDiscount = createDiscount();
-                    log.info("discount 객체 생성 discount_id -> {}", newDiscount.getId());
+                    DefaultDiscount newDefaultDiscount = createDiscount();
+                    log.info("discount 객체 생성 discount_id -> {}", newDefaultDiscount.getId());
                     Category newCategory = Category.builder()
                             .content(content)
                             .isForbidden(isForbidden)
                             .parentCategory(null)
-                            .discount(newDiscount)
+                            .defaultDiscount(newDefaultDiscount)
                             .build();
                     log.info("root category 객체 생성 category_id -> {}", newCategory.getId());
                     return categoryRepository.save(newCategory);
                 });
     }
 
-    public Discount createDiscount(){
-        Discount newDiscount = Discount.builder()
+    public DefaultDiscount createDiscount(){
+        DefaultDiscount newDefaultDiscount = DefaultDiscount.builder()
                 .rate(0.3f)
                 .build();
-        return  discountRepository.save(newDiscount);
+        return  defaultDiscountRepository.save(newDefaultDiscount);
     }
 
     public Category getCategoryOrCreate(String content, Category parentCategory, Boolean isForbidden) {
@@ -69,7 +69,7 @@ public class CategoryService {
                             .content(content)
                             .isForbidden(isForbidden)
                             .parentCategory(parentCategory)
-                            .discount(null)
+                            .defaultDiscount(null)
                             .build();
                     categoryRepository.save(newCategory);
                     log.info("새로운 category 객체 생성 category_id -> {}", newCategory.getId());

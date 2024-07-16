@@ -1,12 +1,10 @@
 package co.orange.ddanzi.domain.product;
 
-import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.global.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor

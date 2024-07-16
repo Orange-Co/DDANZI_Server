@@ -23,7 +23,7 @@ import java.util.List;
 public class HomeService {
     private final ProductRepository productRepository;
     private final BannerRepository bannerRepository;
-    private final DiscountRepository discountRepository;
+    private final DefaultDiscountRepository defaultDiscountRepository;
     private final OptionRepository optionRepository;
     private final OptionDetailRepository optionDetailRepository;
     private final InterestProductRepository interestProductRepository;
@@ -59,11 +59,11 @@ public class HomeService {
         String categoryFullPath = rootCategoryAndFullPath.getSecond();
 
         log.info("루트 카테고리의 할인율 조회 -> catgory_id: {}",rootCategory.getId());
-        Discount discountEntity = discountRepository.findByCategoryId(rootCategory.getId());
-        if(discountEntity == null){
+        DefaultDiscount defaultDiscountEntity = defaultDiscountRepository.findByCategoryId(rootCategory.getId());
+        if(defaultDiscountEntity == null){
             ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
         }
-        Float discountRateFloat = discountEntity.getRate() * 100;
+        Float discountRateFloat = defaultDiscountEntity.getRate() * 100;
         Integer discountRate = discountRateFloat.intValue();
 
         // 옵션 관련 정보 삭제

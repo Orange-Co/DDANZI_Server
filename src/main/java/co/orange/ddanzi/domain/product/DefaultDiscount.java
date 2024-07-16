@@ -9,12 +9,12 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
-@Table(name = "discounts")
+@Table(name = "defalut_discounts")
 @Entity
-public class Discount extends BaseTimeEntity {
+public class DefaultDiscount extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "discount_id")
+    @Column(name = "defalut_discount_id")
     private Long id;                //할인율 고유 ID
 
     @ColumnDefault("0.3")
@@ -26,7 +26,7 @@ public class Discount extends BaseTimeEntity {
 //    private Category rootCategory;      //카테고리 = root category
 
     @Builder
-    public Discount(Long id, Float rate) {
+    public DefaultDiscount(Long id, Float rate) {
         this.id = id;
         this.rate = rate;
     }

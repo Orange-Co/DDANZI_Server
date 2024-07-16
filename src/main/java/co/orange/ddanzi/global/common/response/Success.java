@@ -13,6 +13,8 @@ public enum Success {
     SUCCESS(HttpStatus.OK, "Request successfully processed."),
 
     // 200 OK SUCCESS
+    GET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully retrieved the redis key"),
+
     GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
     GET_PRODUCT_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved product details."),
 
@@ -46,12 +48,15 @@ public enum Success {
 
 
     // 201 CREATED
-    CREATE_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully confirmed the product."),
-    CREATE_ORDER_SUCCESS(HttpStatus.OK, "Successfully completed the order"),
-    CREATE_ITEM_SUCCESS(HttpStatus.OK, "Successfully listed the item for sale."),
+    SET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully set the redis key"),
+
+    CREATE_PRODUCT_SUCCESS(HttpStatus.CREATED, "Successfully confirmed the product."),
+    CREATE_ORDER_SUCCESS(HttpStatus.CREATED, "Successfully completed the order"),
+    CREATE_ITEM_SUCCESS(HttpStatus.CREATED, "Successfully listed the item for sale."),
     CREATE_INTEREST_SUCCESS(HttpStatus.CREATED, "Successfully added the product to interest List."),
     CREATE_ADDRESS_SUCCESS(HttpStatus.CREATED, "Successfully added the delivery address."),
     CREATE_ACCOUNT_SUCCESS(HttpStatus.CREATED, "Successfully added the account."),
+
 
     ;
 

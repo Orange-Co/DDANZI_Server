@@ -22,7 +22,7 @@ public class SearchService {
 
     @Transactional
     public ApiResponse<?> searchKeyword(String keyword) {
-        List<String> topSearchedList = new ArrayList<>();
+        List<String> topSearchedList = List.of("예시1", "예시2", "예시3");
         List<Product> productList = productRepository.findAllByName(keyword);
         List<ProductInfo> productInfoList = HomeService.setProductList(productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_RESULTS_SUCCESS, SearchResultResponseDto.builder()

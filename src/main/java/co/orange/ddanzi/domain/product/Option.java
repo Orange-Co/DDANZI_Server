@@ -16,17 +16,16 @@ public class Option {
     @Column(name = "option_id")
     private Long id;            //옵션 고유 ID
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    private OptionType type;    //옵션 종류
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "type")
+//    private OptionType type;    //옵션 종류
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;    //참조하는 상품
 
     @Builder
-    public Option(final OptionType type, final Product product) {
-        this.type = type;
+    public Option(Product product) {
         this.product = product;
     }
 }

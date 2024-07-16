@@ -66,9 +66,8 @@ public class HomeService {
         Float discountRateFloat = defaultDiscountEntity.getRate() * 100;
         Integer discountRate = discountRateFloat.intValue();
 
-        // 옵션 관련 정보 삭제
-        //log.info("해당 상품의 옵션 조회");
-        //List<OptionInfo> optionList = getOptionList(productId);
+        log.info("해당 상품의 옵션 조회");
+        List<OptionInfo> optionList = getOptionList(productId);
 
         log.info("해당 상품의 찜 개수 조회");
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
@@ -77,13 +76,13 @@ public class HomeService {
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
                 .category(categoryFullPath)
-                //.isOptionExist(!optionList.isEmpty())
+                .isOptionExist(!optionList.isEmpty())
                 .isImminent(true)
                 .discountRate(discountRate)
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
                 .interestCount(interestCount)
-                //.optionList(optionList)
+                .optionList(optionList)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
@@ -116,13 +115,13 @@ public class HomeService {
                 optionDetailInfoList.add(OptionDetailInfo.builder()
                                 .optionDetailId(optionDetail.getId())
                                 .content(optionDetail.getContent())
-                                //.isAvailable(optionDetail.getIsAvailable())
+                                .isAvailable(optionDetail.getIsAvailable())
                                 .build());
             }
             log.info("세부 옵션 조회 성공 -> option_id: {}", option.getId());
             optionInfoList.add(OptionInfo.builder()
                             .optionId(option.getId())
-                            .type(option.getType())
+                            .type(option.getContent())
                             .optionDetailList(optionDetailInfoList)
                     .build());
         }

@@ -10,11 +10,11 @@ import java.util.List;
 public class HomeDetailResponseDto {
     private String name;
     private String category;
-    // private Boolean isOptionExist;
+    private Boolean isOptionExist;
     private Boolean isImminent;
     private Integer discountRate;
     private Integer stockCount;
     private String infoUrl;
     private Integer interestCount;
-    // private List<OptionInfo> optionList;
+    private List<OptionInfo> optionList;
 }

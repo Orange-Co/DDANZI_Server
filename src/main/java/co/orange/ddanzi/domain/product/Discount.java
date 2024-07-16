@@ -15,7 +15,7 @@ import org.hibernate.annotations.ColumnDefault;
 public class Discount extends BaseTimeEntity {
     @Id
     @Column(name = "product_id")
-    private Long id;      //상품 고유 ID (PK/FK)
+    private String id;      //상품 고유 ID (PK/FK)
 
     @MapsId
     @OneToOne

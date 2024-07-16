@@ -20,7 +20,6 @@ public class ConfirmProductRequestDto {
                 .kakaoProductId(kakaoProductId)
                 .name(productName)
                 .originPrice(originPrice)
-                .discountPrice(discountPrice)
                 .imgUrl(imgUrl)
                 .infoUrl(infoUrl)
                 .leafCategory(leafCategory)

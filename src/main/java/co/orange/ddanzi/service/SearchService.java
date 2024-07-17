@@ -11,10 +11,12 @@ import co.orange.ddanzi.repository.InterestProductRepository;
 import co.orange.ddanzi.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SearchService {
@@ -26,6 +28,7 @@ public class SearchService {
     @Transactional
     public ApiResponse<?> searchPage(String devicetoken) {
         List<String> topSearchedList = List.of("예시1", "예시2", "예시3");
+        log.info("Searching page for devicetoken: {}", devicetoken);
         List<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
         List<Product> productList = productRepository.findByIdIn(recentViewedProductIds);
         List<ProductInfo> productInfoList = homeService.setProductList(productList, interestProductRepository);
@@ -38,6 +41,7 @@ public class SearchService {
     @Transactional
     public ApiResponse<?> searchKeyword(String keyword) {
         List<String> topSearchedList = List.of("예시1", "예시2", "예시3");
+        log.info("Search for keyword: {}", keyword);
         List<Product> productList = productRepository.findAllByName(keyword);
         List<ProductInfo> productInfoList = homeService.setProductList(productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_RESULTS_SUCCESS, SearchResultResponseDto.builder()

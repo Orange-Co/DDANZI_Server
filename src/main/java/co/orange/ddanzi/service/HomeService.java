@@ -7,7 +7,7 @@ import co.orange.ddanzi.dto.home.*;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
-import co.orange.ddanzi.global.redis.DeviceProductRepository;
+import co.orange.ddanzi.global.redis.RedisRepository;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class HomeService {
     private final OptionRepository optionRepository;
     private final OptionDetailRepository optionDetailRepository;
     private final InterestProductRepository interestProductRepository;
-    private final DeviceProductRepository deviceProductRepository;
+    private final RedisRepository deviceProductRepository;
 
     @Transactional
     public ApiResponse<?> getProductList(){
@@ -73,14 +73,18 @@ public class HomeService {
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
 
         log.info("최근 본 상품 등록");
-        deviceProductRepository.addProductToDevice(devicetoken, productId);
-
+        deviceProductRepository.saveDeviceToken(devicetoken, productId);
+        log.info("최근 본 상품 등록 성공");
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
+                .imgUrl(product.getImgUrl())
                 .category(categoryFullPath)
                 .isOptionExist(!optionList.isEmpty())
                 .isImminent(true)
                 .discountRate(discountRate)
+                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
+                .infoUrl(product.getInfoUrl())
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
                 .interestCount(interestCount)

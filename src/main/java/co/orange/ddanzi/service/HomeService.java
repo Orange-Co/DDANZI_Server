@@ -28,7 +28,7 @@ public class HomeService {
     private final OptionRepository optionRepository;
     private final OptionDetailRepository optionDetailRepository;
     private final InterestProductRepository interestProductRepository;
-    private final RedisRepository deviceProductRepository;
+    private final RedisRepository redisRepository;
 
     @Transactional
     public ApiResponse<?> getProductList(){
@@ -73,7 +73,7 @@ public class HomeService {
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
 
         log.info("최근 본 상품 등록");
-        deviceProductRepository.saveDeviceToken(devicetoken, productId);
+        redisRepository.saveDeviceToken(devicetoken, productId);
         log.info("최근 본 상품 등록 성공");
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())

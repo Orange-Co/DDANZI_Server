@@ -21,7 +21,6 @@ public class HomeController {
     @GetMapping( "/product/{id}")
     public ApiResponse<?> homeDetail(@RequestHeader("devicetoken") String devicetoken,
                                      @PathVariable String id) {
-        log.info("devicetoken: {}", devicetoken);
-        return homeService.getProductDetail(id);
+        return homeService.getProductDetail(devicetoken, id);
     }
 }

@@ -12,8 +12,8 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping
-    ApiResponse<?> search(@RequestParam(value = "devicetoken", required = false) String devicetoken,
-                              @RequestParam(value = "keyword", required = false) String keyword) {
+    ApiResponse<?> search(@RequestHeader(value = "devicetoken", required = false) String devicetoken,
+                          @RequestParam(value = "keyword", required = false) String keyword) {
         if (keyword == null)
             return searchService.searchPage(devicetoken);
         else

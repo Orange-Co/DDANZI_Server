@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
@@ -19,15 +19,15 @@ public class RedisRepositoryImpl implements RedisRepository {
     public RedisRepositoryImpl(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
+
     @Override
     public void saveDeviceToken(String deviceToken, String productId) {
-        redisTemplate.opsForList().leftPush(DEVICE_PREFIX + deviceToken, productId);
+        redisTemplate.opsForSet().add(DEVICE_PREFIX + deviceToken, productId);
     }
 
     @Override
-    public List<String> getRecentProducts(String deviceToken) {
-        RedisOperations<String, String> operations = redisTemplate.opsForList().getOperations();
-        return operations.opsForList().range(DEVICE_PREFIX + deviceToken, 0, -1);
+    public Set<String> getRecentProducts(String deviceToken) {
+        return redisTemplate.opsForSet().members(DEVICE_PREFIX + deviceToken);
     }
 
     @Override

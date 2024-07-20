@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
 
@@ -22,5 +23,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query(value = "SELECT * FROM products p WHERE p.stock > 0 AND p.name LIKE %:keyword% ", nativeQuery = true)
     List<Product> findAllByName(@Param("keyword") String keyword);
 
-    List<Product> findByIdIn(List<String> productIds);
+    List<Product> findByIdIn(Set<String> productIds);
 }

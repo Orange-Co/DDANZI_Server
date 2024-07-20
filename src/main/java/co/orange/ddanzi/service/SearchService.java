@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class SearchService {
     public ApiResponse<?> searchPage(String devicetoken) {
         List<String> topSearchedList = List.of("예시1", "예시2", "예시3");
         log.info("Searching page for devicetoken: {}", devicetoken);
-        List<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
+        Set<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
         List<Product> productList = productRepository.findByIdIn(recentViewedProductIds);
         List<ProductInfo> productInfoList = homeService.setProductList(productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_SCREEN_SUCCESS, SearchPageResponseDto.builder()

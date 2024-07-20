@@ -7,6 +7,7 @@ import co.orange.ddanzi.dto.home.*;
 import co.orange.ddanzi.global.common.exception.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.global.redis.RedisRepository;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class HomeService {
     private final OptionRepository optionRepository;
     private final OptionDetailRepository optionDetailRepository;
     private final InterestProductRepository interestProductRepository;
+    private final RedisRepository redisRepository;
 
     @Transactional
     public ApiResponse<?> getProductList(){
@@ -41,7 +43,7 @@ public class HomeService {
     }
 
     @Transactional
-    public ApiResponse<?> getProductDetail(String productId){
+    public ApiResponse<?> getProductDetail(String devicetoken, String productId){
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);
         if(product == null){
@@ -52,12 +54,11 @@ public class HomeService {
             ApiResponse.onFailure(Error.CATEGORY_NOT_FOUND, null);
         }
         Category leafCategory = product.getLeafCategory();
-        log.info("카테고리 조회 성공 -> catgory_id: {}", leafCategory.getId());
 
         log.info("카테고리 full path 조회");
         String categoryFullPath = leafCategory.getFullPath();
 
-        log.info("상품 할인율 조회 -> product_id: {}",productId);
+        log.info("상품 할인율 조회");
         Discount discount = discountRepository.findById(productId).orElse(null);
         if(discount == null){
             ApiResponse.onFailure(Error.DISCOUNT_INFO_NOT_FOUND, null);
@@ -71,13 +72,19 @@ public class HomeService {
         log.info("해당 상품의 찜 개수 조회");
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
 
-
+        log.info("최근 본 상품 등록");
+        redisRepository.saveDeviceToken(devicetoken, productId);
+        log.info("최근 본 상품 등록 성공");
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
+                .imgUrl(product.getImgUrl())
                 .category(categoryFullPath)
                 .isOptionExist(!optionList.isEmpty())
                 .isImminent(true)
                 .discountRate(discountRate)
+                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
+                .infoUrl(product.getInfoUrl())
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
                 .interestCount(interestCount)

@@ -30,6 +30,14 @@ public class Product {
 //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "discount_id")
 //    private Discount discount;          //할인 정보
+    @Column(name = "store")
+    private String store;
+
+    @Column(name = "title_first_5")
+    private String titleFirst5;
+
+    @Column(name = "title_last_5")
+    private String titleLast5;
 
     @ColumnDefault("0")
     @Column(name = "stock", nullable = false)
@@ -48,7 +56,6 @@ public class Product {
     @Builder
     public Product (String id, Long kakaoProductId, String name, String originName, Integer originPrice, String imgUrl, String infoUrl, Integer stock, Category leafCategory) {
         this.id = id;
-        // this.discount = discount;
         this.kakaoProductId = kakaoProductId;
         this.name = name;
         this.originName = originName;

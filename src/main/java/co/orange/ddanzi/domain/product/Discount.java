@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
@@ -13,21 +12,24 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 public class Discount extends BaseTimeEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "discount_id")
-    private Long id;                //할인율 고유 ID
+    @Column(name = "product_id")
+    private String id;      //상품 고유 ID (PK/FK)
 
-    @ColumnDefault("0.3")
-    @Column(name = "rate", nullable = false)
-    private Float rate;             //할인율, 디폴트 30%
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "root_category_id", nullable = true)
-//    private Category rootCategory;      //카테고리 = root category
+    @Column(name = "discount_rate", nullable = false)
+    private Float discountRate;
+
+    @Column(name = "discount_price", nullable = false)
+    private Integer discountPrice;
 
     @Builder
-    public Discount(Long id, Float rate) {
-        this.id = id;
-        this.rate = rate;
+    public Discount(Product product, Float discountRate, Integer discountPrice) {
+        this.product = product;
+        this.discountRate = discountRate;
+        this.discountPrice = discountPrice;
     }
 }

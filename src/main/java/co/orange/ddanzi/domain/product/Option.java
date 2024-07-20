@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @NoArgsConstructor
@@ -16,17 +17,21 @@ public class Option {
     @Column(name = "option_id")
     private Long id;            //옵션 고유 ID
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
-    private OptionType type;    //옵션 종류
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "type")
+//    private OptionType type;    //옵션 종류
+
+    @ColumnDefault("'옵션'")
+    @Column(name = "content", nullable = false)
+    private String content;        //옵션 내용
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;    //참조하는 상품
 
     @Builder
-    public Option(final OptionType type, final Product product) {
-        this.type = type;
+    public Option(String content, Product product) {
+        this.content = content;
         this.product = product;
     }
 }

@@ -4,10 +4,7 @@ import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.service.HomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,8 +18,9 @@ public class HomeController {
         return homeService.getProductList();
     }
 
-    @GetMapping("/product/{id}")
-    public ApiResponse<?> homeDetail(@PathVariable String id) {
-        return homeService.getProductDetail(id);
+    @GetMapping( "/product/{id}")
+    public ApiResponse<?> homeDetail(@RequestHeader("devicetoken") String devicetoken,
+                                     @PathVariable String id) {
+        return homeService.getProductDetail(devicetoken, id);
     }
 }

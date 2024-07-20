@@ -22,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class MyPageService {
+    private final HomeService homeService;
     private final UserRepository userRepository;
     private final InterestProductRepository interestProductRepository;
     private final ProductRepository productRepository;
@@ -41,7 +42,7 @@ public class MyPageService {
         log.info("찜한 상품 찾기");
         List<Product> productList = interestProductRepository.findProductsByUserId(user.getId());
         log.info("찜한 상품의 정보 입력하기");
-        List<ProductInfo> productInfoList = HomeService.setProductList(productList,interestProductRepository);
+        List<ProductInfo> productInfoList = homeService.setProductList(productList,interestProductRepository);
         MyPageInterestResponseDto responseDto = MyPageInterestResponseDto.builder()
                 .totalCount(productList.size())
                 .productList(productInfoList)

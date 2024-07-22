@@ -2,7 +2,7 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.user.*;
 import co.orange.ddanzi.dto.setting.*;
-import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.repository.AccountRepository;

@@ -28,8 +28,10 @@ public class JwtUtils {
 
     @Value("${secret.time.access}")
     private long accessTokenTime;
+
     @Value("${secret.time.refresh}")
     private long refreshTokenTime;
+
     @Value("${secret.key}")
     private String jwtSecretKey;
     private final StringRedisTemplate stringRedisTemplate;
@@ -46,6 +48,8 @@ public class JwtUtils {
                 .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
                 .compact();
     }
+
+
 
     public String resolveJWT(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -70,16 +74,17 @@ public class JwtUtils {
     }
 
 
+
     public boolean validateToken(String token) {
         if (!StringUtils.hasText(token)) {
             throw new UnauthorizedException(Error.JWT_TOKEN_NOT_EXISTS);
         }
-        if(isLogout(token)){
-            throw new UnauthorizedException(Error.LOG_OUT_JWT_TOKEN);
-        }
+//        if(isLogout(token)){
+//            throw new UnauthorizedException(Error.LOG_OUT_JWT_TOKEN);
+//        }
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
-            log.info("token \"role\" : " + claims.get("role"));
+            log.info("token \"id token\" : " + claims.get("role"));
             log.info("token \"name\" : " + claims.get("name"));
             return true;
         } catch (MalformedJwtException e) {

@@ -26,7 +26,6 @@ public class JwtFilter extends OncePerRequestFilter {
         log.info("Request to {}: token={}", request.getRequestURI(), token);
 
         if (jwtUtils.validateToken(token)) {
-            // 2-1. 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
             Authentication authentication = jwtUtils.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -34,4 +33,12 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/v1/auth")
+                || path.equals("/api/v1/home")
+                || path.equals("/api/v1/search")
+                ;
+    }
 }

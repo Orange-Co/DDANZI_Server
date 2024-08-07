@@ -7,6 +7,7 @@ import co.orange.ddanzi.dto.interest.InterestResponseDto;
 import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.global.config.jwt.AuthUtils;
 import co.orange.ddanzi.repository.InterestProductRepository;
 import co.orange.ddanzi.repository.ProductRepository;
 import co.orange.ddanzi.repository.UserRepository;
@@ -19,14 +20,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class InterestService {
-    private final UserRepository userRepository;
+    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final InterestProductRepository interestProductRepository;
 
     @Transactional
     public ApiResponse<?> addInterest(String productId) {
-        log.info("사용자 조회", productId);
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
 
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);
@@ -48,8 +48,7 @@ public class InterestService {
 
     @Transactional
     public ApiResponse<?> deleteInterest(String productId) {
-        log.info("사용자 조회", productId);
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
 
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);

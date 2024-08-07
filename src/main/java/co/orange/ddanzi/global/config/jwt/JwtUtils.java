@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,13 +33,16 @@ public class JwtUtils {
 
     @Value("${secret.key}")
     private String jwtSecretKey;
+
     private final StringRedisTemplate stringRedisTemplate;
 
     public String createAccessToken(String idToken) {
         Claims claims = Jwts.claims();
         claims.put("idToken", idToken);
+
         long validTime = accessTokenTime;
         Date now = new Date();
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
@@ -63,7 +65,6 @@ public class JwtUtils {
     public Authentication getAuthentication(String token) {
         // 토큰 복호화
         Claims claims = getClaims(token);
-
         if (claims.get("idToken") == null) {
             throw new UnauthorizedException(Error.INVALID_JWT_EXCEPTION);
         }
@@ -84,8 +85,7 @@ public class JwtUtils {
 //        }
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
-            log.info("token \"id token\" : " + claims.get("role"));
-            log.info("token \"name\" : " + claims.get("name"));
+            log.info("token \"id token\" : " + claims.get("idToken"));
             return true;
         } catch (MalformedJwtException e) {
             throw new UnauthorizedException(Error.INVALID_JWT_EXCEPTION);

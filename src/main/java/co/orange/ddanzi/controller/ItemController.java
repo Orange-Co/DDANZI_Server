@@ -3,7 +3,7 @@ package co.orange.ddanzi.controller;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
 import co.orange.ddanzi.dto.item.SaveItemRequestDto;
-import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.UserRepository;

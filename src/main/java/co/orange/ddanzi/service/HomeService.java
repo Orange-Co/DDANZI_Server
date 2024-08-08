@@ -4,7 +4,7 @@ import co.orange.ddanzi.domain.Banner;
 import co.orange.ddanzi.domain.product.*;
 import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.home.*;
-import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.global.redis.RedisRepository;

@@ -2,9 +2,10 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.user.*;
 import co.orange.ddanzi.dto.setting.*;
-import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.global.config.jwt.AuthUtils;
 import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
@@ -18,14 +19,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class SettingService {
-    private final UserRepository userRepository;
+    private final AuthUtils authUtils;
     private final AddressRepository addressRepository;
     private final AccountRepository accountRepository;
     private final PushAlarmRepository pushAlarmRepository;
 
     @Transactional
     public ApiResponse<?> getSetting(){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Authentication authentication = user.getAuthentication();
         String name = null; String phone = null;
         if(authentication != null){
@@ -44,7 +45,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> getAddress(){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Address address = addressRepository.findByUser(user);
         AddressResponseDto responseDto = setAddressDto(address, user.getAuthentication());
         return ApiResponse.onSuccess(Success.GET_SETTING_ADDRESS_SUCCESS, responseDto);
@@ -52,7 +53,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> addAddress(AddressRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Address newAddress = requestDto.toEntity(user);
         newAddress = addressRepository.save(newAddress);
         AddressResponseDto responseDto = setAddressDto(newAddress, user.getAuthentication());
@@ -61,7 +62,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> updateAddress(Long addressId, AddressRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Address updatedAddress = addressRepository.findById(addressId).orElse(null);
         if(updatedAddress == null){
             return ApiResponse.onFailure(Error.ADDRESS_NOT_FOUND, null);
@@ -83,7 +84,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> getAccount(){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Account account = accountRepository.findByUserId(user);
         AccountResponseDto responseDto = setAccountDto(account, user.getAuthentication());
         return ApiResponse.onSuccess(Success.GET_SETTING_ACCOUNT_SUCCESS, responseDto);
@@ -91,7 +92,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> addAccount(AccountRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Authentication authentication = user.getAuthentication();
 
         log.info("본인인증 여부 확인");
@@ -117,7 +118,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> updateAccount(Long accountId, AccountRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         Account updatedAccount = accountRepository.findById(accountId).orElse(null);
         if(updatedAccount == null){
             return ApiResponse.onFailure(Error.ACCOUNT_NOT_FOUND, null);
@@ -139,7 +140,7 @@ public class SettingService {
 
     @Transactional
     public ApiResponse<?> updatePushAlarm(PushAlarmRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
+        User user = authUtils.getUser();
         PushAlarm pushAlarm = pushAlarmRepository.findByUser(user);
         if(pushAlarm == null){
             return ApiResponse.onFailure(Error.PUSH_ALARM_NOT_FOUND, null);

@@ -18,6 +18,12 @@ public class Address {
     @Column(name = "address_id")
     private Long id;                //주소 고유 ID
 
+    @Column(name = "recipient")
+    private String recipient;
+
+    @Column(name = "recipient_phone")
+    private String recipientPhone;
+
     @Column(name = "zip_code", nullable = false, length = 5)
     private String zipCode;         //우편번호
 
@@ -36,8 +42,10 @@ public class Address {
     private User user;          //회원:주소=1:N
 
     @Builder
-    public Address(String zipCode, AddressType type, String address, String detailAddress, User user) {
+    public Address(String zipCode, String recipient, String recipientPhone, AddressType type, String address, String detailAddress, User user) {
         this.zipCode = zipCode;
+        this.recipient = recipient;
+        this.recipientPhone = recipientPhone;
         this.type = type;
         this.address = address;
         this.detailAddress = detailAddress;
@@ -46,6 +54,8 @@ public class Address {
 
     public void update(AddressRequestDto requestDto){
         this.zipCode = requestDto.getZipCode();
+        this.recipient = requestDto.getRecipient();
+        this.recipientPhone = requestDto.getRecipientPhone();
         this.type = requestDto.getType();
         this.address = requestDto.getAddress();
         this.detailAddress = requestDto.getDetailAddress();

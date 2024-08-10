@@ -8,10 +8,10 @@ import lombok.Getter;
 @Builder
 public class AddressResponseDto {
     private Long addressId;
-    private String name;
+    private String recipient;
     private String zipCode;
     private AddressType type;
     private String address;
     private String detailAddress;
-    private String phone;
+    private String recipientPhone;
 }

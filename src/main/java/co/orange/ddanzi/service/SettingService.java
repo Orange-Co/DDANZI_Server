@@ -44,6 +44,8 @@ public class SettingService {
         return ApiResponse.onSuccess(Success.GET_SETTING_SCREEN_SUCCESS, responseDto);
     }
 
+
+
     @Transactional
     public ApiResponse<?> enterAddress(){
         User user = authUtils.getUser();
@@ -53,12 +55,11 @@ public class SettingService {
                 .build());
     }
 
-
     @Transactional
     public ApiResponse<?> getAddress(){
         User user = authUtils.getUser();
         Address address = addressRepository.findByUser(user);
-        AddressResponseDto responseDto = setAddressDto(address, user.getAuthentication());
+        AddressResponseDto responseDto = setAddressDto(address);
         return ApiResponse.onSuccess(Success.GET_SETTING_ADDRESS_SUCCESS, responseDto);
     }
 
@@ -67,7 +68,7 @@ public class SettingService {
         User user = authUtils.getUser();
         Address newAddress = requestDto.toEntity(user);
         newAddress = addressRepository.save(newAddress);
-        AddressResponseDto responseDto = setAddressDto(newAddress, user.getAuthentication());
+        AddressResponseDto responseDto = setAddressDto(newAddress);
         return ApiResponse.onSuccess(Success.CREATE_ADDRESS_SUCCESS, responseDto);
     }
 
@@ -79,7 +80,7 @@ public class SettingService {
             return ApiResponse.onFailure(Error.ADDRESS_NOT_FOUND, null);
         }
         updatedAddress.update(requestDto);
-        AddressResponseDto responseDto = setAddressDto(updatedAddress, user.getAuthentication());
+        AddressResponseDto responseDto = setAddressDto(updatedAddress);
         return ApiResponse.onSuccess(Success.PUT_ADDRESS_SUCCESS, responseDto);
     }
 
@@ -90,7 +91,7 @@ public class SettingService {
             return ApiResponse.onFailure(Error.ADDRESS_NOT_FOUND, null);
         }
         addressRepository.delete(deletedAddress);
-        return ApiResponse.onSuccess(Success.DELETE_ADDRESS_SUCCESS, null);
+        return ApiResponse.onSuccess(Success.DELETE_ADDRESS_SUCCESS, true);
     }
 
     @Transactional
@@ -159,15 +160,15 @@ public class SettingService {
         pushAlarm.update(requestDto);
         return ApiResponse.onSuccess(Success.PUT_PUSH_ALARM_SUCCESS, null);
     }
-    private AddressResponseDto setAddressDto(Address address, Authentication authentication){
+    private AddressResponseDto setAddressDto(Address address){
         return AddressResponseDto.builder()
                 .addressId(address != null ? address.getId() : null)
-                .name(authentication != null ? authentication.getName() : null)
+                .recipient(address != null ? address.getRecipient() : null)
                 .zipCode(address != null ? address.getZipCode() : null)
                 .type(address != null ? address.getType() : null)
                 .address(address != null ? address.getAddress() : null)
                 .detailAddress(address != null ? address.getDetailAddress() : null)
-                .phone(authentication != null ? authentication.getPhone() : null)
+                .recipientPhone(address != null ? address.getRecipientPhone() : null)
                 .build();
     }
 

@@ -13,6 +13,8 @@ import java.util.List;
 
 public interface InterestProductRepository extends JpaRepository<InterestProduct, Long> {
 
+    boolean existsByIdUserAndIdProduct(User user, Product product);
+
     @Query("SELECT CASE WHEN COUNT(ip) > 1000 THEN 999 ELSE COUNT(ip) END FROM InterestProduct ip " +
             "WHERE ip.id.product.id = :productId")
     Integer countByProductIdWithLimit(@Param("productId") String productId);

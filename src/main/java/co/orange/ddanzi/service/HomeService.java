@@ -2,11 +2,13 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.Banner;
 import co.orange.ddanzi.domain.product.*;
+import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.home.*;
 import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.global.config.jwt.AuthUtils;
 import co.orange.ddanzi.global.redis.RedisRepository;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class HomeService {
+    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final BannerRepository bannerRepository;
     private final DiscountRepository discountRepository;
@@ -32,10 +35,11 @@ public class HomeService {
 
     @Transactional
     public ApiResponse<?> getProductList(){
+        User user = authUtils.getUser();
         Banner banner = bannerRepository.findByIsSelected(Boolean.TRUE);
         List<Product> productList = productRepository.findAllByStock(0);
 
-        List<ProductInfo> productInfoList = setProductList(productList, interestProductRepository);
+        List<ProductInfo> productInfoList = setProductList(user, productList, interestProductRepository);
         HomeResponseDto responseDto = HomeResponseDto.builder()
                 .homeImgUrl(banner.getImgUrl())
                 .productList(productInfoList).build();
@@ -94,7 +98,7 @@ public class HomeService {
         return ApiResponse.onSuccess(Success.GET_PRODUCT_DETAIL_SUCCESS,responseDto);
     }
 
-    public List<ProductInfo> setProductList(List<Product> productList, InterestProductRepository interestProductRepository){
+    public List<ProductInfo> setProductList(User user, List<Product> productList, InterestProductRepository interestProductRepository){
         List<ProductInfo> productInfoList = new ArrayList<>();
         for(Product product : productList){
             Discount discount = discountRepository.findById(product.getId()).orElse(null);
@@ -106,6 +110,7 @@ public class HomeService {
                     .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
                     .imgUrl(product.getImgUrl())
                     .interestCount(interestProductRepository.countByProductIdWithLimit(product.getId()))
+                    .isInterested(interestProductRepository.existsByIdUserAndIdProduct(user, product))
                     .build());
         }
         return productInfoList;

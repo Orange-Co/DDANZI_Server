@@ -13,4 +13,5 @@ public class ProductInfo {
     private Integer originPrice;
     private Integer salePrice;
     private Integer interestCount;
+    private Boolean isInterested;
 }

@@ -25,9 +25,12 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = jwtUtils.resolveJWT(request);
         log.info("Request to {}: token={}", request.getRequestURI(), token);
 
-        if (jwtUtils.validateToken(token)) {
+        if (token != null && jwtUtils.validateToken(token)) {
             Authentication authentication = jwtUtils.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        else {
+            log.info("No valid token found, proceeding without authentication");
         }
 
         filterChain.doFilter(request, response);
@@ -37,7 +40,6 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         return path.startsWith("/api/v1/auth")
-                || path.equals("/api/v1/home")
                 || path.equals("/api/v1/search")
                 ;
     }

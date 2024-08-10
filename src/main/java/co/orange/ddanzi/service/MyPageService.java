@@ -42,7 +42,7 @@ public class MyPageService {
         log.info("찜한 상품 찾기");
         List<Product> productList = interestProductRepository.findProductsByUserId(user.getId());
         log.info("찜한 상품의 정보 입력하기");
-        List<ProductInfo> productInfoList = homeService.setProductList(productList,interestProductRepository);
+        List<ProductInfo> productInfoList = homeService.setProductList(user, productList,interestProductRepository);
         MyPageInterestResponseDto responseDto = MyPageInterestResponseDto.builder()
                 .totalCount(productList.size())
                 .productList(productInfoList)

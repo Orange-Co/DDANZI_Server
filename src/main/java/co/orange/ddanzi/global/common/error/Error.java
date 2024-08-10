@@ -26,6 +26,7 @@ public enum Error {
 
     // 404 NOT FOUND
     AUTHENTICATION_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The Authentication of user does not exist."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User does not exist."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "The product does not exist."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "The category of the product does not exist."),
     DISCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The discount info of the category does not exist."),

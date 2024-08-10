@@ -40,7 +40,6 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
         return path.startsWith("/api/v1/auth")
-                || path.equals("/api/v1/search")
                 ;
     }
 }

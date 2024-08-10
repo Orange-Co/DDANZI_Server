@@ -3,6 +3,7 @@ package co.orange.ddanzi.controller;
 import co.orange.ddanzi.dto.auth.LoginDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.service.AuthService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signin/test")
-    ApiResponse<?> signin(@RequestBody LoginDto requestDto){
-        return authService.testSignin(requestDto.getIdToken());
+    ApiResponse<?> test(@RequestBody LoginDto requestDto){
+        return authService.testSignin(requestDto.getToken());
+    }
+
+    @PostMapping("/signin")
+    ApiResponse<?> signin(@RequestBody LoginDto requestDto) {
+        return authService.testSignin(requestDto.getToken());
     }
 }

@@ -1,6 +1,7 @@
 package co.orange.ddanzi.controller;
 
-import co.orange.ddanzi.dto.auth.LoginDto;
+import co.orange.ddanzi.domain.user.enums.LoginType;
+import co.orange.ddanzi.dto.auth.SigninRequestDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.service.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,12 +18,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signin/test")
-    ApiResponse<?> test(@RequestBody LoginDto requestDto){
+    ApiResponse<?> test(@RequestBody SigninRequestDto requestDto){
         return authService.testSignin(requestDto.getToken());
     }
 
     @PostMapping("/signin")
-    ApiResponse<?> signin(@RequestBody LoginDto requestDto) {
-        return authService.testSignin(requestDto.getToken());
+    ApiResponse<?> signin(@RequestBody SigninRequestDto requestDto) throws JsonProcessingException {
+        if(requestDto.getType().equals(LoginType.KAKAO))
+            return authService.kakaoSignIn(requestDto.getToken());
+        return authService.kakaoSignIn(requestDto.getToken());
     }
 }

@@ -1,6 +1,6 @@
 package co.orange.ddanzi.global.common.response;
 
-import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.config.handler.GlobalControllerHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

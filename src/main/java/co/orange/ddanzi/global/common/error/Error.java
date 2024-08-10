@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.common.exception;
+package co.orange.ddanzi.global.common.error;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,13 +16,17 @@ public enum Error {
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
 
     // 401 UNAUTHORIZED
-
+    INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "Invalid JWT"),
+    LOG_OUT_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"Logged out user"),
+    JWT_EXPIRED(HttpStatus.UNAUTHORIZED,"JWT expired"),
+    JWT_TOKEN_NOT_EXISTS(HttpStatus.UNAUTHORIZED,"JWT value does not exist in header"),
 
     // 403 Forbidden
 
 
     // 404 NOT FOUND
     AUTHENTICATION_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The Authentication of user does not exist."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User does not exist."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "The product does not exist."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "The category of the product does not exist."),
     DISCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The discount info of the category does not exist."),

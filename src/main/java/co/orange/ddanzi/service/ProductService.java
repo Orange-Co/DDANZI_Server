@@ -9,7 +9,7 @@ import co.orange.ddanzi.dto.AddressInfo;
 import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
 import co.orange.ddanzi.dto.item.ConfirmProductResponseDto;
 import co.orange.ddanzi.dto.order.CheckProductResponseDto;
-import co.orange.ddanzi.global.common.exception.Error;
+import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.repository.*;

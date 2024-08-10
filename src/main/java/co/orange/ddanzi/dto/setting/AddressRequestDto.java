@@ -7,6 +7,8 @@ import lombok.Getter;
 
 @Getter
 public class AddressRequestDto {
+    private String recipient;
+    private String recipientPhone;
     private String zipCode;
     private AddressType type;
     private String address;
@@ -15,6 +17,8 @@ public class AddressRequestDto {
     public Address toEntity(User user){
         return Address.builder()
                 .user(user)
+                .recipient(recipient)
+                .recipientPhone(recipientPhone)
                 .zipCode(zipCode)
                 .type(type)
                 .address(address)

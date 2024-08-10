@@ -1,6 +1,7 @@
 package co.orange.ddanzi.global.config.jwt;
 
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.global.common.exception.UserNotFoundException;
 import co.orange.ddanzi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -16,7 +18,13 @@ public class AuthUtils {
     private final UserRepository userRepository;
 
     public User getUser() {
-        return userRepository.findByLoginId(getCurrentUserNickname()).get();
+        String currentUserNickname = getCurrentUserNickname();
+        if (currentUserNickname == null) {
+            return null;
+        }
+        return userRepository.findByLoginId(currentUserNickname)
+                .orElseThrow(() -> new UserNotFoundException());
+
     }
 
     public Authentication getAuthentication() {

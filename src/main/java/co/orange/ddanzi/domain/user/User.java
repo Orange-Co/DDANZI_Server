@@ -2,7 +2,7 @@ package co.orange.ddanzi.domain.user;
 
 import co.orange.ddanzi.global.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.user.enums.LoginType;
-import co.orange.ddanzi.domain.user.enums.MemberStatus;
+import co.orange.ddanzi.domain.user.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,27 +18,27 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long id;            //유저 고유 ID
 
-    @Column(name = "login_id")
-    private String loginId;     //로그인 ID
+    @Column(name = "email", nullable = false, length = 320)
+    private String email;     //가입 이메일
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private LoginType type;     //로그인 타입(KAKAO/APPLE)
 
-    @Column(name = "nickname", nullable = false, length = 10)
+    @Column(name = "nickname", nullable = false, unique = true, length = 20)
     private String nickname;    // 닉네임 -> 자동생성
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private MemberStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
+    private UserStatus status;    //상태(ACTIVATE/SLEEP/DELETE)
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authentication_id")
     private Authentication authentication;
 
     @Builder
-    public User(String loginId, LoginType type, String nickname, MemberStatus status) {
-        this.loginId = loginId;
+    public User(String email, LoginType type, String nickname, UserStatus status) {
+        this.email = email;
         this.nickname = nickname;
         this.type = type;
         this.status = status;

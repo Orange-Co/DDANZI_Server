@@ -4,8 +4,8 @@ import co.orange.ddanzi.domain.user.enums.LoginType;
 import lombok.Getter;
 
 @Getter
-public class LoginDto {
-    private String idToken;
+public class SigninRequestDto {
+    private String token;
     private LoginType type;
 
 }

@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
@@ -36,9 +37,9 @@ public class JwtUtils {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public String createAccessToken(String idToken) {
+    public String createAccessToken(String email) {
         Claims claims = Jwts.claims();
-        claims.put("idToken", idToken);
+        claims.put("email", email);
 
         long validTime = accessTokenTime;
         Date now = new Date();
@@ -51,7 +52,26 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String createRefreshToken(String email) {
+        Claims claims = Jwts.claims();
+        claims.put("email", email);
+        long validTime = refreshTokenTime;
+        Date now = new Date();
+        String refreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + validTime))
+                .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
+                .compact();
 
+        updateUserRefreshToken(email, refreshToken);
+
+        return refreshToken;
+    }
+
+    public void updateUserRefreshToken(String email, String refreshToken) {
+        stringRedisTemplate.opsForValue().set(email, refreshToken, refreshTokenTime, TimeUnit.MILLISECONDS);
+    }
 
     public String resolveJWT(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

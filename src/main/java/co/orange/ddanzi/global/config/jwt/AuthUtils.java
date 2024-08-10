@@ -22,7 +22,7 @@ public class AuthUtils {
         if (currentUserNickname == null) {
             return null;
         }
-        return userRepository.findByLoginId(currentUserNickname)
+        return userRepository.findByEmail(currentUserNickname)
                 .orElseThrow(() -> new UserNotFoundException());
 
     }
@@ -44,7 +44,7 @@ public class AuthUtils {
 
         if (principalObject instanceof UserDetails) {
             UserDetails userDetails = (UserDetails) principalObject;
-            log.info("id token ->  {}", userDetails.getUsername());
+            log.info("email ->  {}", userDetails.getUsername());
             return userDetails.getUsername();
         }
         return null;

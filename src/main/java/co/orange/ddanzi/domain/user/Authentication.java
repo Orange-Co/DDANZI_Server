@@ -28,9 +28,6 @@ public class Authentication extends BaseTimeEntity {
     @Column(name = "name", nullable = false, length = 255)
     private String name;                    //이름
 
-    @Column(name = "email", nullable = false, length = 320)
-    private String email;                   //이메일
-
     @Column(name = "phone", nullable = false, length = 15)
     private String phone;                   //전화번호
 
@@ -48,10 +45,9 @@ public class Authentication extends BaseTimeEntity {
 
 
     @Builder
-    public Authentication(User user, String name, String email, String phone, LocalDate birth, Sex sex, Nation nation) {
+    public Authentication(User user, String name, String phone, LocalDate birth, Sex sex, Nation nation) {
         this.user = user;
         this.name = name;
-        this.email = email;
         this.phone = phone;
         this.birth = birth;
         this.sex = sex;

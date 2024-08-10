@@ -104,6 +104,9 @@ public class AuthService {
                 String.class
         );
 
+        log.info("응답 상태 코드: {}", response.getStatusCode());
+        log.info("응답 본문: {}", response.getBody());
+
         log.info("응답 수신 성공");
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();

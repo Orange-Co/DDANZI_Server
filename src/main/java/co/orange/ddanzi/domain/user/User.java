@@ -18,8 +18,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long id;            //유저 고유 ID
 
-    @Column(name = "login_id")
-    private String loginId;     //로그인 ID
+    @Column(name = "email", nullable = false, length = 320)
+    private String email;     //가입 이메일
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -37,8 +37,8 @@ public class User extends BaseTimeEntity {
     private Authentication authentication;
 
     @Builder
-    public User(String loginId, LoginType type, String nickname, MemberStatus status) {
-        this.loginId = loginId;
+    public User(String email, LoginType type, String nickname, MemberStatus status) {
+        this.email = email;
         this.nickname = nickname;
         this.type = type;
         this.status = status;

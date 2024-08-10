@@ -95,26 +95,32 @@ public class AuthService {
 
         log.info("HTTP 요청 보내기");
         HttpEntity<String> kakaoUserInfoRequest = new HttpEntity<>(headers);
-        RestTemplate rt = new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<String> response = rt.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.GET,
-                kakaoUserInfoRequest,
-                String.class
-        );
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://kapi.kakao.com/v2/user/me",
+                    HttpMethod.GET,
+                    kakaoUserInfoRequest,
+                    String.class
+            );
 
-        log.info("응답 상태 코드: {}", response.getStatusCode());
-        log.info("응답 본문: {}", response.getBody());
+            log.info("응답 상태 코드: {}", response.getStatusCode());
+            log.info("응답 본문: {}", response.getBody());
 
-        log.info("응답 수신 성공");
-        String responseBody = response.getBody();
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(responseBody);
+            // responseBody에 있는 정보 꺼내기
+            String responseBody = response.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            log.info("카카오 바디 정보 수집 성공");
 
-        String email = jsonNode.get("kakao_account").get("email").asText();
+            String email = jsonNode.get("kakao_account").get("email").asText();
+            return email;
 
-        return email;
+        } catch (Exception e) {
+            log.error("카카오 API 요청 중 오류 발생: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     private List<String> loadWordsFromFile(String classpath) throws IOException {

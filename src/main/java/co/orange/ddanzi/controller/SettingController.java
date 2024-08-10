@@ -19,6 +19,11 @@ public class SettingController {
         return settingService.getSetting();
     }
 
+    @GetMapping("/address/enter")
+    ApiResponse<?> enterAddress(){
+        return  settingService.enterAddress();
+    }
+
     @GetMapping("/address")
     ApiResponse<?> getAddress(){
         return  settingService.getAddress();

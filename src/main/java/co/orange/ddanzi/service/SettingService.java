@@ -24,6 +24,7 @@ public class SettingService {
     private final AccountRepository accountRepository;
     private final PushAlarmRepository pushAlarmRepository;
 
+
     @Transactional
     public ApiResponse<?> getSetting(){
         User user = authUtils.getUser();
@@ -42,6 +43,16 @@ public class SettingService {
 
         return ApiResponse.onSuccess(Success.GET_SETTING_SCREEN_SUCCESS, responseDto);
     }
+
+    @Transactional
+    public ApiResponse<?> enterAddress(){
+        User user = authUtils.getUser();
+        return ApiResponse.onSuccess(Success.GET_SETTING_ADDRESS_SUCCESS, EnterAddressResponseDto.builder()
+                .name(user.getAuthentication().getName())
+                .phone(user.getAuthentication().getPhone())
+                .build());
+    }
+
 
     @Transactional
     public ApiResponse<?> getAddress(){

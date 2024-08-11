@@ -86,9 +86,10 @@ public class AuthService {
     @Transactional
     public ApiResponse<?> verify(VerifyRequestDto requestDto){
         User user = authUtils.getUser();
+        log.info("유저 정보 가져옴 user_id -> {}", user.getId());
 
         String phone = requestDto.getPhone().replace("-", "").replace(" ","");
-        Authentication newAuthentication = requestDto.toEntity(phone);
+        Authentication newAuthentication = requestDto.toEntity(user, phone);
         newAuthentication = authenticationRepository.save(newAuthentication);
         log.info("본인인증 완료 authentication_id -> {}", newAuthentication.getId());
 

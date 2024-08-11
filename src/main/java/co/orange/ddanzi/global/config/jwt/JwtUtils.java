@@ -105,7 +105,7 @@ public class JwtUtils {
 //        }
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
-            log.info("token \"id token\" : " + claims.get("idToken"));
+            log.info("token \"id token\" : " + claims.get("email"));
             return true;
         } catch (MalformedJwtException e) {
             throw new UnauthorizedException(Error.INVALID_JWT_EXCEPTION);

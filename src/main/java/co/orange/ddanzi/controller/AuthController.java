@@ -2,6 +2,7 @@ package co.orange.ddanzi.controller;
 
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
+import co.orange.ddanzi.dto.auth.VerifyRequestDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.service.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,5 +28,10 @@ public class AuthController {
         if(requestDto.getType().equals(LoginType.KAKAO))
             return authService.kakaoSignIn(requestDto.getToken());
         return authService.kakaoSignIn(requestDto.getToken());
+    }
+
+    @PostMapping("/verification")
+    ApiResponse<?> verify(@RequestBody VerifyRequestDto requestDto) {
+        return authService.verify(requestDto);
     }
 }

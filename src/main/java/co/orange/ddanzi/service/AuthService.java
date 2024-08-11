@@ -1,14 +1,19 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.domain.user.Authentication;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
 import co.orange.ddanzi.dto.auth.AuthResponseDto;
 import co.orange.ddanzi.dto.auth.SigninResponseDto;
+import co.orange.ddanzi.dto.auth.VerifyRequestDto;
+import co.orange.ddanzi.dto.auth.VerifyResponseDto;
 import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.global.config.jwt.AuthUtils;
 import co.orange.ddanzi.global.config.jwt.JwtUtils;
+import co.orange.ddanzi.repository.AuthenticationRepository;
 import co.orange.ddanzi.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,8 +41,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
-    private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
+    private final UserRepository userRepository;
+    private final AuthenticationRepository authenticationRepository;
+    private final AuthUtils authUtils;
 
     @Transactional
     public ApiResponse<?> testSignin(String idToken){
@@ -74,6 +81,25 @@ public class AuthService {
                 .nickname(user.get().getNickname())
                 .build();
         return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> verify(VerifyRequestDto requestDto){
+        User user = authUtils.getUser();
+
+        String phone = requestDto.getPhone().replace("-", "").replace(" ","");
+        Authentication newAuthentication = requestDto.toEntity(phone);
+        newAuthentication = authenticationRepository.save(newAuthentication);
+        log.info("본인인증 완료 authentication_id -> {}", newAuthentication.getId());
+
+        user.setAuthentication(UserStatus.ACTIVATE,newAuthentication);
+        log.info("회원 정보 변경 완료 user_authentication_id -> {}", user.getAuthentication().getId());
+
+        VerifyResponseDto responseDto = VerifyResponseDto.builder()
+                .nickname(user.getNickname())
+                .phone(newAuthentication.getPhone())
+                .build();
+        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, responseDto);
     }
 
 

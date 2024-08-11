@@ -43,4 +43,9 @@ public class User extends BaseTimeEntity {
         this.type = type;
         this.status = status;
     }
+
+    public void setAuthentication(UserStatus status, Authentication authentication) {
+        this.status = status;
+        this.authentication = authentication;
+    }
 }

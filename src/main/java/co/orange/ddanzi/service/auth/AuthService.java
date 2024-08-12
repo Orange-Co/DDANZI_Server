@@ -2,10 +2,8 @@ package co.orange.ddanzi.service.auth;
 
 import co.orange.ddanzi.domain.user.Authentication;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
 import co.orange.ddanzi.dto.auth.AuthResponseDto;
-import co.orange.ddanzi.dto.auth.SigninResponseDto;
 import co.orange.ddanzi.dto.auth.VerifyRequestDto;
 import co.orange.ddanzi.dto.auth.VerifyResponseDto;
 import co.orange.ddanzi.global.common.error.Error;
@@ -15,26 +13,12 @@ import co.orange.ddanzi.global.config.jwt.AuthUtils;
 import co.orange.ddanzi.global.config.jwt.JwtUtils;
 import co.orange.ddanzi.repository.AuthenticationRepository;
 import co.orange.ddanzi.repository.UserRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Slf4j

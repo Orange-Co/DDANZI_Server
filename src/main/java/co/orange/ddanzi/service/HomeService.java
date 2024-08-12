@@ -9,7 +9,7 @@ import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.global.config.jwt.AuthUtils;
-import co.orange.ddanzi.global.redis.RedisRepository;
+import co.orange.ddanzi.global.config.redis.RedisRepository;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

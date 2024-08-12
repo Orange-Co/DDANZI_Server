@@ -8,7 +8,7 @@ import co.orange.ddanzi.dto.search.SearchResultResponseDto;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.global.config.jwt.AuthUtils;
-import co.orange.ddanzi.global.redis.RedisRepository;
+import co.orange.ddanzi.global.config.redis.RedisRepository;
 import co.orange.ddanzi.repository.InterestProductRepository;
 import co.orange.ddanzi.repository.ProductRepository;
 import jakarta.transaction.Transactional;

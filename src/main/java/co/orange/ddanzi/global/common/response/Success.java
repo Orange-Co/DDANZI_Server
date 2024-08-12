@@ -53,6 +53,7 @@ public enum Success {
     // 201 CREATED
     SET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully set the redis key"),
 
+    CREATE_AUTHENTICATION_SUCCESS(HttpStatus.CREATED, "Successfully verified identity."),
     CREATE_PRODUCT_SUCCESS(HttpStatus.CREATED, "Successfully confirmed the product."),
     CREATE_ORDER_SUCCESS(HttpStatus.CREATED, "Successfully completed the order"),
     CREATE_ITEM_SUCCESS(HttpStatus.CREATED, "Successfully listed the item for sale."),

@@ -85,7 +85,7 @@ public class JwtUtils {
     public Authentication getAuthentication(String token) {
         // 토큰 복호화
         Claims claims = getClaims(token);
-        if (claims.get("idToken") == null) {
+        if (claims.get("email") == null) {
             throw new UnauthorizedException(Error.INVALID_JWT_EXCEPTION);
         }
 
@@ -105,7 +105,7 @@ public class JwtUtils {
 //        }
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
-            log.info("token \"id token\" : " + claims.get("idToken"));
+            log.info("token \"id token\" : " + claims.get("email"));
             return true;
         } catch (MalformedJwtException e) {
             throw new UnauthorizedException(Error.INVALID_JWT_EXCEPTION);
@@ -117,7 +117,7 @@ public class JwtUtils {
     }
 
     public String getIdTokenFromToken(String token) {
-        return getClaims(token).get("idToken").toString();
+        return getClaims(token).get("email").toString();
     }
 
 

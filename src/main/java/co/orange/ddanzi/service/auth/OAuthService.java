@@ -6,7 +6,7 @@ import co.orange.ddanzi.domain.user.enums.UserStatus;
 import co.orange.ddanzi.dto.auth.SigninResponseDto;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.global.config.jwt.JwtUtils;
+import co.orange.ddanzi.global.jwt.JwtUtils;
 import co.orange.ddanzi.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

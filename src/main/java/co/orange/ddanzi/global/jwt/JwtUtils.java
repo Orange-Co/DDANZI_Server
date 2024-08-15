@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.config.jwt;
+package co.orange.ddanzi.global.jwt;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.UnauthorizedException;

@@ -7,7 +7,7 @@ import co.orange.ddanzi.dto.interest.InterestResponseDto;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.global.config.jwt.AuthUtils;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.InterestProductRepository;
 import co.orange.ddanzi.repository.ProductRepository;
 import jakarta.transaction.Transactional;

@@ -6,7 +6,7 @@ import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.mypage.MyPageInterestResponseDto;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.global.config.jwt.AuthUtils;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.InterestProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

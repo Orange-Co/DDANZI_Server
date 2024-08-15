@@ -5,7 +5,7 @@ import co.orange.ddanzi.dto.setting.*;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.global.config.jwt.AuthUtils;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;

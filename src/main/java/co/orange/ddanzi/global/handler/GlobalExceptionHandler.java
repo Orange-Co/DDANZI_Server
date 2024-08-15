@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.config.handler;
+package co.orange.ddanzi.global.handler;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.error.ErrorResponse;

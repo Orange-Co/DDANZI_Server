@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.config.redis;
+package co.orange.ddanzi.global.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

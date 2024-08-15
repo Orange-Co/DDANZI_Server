@@ -20,7 +20,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("Starting JwtFilter for {}", request.getRequestURI());
         String token = jwtUtils.resolveJWT(request);
         log.info("Request to {}: token={}", request.getRequestURI(), token);
 
@@ -33,7 +32,6 @@ public class JwtFilter extends OncePerRequestFilter {
             handleGeneralRequest(token);
         }
         filterChain.doFilter(request, response);
-        log.info("Ending JwtFilter for {}", request.getRequestURI());
     }
 
     @Override
@@ -66,11 +64,11 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidToken(String token) {
-        return !token.isEmpty() && jwtUtils.validateToken(token);
+        return token != null && !token.isEmpty() && jwtUtils.validateToken(token);
     }
 
     private boolean isValidLogoutToken(String token) {
-        return !token.isEmpty() && jwtUtils.validateTokenInLogoutPage(token);
+        return token != null && !token.isEmpty() && jwtUtils.validateTokenInLogoutPage(token);
     }
 
     private void setAuthentication(String token) {

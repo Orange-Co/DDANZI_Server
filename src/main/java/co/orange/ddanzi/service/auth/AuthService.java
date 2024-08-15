@@ -66,6 +66,7 @@ public class AuthService {
         VerifyResponseDto responseDto = VerifyResponseDto.builder()
                 .nickname(user.getNickname())
                 .phone(newAuthentication.getPhone())
+                .status(user.getStatus())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, responseDto);
     }

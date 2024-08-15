@@ -56,6 +56,7 @@ public class OAuthService {
                 .accesstoken(jwtUtils.createAccessToken(email))
                 .refreshtoken(jwtUtils.createRefreshToken(email))
                 .nickname(user.get().getNickname())
+                .status(user.get().getStatus())
                 .build();
         return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
     }

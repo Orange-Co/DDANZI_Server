@@ -59,10 +59,19 @@ public class HomeService {
 
     @Transactional
     public ApiResponse<?> getProductDetail(String devicetoken, String productId){
+        User user = authUtils.getUser();
+        List<ProductInfo> productInfoList = new ArrayList<>();
+
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);
         if(product == null){
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
+        }
+
+        Boolean isInterested = Boolean.FALSE;
+        if(user!=null) {
+            log.info("User is not null");
+            isInterested = interestProductRepository.existsByIdUserAndIdProduct(user, product);
         }
         log.info("해당 상품의 리프 카테고리 찾기");
         if(product.getLeafCategory() == null){
@@ -102,6 +111,7 @@ public class HomeService {
                 .infoUrl(product.getInfoUrl())
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
+                .isInterested(isInterested)
                 .interestCount(interestCount)
                 .optionList(optionList)
                 .build();

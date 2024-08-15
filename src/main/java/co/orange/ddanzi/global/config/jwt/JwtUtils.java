@@ -86,6 +86,7 @@ public class JwtUtils {
         // 토큰 복호화
         Claims claims = getClaims(token);
         if (claims.get("email") == null) {
+            log.error("UnauthorizedException will be thrown due to missing email claim");
             throw new UnauthorizedException(Error.INVALID_JWT_EXCEPTION);
         }
 
@@ -100,9 +101,9 @@ public class JwtUtils {
         if (!StringUtils.hasText(token)) {
             throw new UnauthorizedException(Error.JWT_TOKEN_NOT_EXISTS);
         }
-//        if(isLogout(token)){
-//            throw new UnauthorizedException(Error.LOG_OUT_JWT_TOKEN);
-//        }
+        if(isLogout(token)){
+            throw new UnauthorizedException(Error.LOG_OUT_JWT_TOKEN);
+        }
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
             log.info("token \"id token\" : " + claims.get("email"));
@@ -115,6 +116,31 @@ public class JwtUtils {
             return false;
         }
     }
+
+    public boolean validateTokenInLogoutPage(String token) {
+        if (!StringUtils.hasText(token)) {
+            return false;
+        }
+        if(isLogout(token)){
+            return false;
+        }
+        try {
+                log.info("home or search api");
+                Claims claims = Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
+                log.info("token \"id token\" : " + claims.get("email"));
+                return true;
+            }
+        catch (ExpiredJwtException e) {
+            log.info("Expired token. Processing with log out");
+            return false;
+        }
+        catch (MalformedJwtException e) {
+            return false;
+        } catch (UnauthorizedException e) {
+            return false;
+        }
+    }
+
 
     public String getIdTokenFromToken(String token) {
         return getClaims(token).get("email").toString();

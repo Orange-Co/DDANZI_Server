@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.common.error;
+package co.orange.ddanzi.common.error;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

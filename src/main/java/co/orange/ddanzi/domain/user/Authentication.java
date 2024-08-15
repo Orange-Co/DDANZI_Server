@@ -1,6 +1,6 @@
 package co.orange.ddanzi.domain.user;
 
-import co.orange.ddanzi.global.common.domain.BaseTimeEntity;
+import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.user.enums.Nation;
 import co.orange.ddanzi.domain.user.enums.Sex;
 import jakarta.persistence.*;

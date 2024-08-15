@@ -3,7 +3,7 @@ package co.orange.ddanzi.controller;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
 import co.orange.ddanzi.dto.auth.VerifyRequestDto;
-import co.orange.ddanzi.global.common.response.ApiResponse;
+import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.service.auth.AuthService;
 import co.orange.ddanzi.service.auth.OAuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;

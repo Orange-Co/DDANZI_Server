@@ -5,9 +5,9 @@ import co.orange.ddanzi.domain.product.*;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.ProductInfo;
 import co.orange.ddanzi.dto.home.*;
-import co.orange.ddanzi.global.common.error.Error;
-import co.orange.ddanzi.global.common.response.ApiResponse;
-import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.common.response.ApiResponse;
+import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.config.jwt.AuthUtils;
 import co.orange.ddanzi.global.config.redis.RedisRepository;
 import co.orange.ddanzi.repository.*;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor

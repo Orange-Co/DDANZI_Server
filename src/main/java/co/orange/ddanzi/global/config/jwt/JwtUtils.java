@@ -1,7 +1,7 @@
 package co.orange.ddanzi.global.config.jwt;
 
-import co.orange.ddanzi.global.common.error.Error;
-import co.orange.ddanzi.global.common.exception.UnauthorizedException;
+import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.common.exception.UnauthorizedException;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

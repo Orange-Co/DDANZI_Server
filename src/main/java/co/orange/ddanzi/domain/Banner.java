@@ -1,6 +1,6 @@
 package co.orange.ddanzi.domain;
 
-import co.orange.ddanzi.global.common.domain.BaseTimeEntity;
+import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

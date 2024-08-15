@@ -1,7 +1,7 @@
 package co.orange.ddanzi.global.config.jwt;
 
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.global.common.exception.UserNotFoundException;
+import co.orange.ddanzi.common.exception.UserNotFoundException;
 import co.orange.ddanzi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

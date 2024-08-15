@@ -52,6 +52,9 @@ public class AuthService {
         User user = authUtils.getUser();
         log.info("유저 정보 가져옴 user_id -> {}", user.getId());
 
+        if(user.getAuthentication() != null)
+            return ApiResponse.onFailure(Error.AUTHENTICATION_ALREADY_EXISTS, Map.of("user name", user.getAuthentication().getName()));
+
         String phone = requestDto.getPhone().replace("-", "").replace(" ","");
         Authentication newAuthentication = requestDto.toEntity(user, phone);
         newAuthentication = authenticationRepository.save(newAuthentication);

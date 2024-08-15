@@ -18,6 +18,9 @@ public class AuthUtils {
     private final UserRepository userRepository;
 
     public User getUser() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            return null;
+        }
         String currentUserNickname = getCurrentUserNickname();
         if (currentUserNickname == null) {
             return null;

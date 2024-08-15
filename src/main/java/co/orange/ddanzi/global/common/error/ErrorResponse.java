@@ -1,62 +1,48 @@
 package co.orange.ddanzi.global.common.error;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import co.orange.ddanzi.global.config.handler.GlobalControllerHandler;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.format.DateTimeFormatter;
 
 @Getter
-@Builder
 public class ErrorResponse {
 
-    @JsonFormat(
-            shape = JsonFormat.Shape.STRING,
-            pattern = "yyyy-MM-dd HH:mm:ss",
-            locale = "Asia/Seoul"
-    )
-
+    private final String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
     private int status;
     private String message;
-    private LocalDateTime timestamp;
     private String path;
-    private List<VaildationError> vaildErrors;
+    private Object data;
 
-    public static ErrorResponse onFailure(Error error, HttpServletRequest request) {
+
+    @Builder
+    public ErrorResponse(int status, String message,String path, Object data) {
+        this.status = status;
+        this.message = message;
+        this.path = path;
+        this.data = data;
+    }
+
+    public static ErrorResponse onFailure(Error error) {
+        HttpServletRequest request = GlobalControllerHandler.getRequest();
         return ErrorResponse.builder()
                 .status(error.getHttpStatus().value())
                 .message(error.getMessage())
-                .timestamp(LocalDateTime.now())
                 .path(request.getRequestURI())
+                .data(null)
                 .build();
     }
 
     public static ErrorResponse onFailure(Error error, String message) {
+        HttpServletRequest request = GlobalControllerHandler.getRequest();
         return ErrorResponse.builder()
                 .status(error.getHttpStatus().value())
                 .message(message)
+                .path(request.getRequestURI())
+                .data(null)
                 .build();
     }
-
-    @Data
-    @RequiredArgsConstructor
-    private static class VaildationError {
-        private final  String field;
-        private final String message;
-    }
-
-    public void addVaildationError(String field, String message) {
-        if (Objects.isNull(vaildErrors)){
-            vaildErrors = new ArrayList<>();
-        }
-        vaildErrors.add(new VaildationError(field, message));
-    }
-
 
 }

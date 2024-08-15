@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.redis;
+package co.orange.ddanzi.global.config.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Value;

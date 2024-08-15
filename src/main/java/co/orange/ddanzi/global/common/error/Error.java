@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public enum Error {
     // Default
     ERROR(HttpStatus.BAD_REQUEST, "Request processing failed"),
@@ -15,13 +15,12 @@ public enum Error {
     ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
 
-    // 401 UNAUTHORIZED
+    // 403 UNAUTHORIZED
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED,"Unauthorized user"),
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "Invalid JWT"),
     LOG_OUT_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"Logged out user"),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED,"JWT expired"),
     JWT_TOKEN_NOT_EXISTS(HttpStatus.UNAUTHORIZED,"JWT value does not exist in header"),
-
-    // 403 Forbidden
 
 
     // 404 NOT FOUND
@@ -42,7 +41,7 @@ public enum Error {
 
     // 409 CONFLICT,
     ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
-
+    AUTHENTICATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "The identity authentication of user already exists."),
 
 
     // 500 INTERNAL SERVER ERROR

@@ -9,7 +9,7 @@ import co.orange.ddanzi.global.common.error.Error;
 import co.orange.ddanzi.global.common.response.ApiResponse;
 import co.orange.ddanzi.global.common.response.Success;
 import co.orange.ddanzi.global.config.jwt.AuthUtils;
-import co.orange.ddanzi.global.redis.RedisRepository;
+import co.orange.ddanzi.global.config.redis.RedisRepository;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,7 +40,17 @@ public class HomeService {
         Banner banner = bannerRepository.findByIsSelected(Boolean.TRUE);
         List<Product> productList = productRepository.findAllByStock(0);
 
-        List<ProductInfo> productInfoList = setProductList(user, productList, interestProductRepository);
+        List<ProductInfo> productInfoList = new ArrayList<>();
+        if(user!=null) {
+            log.info("User is not null");
+            productInfoList = setProductList(user, productList, interestProductRepository);
+        }
+        else{
+            log.info("User is null");
+            productInfoList = setProductListInNotUser(productList, interestProductRepository);
+        }
+
+
         HomeResponseDto responseDto = HomeResponseDto.builder()
                 .homeImgUrl(banner.getImgUrl())
                 .productList(productInfoList).build();
@@ -48,10 +59,19 @@ public class HomeService {
 
     @Transactional
     public ApiResponse<?> getProductDetail(String devicetoken, String productId){
+        User user = authUtils.getUser();
+        List<ProductInfo> productInfoList = new ArrayList<>();
+
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);
         if(product == null){
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
+        }
+
+        Boolean isInterested = Boolean.FALSE;
+        if(user!=null) {
+            log.info("User is not null");
+            isInterested = interestProductRepository.existsByIdUserAndIdProduct(user, product);
         }
         log.info("해당 상품의 리프 카테고리 찾기");
         if(product.getLeafCategory() == null){
@@ -91,6 +111,7 @@ public class HomeService {
                 .infoUrl(product.getInfoUrl())
                 .stockCount(product.getStock())
                 .infoUrl(product.getInfoUrl())
+                .isInterested(isInterested)
                 .interestCount(interestCount)
                 .optionList(optionList)
                 .build();
@@ -142,7 +163,23 @@ public class HomeService {
     }
 
 
-
+    public List<ProductInfo> setProductListInNotUser(List<Product> productList, InterestProductRepository interestProductRepository){
+        List<ProductInfo> productInfoList = new ArrayList<>();
+        for(Product product : productList){
+            Discount discount = discountRepository.findById(product.getId()).orElse(null);
+            productInfoList.add(ProductInfo.builder()
+                    .productId(product.getId())
+                    .kakaoProductId(product.getKakaoProductId())
+                    .name(product.getName())
+                    .originPrice(product.getOriginPrice())
+                    .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
+                    .imgUrl(product.getImgUrl())
+                    .interestCount(interestProductRepository.countByProductIdWithLimit(product.getId()))
+                    .isInterested(false)
+                    .build());
+        }
+        return productInfoList;
+    }
 
 
     @Transactional

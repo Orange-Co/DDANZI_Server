@@ -18,6 +18,7 @@ public class HomeDetailResponseDto {
     private Integer salePrice;
     private Integer stockCount;
     private String infoUrl;
+    private Boolean isInterested;
     private Integer interestCount;
     private List<OptionInfo> optionList;
 }

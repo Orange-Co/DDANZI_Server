@@ -60,7 +60,6 @@ public class HomeService {
     @Transactional
     public ApiResponse<?> getProductDetail(String devicetoken, String productId){
         User user = authUtils.getUser();
-        List<ProductInfo> productInfoList = new ArrayList<>();
 
         log.info("상품 조회 -> product_id: {}", productId);
         Product product = productRepository.findById(productId).orElse(null);

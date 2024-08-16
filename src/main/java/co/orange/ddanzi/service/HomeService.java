@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -95,9 +94,9 @@ public class HomeService {
         log.info("해당 상품의 찜 개수 조회");
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
 
-        log.info("최근 본 상품 등록");
         redisRepository.saveDeviceToken(devicetoken, productId);
-        log.info("최근 본 상품 등록 성공");
+        log.info("최근 본 상품 등록");
+
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()
                 .name(product.getName())
                 .imgUrl(product.getImgUrl())

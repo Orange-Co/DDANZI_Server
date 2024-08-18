@@ -17,7 +17,12 @@ public class TermService {
     private final TermOrderRepository termOrderRepository;
     private final OrderAgreementRepository orderAgreementRepository;
 
-    public void createOrderAgreement(Order order, Long termOrderId, Boolean isAgreed){
+    public void createOrderAgreements(Order order){
+        createOrderAgreement(order, 1L);
+        createOrderAgreement(order, 2L);
+        createOrderAgreement(order, 3L);
+    }
+    public void createOrderAgreement(Order order, Long termOrderId){
         log.info("Creating order agreements for term order {}", termOrderId);
         TermOrder termOrder = termOrderRepository.findById(termOrderId).orElseThrow(()->new RuntimeException("Term order not found"));
 
@@ -28,7 +33,7 @@ public class TermService {
 
         OrderAgreement orderAgreement = OrderAgreement.builder()
                 .id(orderAgreementId)
-                .isAgreed(isAgreed)
+                .isAgreed(true)
                 .build();
 
         orderAgreementRepository.save(orderAgreement);

@@ -9,5 +9,5 @@ public class AddressInfo {
     private String recipient;
     private String zipCode;
     private String address;
-    private String phone;
+    private String recipientPhone;
 }

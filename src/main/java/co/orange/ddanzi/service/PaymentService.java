@@ -10,10 +10,12 @@ import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
+import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.payment.CreatePaymentRequestDto;
 import co.orange.ddanzi.dto.payment.CreatePaymentResponseDto;
 import co.orange.ddanzi.dto.payment.UpdatePaymentRequestDto;
 import co.orange.ddanzi.dto.payment.UpdatePaymentResponseDto;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.ItemRepository;
 import co.orange.ddanzi.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentService {
 
+    private final AuthUtils authUtils;
     private final ItemRepository itemRepository;
     private final PaymentRepository paymentRepository;
 
@@ -37,7 +40,7 @@ public class PaymentService {
         if(!item.getStatus().equals(ItemStatus.ON_SALE))
             return ApiResponse.onFailure(Error.ITEM_IS_NOT_ON_SALE,null);
 
-        Payment payment = requestDto.toEntity(item);
+        Payment payment = requestDto.toEntity(item, authUtils.getUser());
         payment = paymentRepository.save(payment);
         log.info("Register payment");
 
@@ -58,11 +61,12 @@ public class PaymentService {
 
     @Transactional
     public ApiResponse<?> endPayment(UpdatePaymentRequestDto requestDto){
+
         Payment payment = paymentRepository.findById(requestDto.getPaymentId()).orElseThrow(()-> new PaymentNotFoundException());
         Item item = payment.getItem();
         Product product = item.getProduct();
 
-        if(!payment.getPayStatus().equals(PayStatus.PENDING)){
+        if(isAvailableToChangePayment(payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
@@ -83,5 +87,13 @@ public class PaymentService {
                 .build();
 
         return ApiResponse.onSuccess(Success.PATCH_PAYMENT_STATUS_SUCCESS, responseDto);
+    }
+
+    private boolean isAvailableToChangePayment(Payment payment){
+        User user = authUtils.getUser();
+        if(payment.getBuyer().equals(user)&&payment.getPayStatus().equals(PayStatus.PENDING))
+            return true;
+        else
+            return false;
     }
 }

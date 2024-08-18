@@ -132,7 +132,7 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getBuyer().equals(user) && order.getStatus()==OrderStatus.SHIPPING)
+        if(!order.getBuyer().equals(user) || order.getStatus()!=OrderStatus.SHIPPING)
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.COMPLETED);
@@ -148,7 +148,7 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getItem().getSeller().equals(user) && order.getStatus()==OrderStatus.ORDER_PLACE)
+        if(!order.getItem().getSeller().equals(user) || order.getStatus()!=OrderStatus.ORDER_PLACE)
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.SHIPPING);

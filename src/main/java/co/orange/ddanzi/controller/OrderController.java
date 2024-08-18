@@ -30,6 +30,11 @@ public class OrderController {
 
     @PatchMapping("/{id}/buy")
     ApiResponse<?> confirmedOrderToBuy(@PathVariable("id") String id){
-        return orderService.updateOrder(id, OrderStatus.COMPLETED);
+        return orderService.confirmedOrderToBuy(id);
+    }
+
+    @PatchMapping("/{id}/sale")
+    ApiResponse<?> confirmedOrderToSale(@PathVariable("id") String id){
+        return orderService.confirmedOrderToSale(id);
     }
 }

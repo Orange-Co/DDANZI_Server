@@ -128,14 +128,30 @@ public class OrderService {
     }
 
     @Transactional
-    public ApiResponse<?> updateOrder(String orderId, OrderStatus orderStatus){
+    public ApiResponse<?> confirmedOrderToBuy(String orderId){
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getBuyer().equals(user))
+        if(!order.getBuyer().equals(user) && order.getStatus()==OrderStatus.SHIPPING)
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
-        order.updateStatus(orderStatus);
+        order.updateStatus(OrderStatus.COMPLETED);
+
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getStatus())
+                .build());
+    }
+
+    @Transactional
+    public ApiResponse<?> confirmedOrderToSale(String orderId){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+
+        if(!order.getItem().getSeller().equals(user) && order.getStatus()==OrderStatus.ORDER_PLACE)
+            return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        order.updateStatus(OrderStatus.SHIPPING);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
@@ -179,4 +195,5 @@ public class OrderService {
 
         return responseDto;
     }
+
 }

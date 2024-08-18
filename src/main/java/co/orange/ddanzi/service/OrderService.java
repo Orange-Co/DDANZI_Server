@@ -1,8 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
-import co.orange.ddanzi.common.exception.DiscountNotFoundException;
-import co.orange.ddanzi.common.exception.PaymentNotFoundException;
+import co.orange.ddanzi.common.exception.*;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.OrderAgreement;
 import co.orange.ddanzi.domain.order.Payment;
@@ -19,8 +18,6 @@ import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.AddressInfo;
 import co.orange.ddanzi.dto.order.CheckProductResponseDto;
 import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
-import co.orange.ddanzi.common.exception.ItemNotFoundException;
-import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.order.OrderResponseDto;
@@ -121,7 +118,11 @@ public class OrderService {
 
     @Transactional
     public ApiResponse<?> getOrder(String orderId){
-        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, null);
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+        Item item = order.getItem();
+        Payment payment = paymentRepository.findByBuyerAndItem(user, item);
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
 

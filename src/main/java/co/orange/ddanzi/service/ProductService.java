@@ -3,15 +3,11 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.domain.product.Category;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
-import co.orange.ddanzi.domain.user.Address;
-import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.AddressInfo;
 import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
 import co.orange.ddanzi.dto.item.ConfirmProductResponseDto;
-import co.orange.ddanzi.dto.order.CheckProductResponseDto;
-import co.orange.ddanzi.global.common.error.Error;
-import co.orange.ddanzi.global.common.response.ApiResponse;
-import co.orange.ddanzi.global.common.response.Success;
+import co.orange.ddanzi.common.response.ApiResponse;
+import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,41 +20,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
-    private final UserRepository userRepository;
+    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final DiscountRepository discountRepository;
-    private final AddressRepository addressRepository;
     private final CategoryService categoryService;
-
-    @Transactional
-    public ApiResponse<?> checkOrderProduct(String productId){
-        Product product = productRepository.findById(productId).orElse(null);
-        if(product == null){
-            return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
-        }
-        Discount discount = discountRepository.findById(productId).orElse(null);
-        User user = userRepository.findById(1L).orElse(null);
-        Address address = addressRepository.findByUser(user);
-
-        AddressInfo addressInfo = AddressInfo.builder()
-                .recipient(user.getAuthentication().getName())
-                .zipCode(address.getZipCode())
-                .address(address.getAddress()+" "+address.getDetailAddress())
-                .phone(user.getAuthentication().getPhone())
-                .build();
-
-        CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
-                .productName(product.getName())
-                .imgUrl(product.getImgUrl())
-                .originPrice(product.getOriginPrice())
-                .addressInfo(addressInfo)
-                .discountPrice(discount.getDiscountPrice())
-                .charge(null)
-                .totalPrice(product.getOriginPrice() - discount.getDiscountPrice())
-                .build();
-        return ApiResponse.onSuccess(Success.GET_ORDER_PRODUCT_SUCCESS, responseDto);
-    }
-
 
 
     @Transactional

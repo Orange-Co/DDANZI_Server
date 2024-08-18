@@ -2,14 +2,13 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.user.*;
 import co.orange.ddanzi.dto.setting.*;
-import co.orange.ddanzi.global.common.error.Error;
-import co.orange.ddanzi.global.common.response.ApiResponse;
-import co.orange.ddanzi.global.common.response.Success;
-import co.orange.ddanzi.global.config.jwt.AuthUtils;
+import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.common.response.ApiResponse;
+import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
-import co.orange.ddanzi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

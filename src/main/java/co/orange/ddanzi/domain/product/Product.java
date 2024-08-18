@@ -27,9 +27,6 @@ public class Product {
     @Column(name = "origin_price", nullable = false)
     private Integer originPrice;        //정가=선물하기 가격
 
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "discount_id")
-//    private Discount discount;          //할인 정보
     @Column(name = "store")
     private String store;
 

@@ -3,7 +3,7 @@ package co.orange.ddanzi.controller;
 import co.orange.ddanzi.dto.setting.AccountRequestDto;
 import co.orange.ddanzi.dto.setting.AddressRequestDto;
 import co.orange.ddanzi.dto.setting.PushAlarmRequestDto;
-import co.orange.ddanzi.global.common.response.ApiResponse;
+import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

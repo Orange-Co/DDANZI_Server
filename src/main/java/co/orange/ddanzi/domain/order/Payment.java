@@ -24,11 +24,13 @@ public class Payment {
     private Integer charge;                 //수수료
 
     @Column(name = "total_price")
-    private Integer totalPrice;             //최종 금액
-
+    private Integer totalPrice;
+    //최종 금액
+    @Enumerated(EnumType.STRING)
     @Column(name = "method")
     private PayMethod method;               //결제 수단
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "pay_status")
     private PayStatus payStatus;               //결제 상태
 
@@ -38,7 +40,7 @@ public class Payment {
     @Column(name = "ended_at")
     private LocalDateTime endedAt;          //결제 완료
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;                      //판매 제품
 
@@ -51,5 +53,10 @@ public class Payment {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
         this.item = item;
+    }
+
+    public void updatePaymentStatus(PayStatus newStatus) {
+        this.payStatus = newStatus;
+        this.endedAt = LocalDateTime.now();
     }
 }

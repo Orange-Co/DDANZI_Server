@@ -66,7 +66,7 @@ public class PaymentService {
         Item item = payment.getItem();
         Product product = item.getProduct();
 
-        if(isAvailableToChangePayment(payment)){
+        if(!isAvailableToChangePayment(payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
@@ -91,7 +91,7 @@ public class PaymentService {
 
     private boolean isAvailableToChangePayment(Payment payment){
         User user = authUtils.getUser();
-        if(payment.getBuyer().equals(user)&&payment.getPayStatus().equals(PayStatus.PENDING))
+        if(payment.getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING))
             return true;
         else
             return false;

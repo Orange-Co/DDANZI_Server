@@ -14,6 +14,7 @@ public enum Error {
     // 400 BAD REQUEST
     ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
+    ITEM_IS_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "The item is not on sale."),
 
     // 403 UNAUTHORIZED
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED,"Unauthorized user"),

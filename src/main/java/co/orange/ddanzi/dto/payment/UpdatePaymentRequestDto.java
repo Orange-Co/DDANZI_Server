@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class UpdatePaymentRequestDto {
-    private String paymentId;
+    private Long paymentId;
     private PayStatus payStatus;
 }

@@ -50,6 +50,7 @@ public enum Error {
     ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
     AUTHENTICATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "The identity authentication of user already exists."),
     PAYMENT_CANNOT_CHANGE(HttpStatus.CONFLICT, "The payment status cannot be changed."),
+    ORDER_STATUS_CANNOT_CHANGE(HttpStatus.CONFLICT, "The order status cannot be changed."),
 
     // 500 INTERNAL SERVER ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),

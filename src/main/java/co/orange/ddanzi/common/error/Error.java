@@ -16,6 +16,9 @@ public enum Error {
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
     ITEM_IS_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "The item is not on sale."),
 
+    //402 Payment Required
+    PAYMENT_REQUIRED(HttpStatus.PAYMENT_REQUIRED, "Payment is required to place the order."),
+
     // 403 UNAUTHORIZED
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED,"Unauthorized user"),
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "Invalid JWT"),
@@ -47,6 +50,7 @@ public enum Error {
     ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
     AUTHENTICATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "The identity authentication of user already exists."),
     PAYMENT_CANNOT_CHANGE(HttpStatus.CONFLICT, "The payment status cannot be changed."),
+    ORDER_STATUS_CANNOT_CHANGE(HttpStatus.CONFLICT, "The order status cannot be changed."),
 
     // 500 INTERNAL SERVER ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),

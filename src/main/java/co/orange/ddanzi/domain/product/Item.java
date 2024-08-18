@@ -48,4 +48,8 @@ public class Item {
         this.seller = seller;
         this.product = product;
     }
+
+    public void updateStatus(ItemStatus newStatus) {
+        this.status = newStatus;
+    }
 }

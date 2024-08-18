@@ -110,10 +110,7 @@ public class OrderService {
 
 
         Order order = createOrderRecord(requestDto, user, item, optionDetail);
-
-        termService.createOrderAgreement(order, 1L, requestDto.getOrderTerm1());
-        termService.createOrderAgreement(order, 2L, requestDto.getOrderTerm2());
-        termService.createOrderAgreement(order, 3L, requestDto.getOrderTerm3());
+        termService.createOrderAgreements(order);
 
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }

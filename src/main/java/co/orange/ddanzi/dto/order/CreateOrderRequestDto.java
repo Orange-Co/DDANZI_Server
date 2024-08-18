@@ -14,9 +14,6 @@ public class CreateOrderRequestDto {
     private String itemId;
     private Long paymentId;
     private Long selectedOptionDetailId;
-    private Boolean orderTerm1;
-    private Boolean orderTerm2;
-    private Boolean orderTerm3;
 
     public Order toOrder(String orderId, User buyer, Item item, OptionDetail optionDetail) {
         return Order.builder()

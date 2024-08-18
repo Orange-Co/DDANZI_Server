@@ -1,5 +1,6 @@
 package co.orange.ddanzi.controller;
 
+import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.service.OrderService;
@@ -25,5 +26,10 @@ public class OrderController {
     @GetMapping("/{id}")
     ApiResponse<?> getOrder(@PathVariable("id") String id){
         return orderService.getOrder(id);
+    }
+
+    @PatchMapping("/{id}/buy")
+    ApiResponse<?> confirmedOrderToBuy(@PathVariable("id") String id){
+        return orderService.updateOrder(id, OrderStatus.COMPLETED);
     }
 }

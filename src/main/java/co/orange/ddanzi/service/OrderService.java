@@ -5,6 +5,7 @@ import co.orange.ddanzi.common.exception.*;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.OrderAgreement;
 import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.order.pk.OrderAgreementId;
 import co.orange.ddanzi.domain.product.Discount;
@@ -21,6 +22,7 @@ import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.order.OrderResponseDto;
+import co.orange.ddanzi.dto.order.UpdateOrderResponseDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
@@ -123,6 +125,22 @@ public class OrderService {
         Item item = order.getItem();
         Payment payment = paymentRepository.findByBuyerAndItem(user, item);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
+    }
+
+    @Transactional
+    public ApiResponse<?> updateOrder(String orderId, OrderStatus orderStatus){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+
+        if(!order.getBuyer().equals(user))
+            return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        order.updateStatus(orderStatus);
+
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getStatus())
+                .build());
     }
 
 

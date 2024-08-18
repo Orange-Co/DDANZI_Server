@@ -2,6 +2,7 @@ package co.orange.ddanzi.controller;
 
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.dto.payment.CreatePaymentRequestDto;
+import co.orange.ddanzi.dto.payment.UpdatePaymentRequestDto;
 import co.orange.ddanzi.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,5 +19,10 @@ public class PaymentController {
     @PostMapping("/start")
     ApiResponse<?> startPayment(@RequestBody CreatePaymentRequestDto requestDto){
         return paymentService.startPayment(requestDto);
+    }
+
+    @PostMapping("/end")
+    ApiResponse<?> endPayment(@RequestBody UpdatePaymentRequestDto requestDto){
+        return paymentService.endPayment(requestDto);
     }
 }

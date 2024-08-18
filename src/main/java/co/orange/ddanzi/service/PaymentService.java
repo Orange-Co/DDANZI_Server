@@ -10,6 +10,7 @@ import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.dto.payment.CreatePaymentRequestDto;
 import co.orange.ddanzi.dto.payment.CreatePaymentResponseDto;
+import co.orange.ddanzi.dto.payment.UpdatePaymentRequestDto;
 import co.orange.ddanzi.repository.ItemRepository;
 import co.orange.ddanzi.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
@@ -50,5 +51,10 @@ public class PaymentService {
                 .startedAt(payment.getStartedAt())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_PAYMENT_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> endPayment(UpdatePaymentRequestDto requestDto){
+        return ApiResponse.onSuccess(Success.PATCH_PAYMENT_STATUS_SUCCESS, null);
     }
 }

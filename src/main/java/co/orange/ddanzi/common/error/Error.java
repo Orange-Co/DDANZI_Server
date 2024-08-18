@@ -29,6 +29,8 @@ public enum Error {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User does not exist."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "The product does not exist."),
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "The item does not exist."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "The order does not exist."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "The payment does not exist."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "The category of the product does not exist."),
     DISCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "The discount info of the category does not exist."),
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "The address does not exist."),
@@ -44,7 +46,7 @@ public enum Error {
     // 409 CONFLICT,
     ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
     AUTHENTICATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "The identity authentication of user already exists."),
-
+    PAYMENT_CANNOT_CHANGE(HttpStatus.CONFLICT, "The payment status cannot be changed."),
 
     // 500 INTERNAL SERVER ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),

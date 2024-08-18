@@ -21,4 +21,9 @@ public class OrderController {
     ApiResponse<?> createOrder(@RequestBody CreateOrderRequestDto requestDto){
         return orderService.createOrder(requestDto);
     }
+
+    @GetMapping("/{id}")
+    ApiResponse<?> getOrder(@PathVariable("id") String id){
+        return orderService.getOrder(id);
+    }
 }

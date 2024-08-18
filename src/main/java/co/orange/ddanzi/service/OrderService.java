@@ -119,6 +119,12 @@ public class OrderService {
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
+    @Transactional
+    public ApiResponse<?> getOrder(String orderId){
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, null);
+    }
+
+
     private Order createOrderRecord(CreateOrderRequestDto requestDto, User user, Item item, OptionDetail optionDetail){
         String orderId = createOrderId(requestDto.getItemId());
         Order order = requestDto.toOrder(orderId, user, item, optionDetail);

@@ -4,13 +4,16 @@ import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.PaymentNotFoundException;
 import co.orange.ddanzi.domain.order.Order;
+import co.orange.ddanzi.domain.order.OrderAgreement;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
+import co.orange.ddanzi.domain.order.pk.OrderAgreementId;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
+import co.orange.ddanzi.domain.term.TermOrder;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.AddressInfo;
@@ -44,8 +47,12 @@ public class OrderService {
     private final AddressRepository addressRepository;
     private final OptionDetailRepository optionDetailRepository;
 
+
     @Autowired
     AddressService addressService;
+
+    @Autowired
+    TermService termService;
 
 
     @Transactional
@@ -80,35 +87,44 @@ public class OrderService {
 
     @Transactional
     public ApiResponse<?> createOrder(CreateOrderRequestDto requestDto){
+        log.info("Checking the payment is done.");
         Payment payment = paymentRepository.findById(requestDto.getPaymentId()).orElseThrow(() -> new PaymentNotFoundException());
         if(!payment.getPayStatus().equals(PayStatus.PAID))
+            return ApiResponse.onFailure(Error.PAYMENT_REQUIRED,null);
+
+        User user = authUtils.getUser();
+        if(!payment.getBuyer().equals(user))
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE,null);
 
         Item item = itemRepository.findById(requestDto.getItemId()).orElseThrow(() -> new ItemNotFoundException());
         item.updateStatus(ItemStatus.CLOSED);
+        log.info("Updated item status.");
 
-        OptionDetail optionDetail = optionDetailRepository.findById(requestDto.getSelectedOptionDetailId()).orElseThrow(null);
+        OptionDetail optionDetail = new OptionDetail();
+        if(requestDto.getSelectedOptionDetailId() != null) {
+            log.info("Selected option detail id : " + requestDto.getSelectedOptionDetailId());
+            optionDetail = optionDetailRepository.findById(requestDto.getSelectedOptionDetailId()).orElseThrow(null);
+        }
+        else
+            optionDetail = null;
+        log.info("Setting selected optionDetail");
 
+
+        Order order = createOrderRecord(requestDto, user, item, optionDetail);
+
+        termService.createOrderAgreement(order, 1L, requestDto.getOrderTerm1());
+        termService.createOrderAgreement(order, 2L, requestDto.getOrderTerm2());
+        termService.createOrderAgreement(order, 3L, requestDto.getOrderTerm3());
+
+        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, setOrderResponseDto(user, order, item, payment));
+    }
+
+    private Order createOrderRecord(CreateOrderRequestDto requestDto, User user, Item item, OptionDetail optionDetail){
         String orderId = createOrderId(requestDto.getItemId());
-        Order order = requestDto.toOrder(orderId, authUtils.getUser(), item, optionDetail);
+        Order order = requestDto.toOrder(orderId, user, item, optionDetail);
         order = orderRepository.save(order);
-
-        Product product = item.getProduct();
-        Discount discount = discountRepository.findById(product.getId()).orElseThrow(() -> new DiscountNotFoundException());
-
-        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, OrderResponseDto.builder()
-                        .orderId(order.getId())
-                        .orderStatus(order.getStatus())
-                        .productName(product.getName())
-                        .imgUrl(product.getImgUrl())
-                        .originPrice(product.getOriginPrice())
-                        .addressInfo(addressService.setAddressInfo(authUtils.getUser()))
-                        .paymentMethod(payment.getMethod())
-                        .completedAt(order.getCompletedAt())
-                        .discountPrice(discount.getDiscountPrice())
-                        .charge(payment.getCharge())
-                        .totalPrice(payment.getTotalPrice())
-                .build());
+        log.info("Create new order, order_id: {}", orderId);
+        return  order;
     }
 
     private String createOrderId(String itemId){
@@ -116,5 +132,26 @@ public class OrderService {
         char firstChar = (char) ('A' + random.nextInt(26));
         char secondChar = (char) ('A' + random.nextInt(26));
         return itemId + firstChar + secondChar;
+    }
+
+    private OrderResponseDto setOrderResponseDto(User user, Order order, Item item, Payment payment){
+        Product product = item.getProduct();
+        Discount discount = discountRepository.findById(product.getId()).orElseThrow(() -> new DiscountNotFoundException());
+
+        OrderResponseDto responseDto = OrderResponseDto.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getStatus())
+                .productName(product.getName())
+                .imgUrl(product.getImgUrl())
+                .originPrice(product.getOriginPrice())
+                .addressInfo(addressService.setAddressInfo(user))
+                .paymentMethod(payment.getMethod())
+                .paidAt(payment.getEndedAt())
+                .discountPrice(discount.getDiscountPrice())
+                .charge(payment.getCharge())
+                .totalPrice(payment.getTotalPrice())
+                .build();
+
+        return responseDto;
     }
 }

@@ -1,8 +1,16 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.common.exception.DiscountNotFoundException;
+import co.orange.ddanzi.common.exception.PaymentNotFoundException;
+import co.orange.ddanzi.domain.order.Order;
+import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
+import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
+import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.AddressInfo;
@@ -12,15 +20,16 @@ import co.orange.ddanzi.common.exception.ItemNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.dto.order.OrderResponseDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
-import co.orange.ddanzi.repository.AddressRepository;
-import co.orange.ddanzi.repository.DiscountRepository;
-import co.orange.ddanzi.repository.ItemRepository;
-import co.orange.ddanzi.repository.ProductRepository;
+import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Random;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,15 +38,21 @@ public class OrderService {
     private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
+    private final OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
     private final DiscountRepository discountRepository;
     private final AddressRepository addressRepository;
+    private final OptionDetailRepository optionDetailRepository;
+
+    @Autowired
+    AddressService addressService;
+
 
     @Transactional
     public ApiResponse<?> checkOrderProduct(String productId){
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException());
         Item item = itemRepository.findNearestExpiryItem(product).orElseThrow(()-> new ItemNotFoundException());
-
         Discount discount = discountRepository.findById(productId).orElse(null);
 
         User user = authUtils.getUser();
@@ -65,7 +80,41 @@ public class OrderService {
 
     @Transactional
     public ApiResponse<?> createOrder(CreateOrderRequestDto requestDto){
-        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, null);
+        Payment payment = paymentRepository.findById(requestDto.getPaymentId()).orElseThrow(() -> new PaymentNotFoundException());
+        if(!payment.getPayStatus().equals(PayStatus.PAID))
+            return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE,null);
+
+        Item item = itemRepository.findById(requestDto.getItemId()).orElseThrow(() -> new ItemNotFoundException());
+        item.updateStatus(ItemStatus.CLOSED);
+
+        OptionDetail optionDetail = optionDetailRepository.findById(requestDto.getSelectedOptionDetailId()).orElseThrow(null);
+
+        String orderId = createOrderId(requestDto.getItemId());
+        Order order = requestDto.toOrder(orderId, authUtils.getUser(), item, optionDetail);
+        order = orderRepository.save(order);
+
+        Product product = item.getProduct();
+        Discount discount = discountRepository.findById(product.getId()).orElseThrow(() -> new DiscountNotFoundException());
+
+        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, OrderResponseDto.builder()
+                        .orderId(order.getId())
+                        .orderStatus(order.getStatus())
+                        .productName(product.getName())
+                        .imgUrl(product.getImgUrl())
+                        .originPrice(product.getOriginPrice())
+                        .addressInfo(addressService.setAddressInfo(authUtils.getUser()))
+                        .paymentMethod(payment.getMethod())
+                        .completedAt(order.getCompletedAt())
+                        .discountPrice(discount.getDiscountPrice())
+                        .charge(payment.getCharge())
+                        .totalPrice(payment.getTotalPrice())
+                .build());
     }
 
+    private String createOrderId(String itemId){
+        Random random = new Random();
+        char firstChar = (char) ('A' + random.nextInt(26));
+        char secondChar = (char) ('A' + random.nextInt(26));
+        return itemId + firstChar + secondChar;
+    }
 }

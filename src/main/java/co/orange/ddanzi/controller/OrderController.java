@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OrderController {
     private final OrderService orderService;
-    private final ProductService productService;
 
     @GetMapping("/product/{id}")
     ApiResponse<?> checkOrderProduct(@PathVariable("id") String id) {
-        return productService.checkOrderProduct(id);
+        return orderService.checkOrderProduct(id);
     }
 }

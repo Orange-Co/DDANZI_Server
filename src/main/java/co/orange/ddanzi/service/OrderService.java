@@ -7,16 +7,12 @@ import co.orange.ddanzi.domain.order.OrderAgreement;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
-import co.orange.ddanzi.domain.order.pk.OrderAgreementId;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
-import co.orange.ddanzi.domain.term.TermOrder;
-import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.AddressInfo;
 import co.orange.ddanzi.dto.order.CheckProductResponseDto;
 import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -43,7 +39,6 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final DiscountRepository discountRepository;
-    private final AddressRepository addressRepository;
     private final OptionDetailRepository optionDetailRepository;
 
 
@@ -62,21 +57,13 @@ public class OrderService {
         Discount discount = discountRepository.findById(productId).orElse(null);
 
         User user = authUtils.getUser();
-        Address address = addressRepository.findByUser(user);
-
-        AddressInfo addressInfo = AddressInfo.builder()
-                .recipient(address.getRecipient())
-                .zipCode(address.getZipCode())
-                .address(address.getAddress()+" "+address.getDetailAddress())
-                .recipientPhone(address.getRecipientPhone())
-                .build();
 
         CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
                 .itemId(item.getId())
                 .productName(product.getName())
                 .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
-                .addressInfo(addressInfo)
+                .addressInfo(addressService.setAddressInfo(user))
                 .discountPrice(discount.getDiscountPrice())
                 .charge(100)
                 .totalPrice(product.getOriginPrice() - discount.getDiscountPrice())

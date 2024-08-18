@@ -7,6 +7,7 @@ import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.AddressInfo;
 import co.orange.ddanzi.dto.order.CheckProductResponseDto;
+import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
 import co.orange.ddanzi.global.common.exception.ItemNotFoundException;
 import co.orange.ddanzi.global.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.global.common.response.ApiResponse;
@@ -61,4 +62,10 @@ public class OrderService {
                 .build();
         return ApiResponse.onSuccess(Success.GET_ORDER_PRODUCT_SUCCESS, responseDto);
     }
+
+    @Transactional
+    public ApiResponse<?> createOrder(CreateOrderRequestDto requestDto){
+        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, null);
+    }
+
 }

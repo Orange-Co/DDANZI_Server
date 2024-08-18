@@ -3,6 +3,7 @@ package co.orange.ddanzi.domain.order;
 import co.orange.ddanzi.domain.order.enums.PayMethod;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
+import co.orange.ddanzi.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,8 +45,13 @@ public class Payment {
     @JoinColumn(name = "item_id")
     private Item item;                      //판매 제품
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buyer_id")
+    private User buyer;                     //구매자
+
     @Builder
-    public Payment(Integer charge, Integer totalPrice, PayMethod method, PayStatus payStatus, LocalDateTime startedAt, LocalDateTime endedAt, Item item) {
+    public Payment(Integer charge, Integer totalPrice, PayMethod method, PayStatus payStatus, LocalDateTime startedAt, LocalDateTime endedAt, Item item, User buyer) {
         this.charge = charge;
         this.totalPrice = totalPrice;
         this.method = method;
@@ -53,6 +59,7 @@ public class Payment {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
         this.item = item;
+        this.buyer = buyer;
     }
 
     public void updatePaymentStatus(PayStatus newStatus) {

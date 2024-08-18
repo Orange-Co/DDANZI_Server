@@ -40,6 +40,7 @@ public enum Success {
     GET_SETTING_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully retrieved the account."),
 
     PATCH_ORDER_STATUS_SUCCESS(HttpStatus.OK, "Successfully updated the order status."),
+    PATCH_PAYMENT_STATUS_SUCCESS(HttpStatus.OK, "Successfully updated payment status."),
 
     PUT_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully updated the delivery address."),
     PUT_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully updated the account."),
@@ -55,7 +56,8 @@ public enum Success {
 
     CREATE_AUTHENTICATION_SUCCESS(HttpStatus.CREATED, "Successfully verified identity."),
     CREATE_PRODUCT_SUCCESS(HttpStatus.CREATED, "Successfully confirmed the product."),
-    CREATE_ORDER_SUCCESS(HttpStatus.CREATED, "Successfully completed the order"),
+    CREATE_PAYMENT_SUCCESS(HttpStatus.CREATED, "Successfully registered payment information."),
+    CREATE_ORDER_SUCCESS(HttpStatus.CREATED, "Successfully completed the order."),
     CREATE_ITEM_SUCCESS(HttpStatus.CREATED, "Successfully listed the item for sale."),
     CREATE_INTEREST_SUCCESS(HttpStatus.CREATED, "Successfully added the product to interest List."),
     CREATE_ADDRESS_SUCCESS(HttpStatus.CREATED, "Successfully added the delivery address."),

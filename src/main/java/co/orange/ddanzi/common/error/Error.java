@@ -16,6 +16,9 @@ public enum Error {
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
     ITEM_IS_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "The item is not on sale."),
 
+    //402 Payment Required
+    PAYMENT_REQUIRED(HttpStatus.PAYMENT_REQUIRED, "Payment is required to place the order."),
+
     // 403 UNAUTHORIZED
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED,"Unauthorized user"),
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "Invalid JWT"),

@@ -23,12 +23,6 @@ public class Order {
     @Column(name = "order_id")
     private String id;                        //주문 고유 ID = UUID
 
-    @Column(name = "charge")
-    private Integer charge;                 //수수료
-
-    @Column(name = "total_price")
-    private Integer totalPrice;             //최종 금액
-
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'ORDER_PLACE'")
     @Column(name = "status", nullable = false)
@@ -55,10 +49,8 @@ public class Order {
 
 
     @Builder
-    public Order(String id, Integer charge, Integer totalPrice, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer, OptionDetail selectedOptionDetail) {
+    public Order(String id, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer, OptionDetail selectedOptionDetail) {
         this.id = id;
-        this.charge = charge;
-        this.totalPrice = totalPrice;
         this.status = status;
         this.createdAt = createdAt;
         this.completedAt = completedAt;

@@ -4,6 +4,7 @@ import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.PayMethod;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
+import co.orange.ddanzi.domain.user.User;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public class CreatePaymentRequestDto {
     private Integer totalPrice;
     private PayMethod method;
 
-    public Payment toEntity(Item item){
+    public Payment toEntity(Item item, User buyer){
         return Payment.builder()
                 .charge(charge)
                 .totalPrice(totalPrice)
@@ -24,6 +25,7 @@ public class CreatePaymentRequestDto {
                 .startedAt(LocalDateTime.now())
                 .endedAt(null)
                 .item(item)
+                .buyer(buyer)
                 .build();
     }
 }

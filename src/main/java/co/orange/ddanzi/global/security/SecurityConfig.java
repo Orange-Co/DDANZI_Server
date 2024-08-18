@@ -1,7 +1,7 @@
-package co.orange.ddanzi.global.config.security;
+package co.orange.ddanzi.global.security;
 
-import co.orange.ddanzi.global.config.jwt.JwtFilter;
-import co.orange.ddanzi.global.config.jwt.JwtUtils;
+import co.orange.ddanzi.global.jwt.JwtFilter;
+import co.orange.ddanzi.global.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

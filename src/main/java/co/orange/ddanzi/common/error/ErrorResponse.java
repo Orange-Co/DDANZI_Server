@@ -1,6 +1,6 @@
-package co.orange.ddanzi.global.common.error;
+package co.orange.ddanzi.common.error;
 
-import co.orange.ddanzi.global.config.handler.GlobalControllerHandler;
+import co.orange.ddanzi.global.handler.GlobalControllerHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
 

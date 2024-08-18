@@ -1,6 +1,6 @@
 package co.orange.ddanzi.domain.product;
 
-import co.orange.ddanzi.global.common.domain.BaseTimeEntity;
+import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.product.pk.ItemAgreementId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;

@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.config.redis;
+package co.orange.ddanzi.global.redis;
 
 import java.util.Set;
 

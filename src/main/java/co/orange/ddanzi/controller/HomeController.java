@@ -1,6 +1,6 @@
 package co.orange.ddanzi.controller;
 
-import co.orange.ddanzi.global.common.response.ApiResponse;
+import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.service.HomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

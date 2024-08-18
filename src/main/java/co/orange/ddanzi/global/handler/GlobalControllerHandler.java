@@ -1,4 +1,4 @@
-package co.orange.ddanzi.global.config.handler;
+package co.orange.ddanzi.global.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;

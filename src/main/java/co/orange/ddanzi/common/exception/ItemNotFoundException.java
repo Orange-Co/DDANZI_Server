@@ -1,6 +1,6 @@
-package co.orange.ddanzi.global.common.exception;
+package co.orange.ddanzi.common.exception;
 
-import co.orange.ddanzi.global.common.error.Error;
+import co.orange.ddanzi.common.error.Error;
 
 public class ItemNotFoundException  extends ApiException{
     public ItemNotFoundException() {

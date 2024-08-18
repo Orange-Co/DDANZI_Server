@@ -1,11 +1,11 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
-import co.orange.ddanzi.common.exception.DiscountNotFoundException;
-import co.orange.ddanzi.common.exception.PaymentNotFoundException;
+import co.orange.ddanzi.common.exception.*;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.OrderAgreement;
 import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.order.pk.OrderAgreementId;
 import co.orange.ddanzi.domain.product.Discount;
@@ -19,11 +19,10 @@ import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.AddressInfo;
 import co.orange.ddanzi.dto.order.CheckProductResponseDto;
 import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
-import co.orange.ddanzi.common.exception.ItemNotFoundException;
-import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.order.OrderResponseDto;
+import co.orange.ddanzi.dto.order.UpdateOrderResponseDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
@@ -119,6 +118,48 @@ public class OrderService {
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
+    @Transactional
+    public ApiResponse<?> getOrder(String orderId){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+        Item item = order.getItem();
+        Payment payment = paymentRepository.findByBuyerAndItem(user, item);
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
+    }
+
+    @Transactional
+    public ApiResponse<?> confirmedOrderToBuy(String orderId){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+
+        if(!order.getBuyer().equals(user) || order.getStatus()!=OrderStatus.SHIPPING)
+            return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        order.updateStatus(OrderStatus.COMPLETED);
+
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getStatus())
+                .build());
+    }
+
+    @Transactional
+    public ApiResponse<?> confirmedOrderToSale(String orderId){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+
+        if(!order.getItem().getSeller().equals(user) || order.getStatus()!=OrderStatus.ORDER_PLACE)
+            return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        order.updateStatus(OrderStatus.SHIPPING);
+
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getStatus())
+                .build());
+    }
+
+
     private Order createOrderRecord(CreateOrderRequestDto requestDto, User user, Item item, OptionDetail optionDetail){
         String orderId = createOrderId(requestDto.getItemId());
         Order order = requestDto.toOrder(orderId, user, item, optionDetail);
@@ -154,4 +195,5 @@ public class OrderService {
 
         return responseDto;
     }
+
 }

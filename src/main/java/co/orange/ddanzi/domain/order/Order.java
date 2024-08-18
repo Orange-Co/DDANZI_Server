@@ -59,4 +59,8 @@ public class Order {
         this.selectedOptionDetail = selectedOptionDetail;
 
     }
+
+    public void updateStatus(OrderStatus newStatus) {
+        this.status = newStatus;
+    }
 }

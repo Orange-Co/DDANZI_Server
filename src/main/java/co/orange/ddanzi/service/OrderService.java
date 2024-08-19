@@ -183,7 +183,7 @@ public class OrderService {
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressService.setAddressInfo(user))
                 .sellerNickname(item.getSeller().getNickname())
-                .paymentMethod(payment.getMethod())
+                .paymentMethod(payment.getMethod().getDescription())
                 .paidAt(payment.getEndedAt())
                 .discountPrice(discount.getDiscountPrice())
                 .charge(payment.getCharge())

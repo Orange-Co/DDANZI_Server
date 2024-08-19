@@ -9,6 +9,7 @@ import lombok.Getter;
 public class CheckProductResponseDto {
     private String itemId;
     private String productName;
+    private String modifiedProductName;
     private String imgUrl;
     private Integer originPrice;
     private AddressInfo addressInfo;

@@ -61,6 +61,7 @@ public class OrderService {
         CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
                 .itemId(item.getId())
                 .productName(product.getName())
+                .modifiedProductName(createModifiedProductName(product.getName()))
                 .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressService.setAddressInfo(user))
@@ -135,6 +136,10 @@ public class OrderService {
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
                 .build());
+    }
+
+    private String createModifiedProductName(String productName){
+        return productName.replaceAll("[^a-zA-Z0-9\\s_]", "");
     }
 
     private void createOrderOptionDetails(Order order, List<Long> optionDetailIds){

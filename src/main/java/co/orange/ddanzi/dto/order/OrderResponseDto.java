@@ -18,6 +18,7 @@ public class OrderResponseDto {
     private String imgUrl;
     private Integer originPrice;
     private AddressInfo addressInfo;
+    private String sellerNickname;
     private PayMethod paymentMethod;
     private LocalDateTime paidAt;
     private Integer discountPrice;

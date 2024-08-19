@@ -3,7 +3,6 @@ package co.orange.ddanzi.domain.order;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.product.Item;
-import co.orange.ddanzi.domain.product.OptionDetail;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
@@ -43,20 +41,15 @@ public class Order {
     @JoinColumn(name = "buyer_id")
     private User buyer;                   //구매자
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "selected_option_detail_id")
-    private OptionDetail selectedOptionDetail;      //선택된 옵션
-
 
     @Builder
-    public Order(String id, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer, OptionDetail selectedOptionDetail) {
+    public Order(String id, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer) {
         this.id = id;
         this.status = status;
         this.createdAt = createdAt;
         this.completedAt = completedAt;
         this.item = item;
         this.buyer = buyer;
-        this.selectedOptionDetail = selectedOptionDetail;
 
     }
 

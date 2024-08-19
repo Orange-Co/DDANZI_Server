@@ -3,7 +3,6 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.*;
 import co.orange.ddanzi.domain.order.Order;
-import co.orange.ddanzi.domain.order.OrderAgreement;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
@@ -27,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -39,14 +39,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final DiscountRepository discountRepository;
-    private final OptionDetailRepository optionDetailRepository;
 
 
     @Autowired
     AddressService addressService;
-
     @Autowired
     TermService termService;
+    @Autowired
+    OrderOptionDetailService orderOptionDetailService;
 
 
     @Transactional
@@ -86,18 +86,12 @@ public class OrderService {
         item.updateStatus(ItemStatus.CLOSED);
         log.info("Updated item status.");
 
-        OptionDetail optionDetail = new OptionDetail();
-        if(requestDto.getSelectedOptionDetailId() != null) {
-            log.info("Selected option detail id : " + requestDto.getSelectedOptionDetailId());
-            optionDetail = optionDetailRepository.findById(requestDto.getSelectedOptionDetailId()).orElseThrow(null);
-        }
-        else
-            optionDetail = null;
-        log.info("Setting selected optionDetail");
 
-
-        Order order = createOrderRecord(requestDto, user, item, optionDetail);
+        Order order = createOrderRecord(requestDto, user, item);
         termService.createOrderAgreements(order);
+
+        createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
+        log.info("Created order option details.");
 
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
@@ -143,10 +137,17 @@ public class OrderService {
                 .build());
     }
 
+    private void createOrderOptionDetails(Order order, List<Long> optionDetailIds){
+        for(Long optionDetailId : optionDetailIds){
+            OptionDetail optionDetail = orderOptionDetailService.getOptionDetailById(optionDetailId);
+            orderOptionDetailService.createOrderOptionDetail(order, optionDetail);
+        }
+    }
 
-    private Order createOrderRecord(CreateOrderRequestDto requestDto, User user, Item item, OptionDetail optionDetail){
+
+    private Order createOrderRecord(CreateOrderRequestDto requestDto, User user, Item item){
         String orderId = createOrderId(requestDto.getItemId());
-        Order order = requestDto.toOrder(orderId, user, item, optionDetail);
+        Order order = requestDto.toOrder(orderId, user, item);
         order = orderRepository.save(order);
         log.info("Create new order, order_id: {}", orderId);
         return  order;

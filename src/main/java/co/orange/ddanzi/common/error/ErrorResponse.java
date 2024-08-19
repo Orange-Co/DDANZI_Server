@@ -1,6 +1,8 @@
 package co.orange.ddanzi.common.error;
 
 import co.orange.ddanzi.global.handler.GlobalControllerHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
 
@@ -43,6 +45,15 @@ public class ErrorResponse {
                 .path(request.getRequestURI())
                 .data(null)
                 .build();
+    }
+
+    public String toJson() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "{\"message\":\"JSON 변환 오류\", \"code\":500}";
+        }
     }
 
 }

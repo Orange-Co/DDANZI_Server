@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class CreatePaymentResponseDto {
-    private Long paymentId;
+    private String paymentId;
     private PayStatus payStatus;
     private LocalDateTime startedAt;
 }

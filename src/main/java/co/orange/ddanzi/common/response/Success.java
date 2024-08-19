@@ -46,7 +46,6 @@ public enum Success {
     DELETE_INTEREST_SUCCESS(HttpStatus.OK, "Successfully removed the product from interest List."),
     DELETE_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully deleted the delivery address."),
     DELETE_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully deleted the account"),
-    LOGOUT_SUCCESS(HttpStatus.OK, "Successfully log out the user"),
 
 
     // 201 CREATED
@@ -54,6 +53,7 @@ public enum Success {
     SIGNIN_APPLE_SUCCESS(HttpStatus.CREATED, "Successfully sign in using Kakao"),
 
     REFRESH_ACCESS_TOKEN_SUCCESS(HttpStatus.CREATED, "Successfully refreshed access token."),
+    LOGOUT_SUCCESS(HttpStatus.CREATED, "Successfully log out the user"),
 
     SET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully set the redis key"),
 

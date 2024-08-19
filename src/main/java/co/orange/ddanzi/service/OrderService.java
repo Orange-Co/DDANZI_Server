@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Slf4j
@@ -99,7 +100,7 @@ public class OrderService {
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
 
-        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, setOrderResponseDto(user, order, item, payment));
+        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, Map.of("orderId", order.getId()));
     }
 
     @Transactional

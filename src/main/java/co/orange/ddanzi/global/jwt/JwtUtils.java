@@ -161,9 +161,8 @@ public class JwtUtils {
                     .setSigningKey(jwtSecretKey)
                     .parseClaimsJws(token)
                     .getBody();
-            return claims.get("email").toString(); // 이메일 정보 반환
+            return claims.get("email").toString();
         } catch (Exception e) {
-            // 토큰이 유효하지 않거나 에러 발생 시 null 반환
             return null;
         }
     }
@@ -173,10 +172,19 @@ public class JwtUtils {
         return Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
     }
 
+
     public boolean isLogout(String accessToken) {
         return !ObjectUtils.isEmpty(stringRedisTemplate.opsForValue().get(accessToken));
     }
 
+    public void setBlackList(String accessToken) {
+        Long expiration = getExpiration(accessToken);
+        stringRedisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+    }
 
+    public Long getExpiration(String token) {
+        Date expiration = getClaims(token).getExpiration();
+        return expiration.getTime() - new Date().getTime();
+    }
 
 }

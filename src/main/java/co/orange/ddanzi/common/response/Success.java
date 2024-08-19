@@ -46,6 +46,7 @@ public enum Success {
     DELETE_INTEREST_SUCCESS(HttpStatus.OK, "Successfully removed the product from interest List."),
     DELETE_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully deleted the delivery address."),
     DELETE_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully deleted the account"),
+    LOGOUT_SUCCESS(HttpStatus.OK, "Successfully log out the user"),
 
 
     // 201 CREATED

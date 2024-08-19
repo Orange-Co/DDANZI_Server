@@ -32,6 +32,11 @@ public class AuthController {
         return oAuthService.kakaoSignIn(requestDto.getToken());
     }
 
+    @PostMapping("/refreshtoken")
+    ApiResponse<?> refreshAccessToken(@RequestBody String refreshToken) throws JsonProcessingException{
+        return oAuthService.refreshAccessToken(refreshToken);
+    }
+
     @PostMapping("/verification")
     ApiResponse<?> verify(@RequestBody VerifyRequestDto requestDto) {
         return authService.verify(requestDto);

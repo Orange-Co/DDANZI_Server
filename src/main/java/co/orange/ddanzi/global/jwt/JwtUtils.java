@@ -117,6 +117,15 @@ public class JwtUtils {
         }
     }
 
+    public boolean isValidRefreshToken(String email, String refreshToken) {
+        if (email == null) {
+            return false; // 이메일이 null인 경우 유효하지 않음
+        }
+        String storedRefreshToken = stringRedisTemplate.opsForValue().get(email);
+        return refreshToken.equals(storedRefreshToken);
+    }
+
+
     public boolean validateTokenInLogoutPage(String token) {
         if (!StringUtils.hasText(token)) {
             return false;
@@ -144,6 +153,19 @@ public class JwtUtils {
 
     public String getIdTokenFromToken(String token) {
         return getClaims(token).get("email").toString();
+    }
+
+    public String getIdFromRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtSecretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.get("email").toString(); // 이메일 정보 반환
+        } catch (Exception e) {
+            // 토큰이 유효하지 않거나 에러 발생 시 null 반환
+            return null;
+        }
     }
 
 

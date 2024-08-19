@@ -69,7 +69,7 @@ public class OAuthService {
             return ApiResponse.onFailure(Error.REFRESH_TOKEN_IS_NULL, Map.of("refreshtoken", refreshToken));
         }
 
-        String email = jwtUtils.getIdTokenFromToken(refreshToken);
+        String email = jwtUtils.getIdFromRefreshToken(refreshToken);
 
         if (!jwtUtils.isValidRefreshToken(email, refreshToken)) {
             return ApiResponse.onFailure(Error.REFRESH_TOKEN_EXPIRED, Map.of("refreshtoken", refreshToken));

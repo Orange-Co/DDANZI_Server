@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class UpdatePaymentResponseDto {
-    private Long paymentId;
+    private String paymentId;
     private PayStatus payStatus;
     private LocalDateTime endedAt;
 }

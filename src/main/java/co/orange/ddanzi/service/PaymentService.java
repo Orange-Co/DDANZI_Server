@@ -51,8 +51,10 @@ public class PaymentService {
         product.updateStock(product.getStock() - 1);
         log.info("Update stock of product, product_id: {}", product.getId());
 
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // 형변환 해놨음 다시 수정필요
         CreatePaymentResponseDto responseDto = CreatePaymentResponseDto.builder()
-                .paymentId(payment.getId())
+                .paymentId(payment.getId().toString())
                 .payStatus(payment.getPayStatus())
                 .startedAt(payment.getStartedAt())
                 .build();
@@ -61,8 +63,9 @@ public class PaymentService {
 
     @Transactional
     public ApiResponse<?> endPayment(UpdatePaymentRequestDto requestDto){
-
-        Payment payment = paymentRepository.findById(requestDto.getPaymentId()).orElseThrow(()-> new PaymentNotFoundException());
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // 형변환 해놨음 다시 수정필요
+        Payment payment = paymentRepository.findById(Long.parseLong(requestDto.getPaymentId())).orElseThrow(()-> new PaymentNotFoundException());
         Item item = payment.getItem();
         Product product = item.getProduct();
 
@@ -79,9 +82,10 @@ public class PaymentService {
             product.updateStock(product.getStock() + 1);
         }
 
-
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // 형변환 해놨음 다시 수정필요
         UpdatePaymentResponseDto responseDto = UpdatePaymentResponseDto.builder()
-                .paymentId(payment.getId())
+                .paymentId(payment.getId().toString())
                 .payStatus(payment.getPayStatus())
                 .endedAt(payment.getEndedAt())
                 .build();

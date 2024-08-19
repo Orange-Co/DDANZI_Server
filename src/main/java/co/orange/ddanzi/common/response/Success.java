@@ -13,9 +13,6 @@ public enum Success {
     SUCCESS(HttpStatus.OK, "Request successfully processed."),
 
     // 200 OK SUCCESS
-    SIGNIN_KAKAO_SUCCESS(HttpStatus.CREATED, "Successfully sign in using Kakao"),
-    SIGNIN_APPLE_SUCCESS(HttpStatus.CREATED, "Successfully sign in using Kakao"),
-
     GET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully retrieved the redis key"),
 
     GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
@@ -52,7 +49,13 @@ public enum Success {
 
 
     // 201 CREATED
+    SIGNIN_KAKAO_SUCCESS(HttpStatus.CREATED, "Successfully sign in using Kakao"),
+    SIGNIN_APPLE_SUCCESS(HttpStatus.CREATED, "Successfully sign in using Kakao"),
+
+    REFRESH_ACCESS_TOKEN_SUCCESS(HttpStatus.CREATED, "Successfully refreshed access token."),
+
     SET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully set the redis key"),
+
 
     CREATE_AUTHENTICATION_SUCCESS(HttpStatus.CREATED, "Successfully verified identity."),
     CREATE_PRODUCT_SUCCESS(HttpStatus.CREATED, "Successfully confirmed the product."),

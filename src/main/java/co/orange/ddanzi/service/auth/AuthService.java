@@ -3,7 +3,7 @@ package co.orange.ddanzi.service.auth;
 import co.orange.ddanzi.domain.user.Authentication;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
-import co.orange.ddanzi.dto.auth.AuthResponseDto;
+import co.orange.ddanzi.dto.auth.SigninResponseDto;
 import co.orange.ddanzi.dto.auth.VerifyRequestDto;
 import co.orange.ddanzi.dto.auth.VerifyResponseDto;
 import co.orange.ddanzi.common.error.Error;
@@ -39,8 +39,9 @@ public class AuthService {
         }
         User user = optionalUser.get();
 
-        AuthResponseDto responseDto = AuthResponseDto.builder()
+        SigninResponseDto responseDto = SigninResponseDto.builder()
                 .accesstoken(jwtUtils.createAccessToken(user.getEmail()))
+                .refreshtoken(jwtUtils.createRefreshToken(user.getEmail()))
                 .nickname(user.getNickname())
                 .build();
         return ApiResponse.onSuccess(Success.SUCCESS, responseDto);

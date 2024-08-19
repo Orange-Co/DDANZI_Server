@@ -176,6 +176,7 @@ public class OrderService {
                 .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressService.setAddressInfo(user))
+                .sellerNickname(item.getSeller().getNickname())
                 .paymentMethod(payment.getMethod())
                 .paidAt(payment.getEndedAt())
                 .discountPrice(discount.getDiscountPrice())

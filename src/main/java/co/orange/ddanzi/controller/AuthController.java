@@ -1,6 +1,7 @@
 package co.orange.ddanzi.controller;
 
 import co.orange.ddanzi.domain.user.enums.LoginType;
+import co.orange.ddanzi.dto.auth.RefreshTokenRequestDto;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
 import co.orange.ddanzi.dto.auth.VerifyRequestDto;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -33,8 +34,8 @@ public class AuthController {
     }
 
     @PostMapping("/refreshtoken")
-    ApiResponse<?> refreshAccessToken(@RequestBody String refreshToken) throws JsonProcessingException{
-        return oAuthService.refreshAccessToken(refreshToken);
+    ApiResponse<?> refreshAccessToken(@RequestBody RefreshTokenRequestDto requestDto) throws JsonProcessingException{
+        return oAuthService.refreshAccessToken(requestDto.getRefreshtoken());
     }
 
     @PostMapping("/verification")

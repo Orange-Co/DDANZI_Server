@@ -1,11 +1,14 @@
 package co.orange.ddanzi.global.jwt;
 
+import co.orange.ddanzi.common.error.ErrorResponse;
+import co.orange.ddanzi.common.exception.UnauthorizedException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -22,15 +25,22 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = jwtUtils.resolveJWT(request);
         log.info("Request to {}: token={}", request.getRequestURI(), token);
 
-        //home & search api
-        if(isHomeOrSearchRequest(request.getRequestURI())){
-            handleHomeOrSearchRequest(token);
+        try {
+            //home & search api
+            if (isHomeOrSearchRequest(request.getRequestURI())) {
+                handleHomeOrSearchRequest(token);
+            }
+            //other api
+            else {
+                handleGeneralRequest(token);
+            }
+            filterChain.doFilter(request, response);
+        } catch (UnauthorizedException e) {
+            log.error("Unauthorized Exception: {}", e.getMessage());
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.getWriter().write(ErrorResponse.onFailure(e.getError()).toJson());
         }
-        //other api
-        else {
-            handleGeneralRequest(token);
-        }
-        filterChain.doFilter(request, response);
     }
 
     @Override

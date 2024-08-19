@@ -117,6 +117,15 @@ public class JwtUtils {
         }
     }
 
+    public boolean isValidRefreshToken(String email, String refreshToken) {
+        if (email == null) {
+            return false; // 이메일이 null인 경우 유효하지 않음
+        }
+        String storedRefreshToken = stringRedisTemplate.opsForValue().get(email);
+        return refreshToken.equals(storedRefreshToken);
+    }
+
+
     public boolean validateTokenInLogoutPage(String token) {
         if (!StringUtils.hasText(token)) {
             return false;
@@ -146,15 +155,36 @@ public class JwtUtils {
         return getClaims(token).get("email").toString();
     }
 
+    public String getIdFromRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtSecretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.get("email").toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     public Claims getClaims(String token) {
         return Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token).getBody();
     }
 
+
     public boolean isLogout(String accessToken) {
         return !ObjectUtils.isEmpty(stringRedisTemplate.opsForValue().get(accessToken));
     }
 
+    public void setBlackList(String accessToken) {
+        Long expiration = getExpiration(accessToken);
+        stringRedisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+    }
 
+    public Long getExpiration(String token) {
+        Date expiration = getClaims(token).getExpiration();
+        return expiration.getTime() - new Date().getTime();
+    }
 
 }

@@ -1,5 +1,6 @@
 package co.orange.ddanzi.service.auth;
 
+import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
@@ -26,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -59,6 +61,23 @@ public class OAuthService {
                 .status(user.get().getStatus())
                 .build();
         return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> refreshAccessToken(String refreshToken) throws JsonProcessingException {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ApiResponse.onFailure(Error.REFRESH_TOKEN_IS_NULL, Map.of("refreshtoken", refreshToken));
+        }
+
+        String email = jwtUtils.getIdFromRefreshToken(refreshToken);
+
+        if (!jwtUtils.isValidRefreshToken(email, refreshToken)) {
+            return ApiResponse.onFailure(Error.REFRESH_TOKEN_EXPIRED, Map.of("refreshtoken", refreshToken));
+        }
+
+        String newAccessToken = jwtUtils.createAccessToken(email);
+
+        return ApiResponse.onSuccess(Success.REFRESH_ACCESS_TOKEN_SUCCESS, Map.of("accesstoken",newAccessToken ));
     }
 
     public void kakaoSignUp(String email) {

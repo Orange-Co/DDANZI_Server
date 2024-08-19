@@ -12,6 +12,7 @@ public enum Error {
     ERROR(HttpStatus.BAD_REQUEST, "Request processing failed"),
 
     // 400 BAD REQUEST
+    REFRESH_TOKEN_IS_NULL(HttpStatus.BAD_REQUEST, "Refresh token is null"),
     ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
     ITEM_IS_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "The item is not on sale."),
@@ -24,6 +25,7 @@ public enum Error {
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "Invalid JWT"),
     LOG_OUT_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"Logged out user"),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED,"JWT expired"),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED,"Refresh Token expired"),
     JWT_TOKEN_NOT_EXISTS(HttpStatus.UNAUTHORIZED,"JWT value does not exist in header"),
 
 

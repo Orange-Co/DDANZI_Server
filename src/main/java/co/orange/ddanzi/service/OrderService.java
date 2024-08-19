@@ -75,7 +75,12 @@ public class OrderService {
     @Transactional
     public ApiResponse<?> createOrder(CreateOrderRequestDto requestDto){
         log.info("Checking the payment is done.");
-        Payment payment = paymentRepository.findById(requestDto.getPaymentId()).orElseThrow(() -> new PaymentNotFoundException());
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        // 형변환 해놨음 다시 수정필요
+
+        Payment payment = paymentRepository.findById(Long.parseLong(requestDto.getPaymentId())).orElseThrow(() -> new PaymentNotFoundException());
+
+        ///////////////////////////////////////////////////////////////////////////////////////////
         if(!payment.getPayStatus().equals(PayStatus.PAID))
             return ApiResponse.onFailure(Error.PAYMENT_REQUIRED,null);
 

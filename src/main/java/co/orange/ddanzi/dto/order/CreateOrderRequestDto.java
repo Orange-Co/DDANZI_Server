@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 public class CreateOrderRequestDto {
     private String itemId;
-    private Long paymentId;
+    private String paymentId;
     private List<Long> selectedOptionDetailIdList;
 
     public Order toOrder(String orderId, User buyer, Item item) {

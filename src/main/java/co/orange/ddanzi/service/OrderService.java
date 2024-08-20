@@ -47,6 +47,8 @@ public class OrderService {
     @Autowired
     TermService termService;
     @Autowired
+    PaymentService paymentService;
+    @Autowired
     OrderOptionDetailService orderOptionDetailService;
 
 
@@ -58,6 +60,8 @@ public class OrderService {
         Discount discount = discountRepository.findById(productId).orElse(null);
 
         User user = authUtils.getUser();
+        Integer salePrice = product.getOriginPrice() - discount.getDiscountPrice();
+        Integer charge = paymentService.calculateCharge(salePrice);
 
         CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
                 .itemId(item.getId())
@@ -67,8 +71,8 @@ public class OrderService {
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressService.setAddressInfo(user))
                 .discountPrice(discount.getDiscountPrice())
-                .charge(100)
-                .totalPrice(product.getOriginPrice() - discount.getDiscountPrice())
+                .charge(charge)
+                .totalPrice(salePrice+charge)
                 .build();
         return ApiResponse.onSuccess(Success.GET_ORDER_PRODUCT_SUCCESS, responseDto);
     }

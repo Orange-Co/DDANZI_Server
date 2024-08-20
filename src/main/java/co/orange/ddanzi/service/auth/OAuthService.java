@@ -1,20 +1,25 @@
 package co.orange.ddanzi.service.auth;
 
 import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.domain.user.Device;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
+import co.orange.ddanzi.dto.auth.SigninRequestDto;
 import co.orange.ddanzi.dto.auth.SigninResponseDto;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.JwtUtils;
+import co.orange.ddanzi.repository.DeviceRepository;
 import co.orange.ddanzi.repository.UserRepository;
+import co.orange.ddanzi.service.TermService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -40,11 +45,16 @@ public class OAuthService {
 
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
+    private final DeviceRepository deviceRepository;
+
+    @Autowired
+    TermService termService;
 
     @Transactional
-    public ApiResponse<?> kakaoSignIn(String token) throws JsonProcessingException {
+    public ApiResponse<?> kakaoSignIn(SigninRequestDto requestDto) throws JsonProcessingException {
         log.info("카카오 로그인 진입");
-        String email = getKakaoEmail(token);
+        String email = getKakaoEmail(requestDto.getToken());
+
         log.info("카카오 이메일 조회 성공 email: {}", email);
         Optional<User> user = userRepository.findByEmail(email);
 
@@ -52,6 +62,9 @@ public class OAuthService {
             log.info("카카오 회원 가입 시작");
             kakaoSignUp(email);
             user = userRepository.findByEmail(email);
+            log.info("이용약관 동의여부 저장");
+            termService.createUserAgreements(user.get(), requestDto.getIsAgreedMarketingTerm());
+            connectUserAndDevice(user.get(), requestDto);
         }
 
         SigninResponseDto responseDto = SigninResponseDto.builder()
@@ -88,6 +101,15 @@ public class OAuthService {
                 .nickname(generateNickname())
                 .build();
         userRepository.save(user);
+    }
+
+    public void connectUserAndDevice(User user, SigninRequestDto requestDto) {
+        Device device = Device.builder()
+                .user(user)
+                .deviceToken(requestDto.getDevicetoken())
+                .type(requestDto.getDeviceType())
+                .build();
+        deviceRepository.save(device);
     }
 
     public String getKakaoEmail(String accessToken) throws JsonProcessingException {

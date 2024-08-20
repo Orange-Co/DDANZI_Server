@@ -145,7 +145,7 @@ public class OrderService {
     }
 
     private String createModifiedProductName(String productName){
-        return productName.replaceAll("[^a-zA-Z0-9\\s_]", "");
+        return productName.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9,._\\s ]", "");
     }
 
     private void createOrderOptionDetails(Order order, List<Long> optionDetailIds){

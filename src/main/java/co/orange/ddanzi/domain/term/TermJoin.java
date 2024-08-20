@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "term_joins")
 @Entity
-public class TermJoin extends BaseTimeEntity{
+public class TermJoin extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "term_join_id")
@@ -22,10 +22,6 @@ public class TermJoin extends BaseTimeEntity{
     @Column(name = "is_essential")
     private Boolean isEssential;
 
-    @Builder
-    public TermJoin(Long id, String content, Boolean isEssential) {
-        this.id = id;
-        this.content = content;
-        this.isEssential = isEssential;
-    }
+    @Column(name = "note")
+    private String note;
 }

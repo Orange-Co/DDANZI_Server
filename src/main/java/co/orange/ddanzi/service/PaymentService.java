@@ -93,6 +93,10 @@ public class PaymentService {
         return ApiResponse.onSuccess(Success.PATCH_PAYMENT_STATUS_SUCCESS, responseDto);
     }
 
+    public Integer calculateCharge(Integer salePrice){
+        return (int) Math.floor(salePrice*0.032);
+    }
+
     private boolean isAvailableToChangePayment(Payment payment){
         User user = authUtils.getUser();
         if(payment.getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING))
@@ -100,4 +104,5 @@ public class PaymentService {
         else
             return false;
     }
+
 }

@@ -2,6 +2,8 @@ package co.orange.ddanzi.domain.user;
 
 import co.orange.ddanzi.domain.user.enums.DeviceType;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
@@ -13,9 +15,16 @@ public class Device {
     private String deviceToken;
 
     @Column(name = "type")
-    private DeviceType type;
+    private String type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder
+    public Device(String deviceToken, String type, User user) {
+        this.deviceToken = deviceToken;
+        this.type = type;
+        this.user = user;
+    }
 }

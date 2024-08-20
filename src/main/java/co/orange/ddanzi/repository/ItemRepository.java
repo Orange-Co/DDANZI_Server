@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, String> {
@@ -14,6 +15,11 @@ public interface ItemRepository extends JpaRepository<Item, String> {
     Integer findMaxSequenceNumberByProduct(@Param("product") Product product);
 
     @Query("SELECT i FROM Item i WHERE i.status = 'ON_SALE' AND i.product = :product ORDER BY i.dueDate ASC")
-    Optional<Item> findNearestExpiryItem(@Param("product") Product product);
+    List<Item> findNearestExpiryItems(@Param("product") Product product);
+
+    default Optional<Item> findNearestExpiryItem(@Param("product") Product product) {
+        List<Item> items = findNearestExpiryItems(product);
+        return items.isEmpty() ? Optional.empty() : Optional.of(items.get(0));
+    }
 
 }

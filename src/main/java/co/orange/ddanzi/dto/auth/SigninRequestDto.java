@@ -8,5 +8,6 @@ public class SigninRequestDto {
     private String token;
     private LoginType type;
     private String devicetoken;
+    private String deviceType;
     private Boolean isAgreedMarketingTerm;
 }

@@ -1,9 +1,10 @@
 package co.orange.ddanzi.domain.product;
 
-import co.orange.ddanzi.domain.order.enums.PayMethod;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -15,10 +16,13 @@ public class ChargeInfo {
     @Column(name = "charge_info_id")
     private Long id;
 
-    @Column(name = "payment_method")
-    private PayMethod paymentMethod;
-
     @Column(name = "charge")
     private Float charge;
+
+    @Column(name = "started_at")
+    private LocalDate startedAt;
+
+    @Column(name = "ended_at")
+    private LocalDate endedAt;
 
 }

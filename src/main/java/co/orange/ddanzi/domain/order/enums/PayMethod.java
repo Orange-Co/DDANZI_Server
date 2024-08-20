@@ -10,7 +10,12 @@ public enum PayMethod {
     ;
 
     private String payMethod;
+
     PayMethod(String payMethod) {
         this.payMethod = payMethod;
+    }
+
+    public String getDescription() {
+        return payMethod;
     }
 }

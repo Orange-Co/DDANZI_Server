@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@Table(name = "device")
+@Table(name = "devices")
 @Entity
 public class Device {
     @Id

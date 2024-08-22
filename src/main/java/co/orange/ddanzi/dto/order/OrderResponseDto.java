@@ -19,7 +19,7 @@ public class OrderResponseDto {
     private Integer originPrice;
     private AddressInfo addressInfo;
     private String sellerNickname;
-    private PayMethod paymentMethod;
+    private String paymentMethod;
     private LocalDateTime paidAt;
     private Integer discountPrice;
     private Integer charge;

@@ -47,6 +47,8 @@ public class OrderService {
     @Autowired
     TermService termService;
     @Autowired
+    PaymentService paymentService;
+    @Autowired
     OrderOptionDetailService orderOptionDetailService;
 
 
@@ -58,6 +60,8 @@ public class OrderService {
         Discount discount = discountRepository.findById(productId).orElse(null);
 
         User user = authUtils.getUser();
+        Integer salePrice = product.getOriginPrice() - discount.getDiscountPrice();
+        Integer charge = paymentService.calculateCharge(salePrice);
 
         CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
                 .itemId(item.getId())
@@ -67,8 +71,8 @@ public class OrderService {
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressService.setAddressInfo(user))
                 .discountPrice(discount.getDiscountPrice())
-                .charge(100)
-                .totalPrice(product.getOriginPrice() - discount.getDiscountPrice())
+                .charge(charge)
+                .totalPrice(salePrice+charge)
                 .build();
         return ApiResponse.onSuccess(Success.GET_ORDER_PRODUCT_SUCCESS, responseDto);
     }
@@ -109,6 +113,8 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
         Payment payment = paymentRepository.findByBuyerAndItem(user, item);
+        if(payment==null)
+            return ApiResponse.onFailure(Error.PAYMENT_NOT_FOUND,null);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
@@ -145,7 +151,7 @@ public class OrderService {
     }
 
     private String createModifiedProductName(String productName){
-        return productName.replaceAll("[^a-zA-Z0-9\\s_]", "");
+        return productName.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9,._\\s ]", "");
     }
 
     private void createOrderOptionDetails(Order order, List<Long> optionDetailIds){
@@ -183,7 +189,7 @@ public class OrderService {
                 .originPrice(product.getOriginPrice())
                 .addressInfo(addressService.setAddressInfo(user))
                 .sellerNickname(item.getSeller().getNickname())
-                .paymentMethod(payment.getMethod())
+                .paymentMethod(payment.getMethod().getDescription())
                 .paidAt(payment.getEndedAt())
                 .discountPrice(discount.getDiscountPrice())
                 .charge(payment.getCharge())

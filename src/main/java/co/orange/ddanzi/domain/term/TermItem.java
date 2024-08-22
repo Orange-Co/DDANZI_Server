@@ -22,10 +22,7 @@ public class TermItem extends BaseTimeEntity {
     @Column(name = "is_essential")
     private Boolean isEssential;
 
-    @Builder
-    public TermItem(Long id, String content, Boolean isEssential) {
-        this.id = id;
-        this.content = content;
-        this.isEssential = isEssential;
-    }
+    @Column(name = "note")
+    private String note;
+
 }

@@ -33,8 +33,8 @@ public class AuthController {
     @PostMapping("/signin")
     ApiResponse<?> signin(@RequestBody SigninRequestDto requestDto) throws JsonProcessingException {
         if(requestDto.getType().equals(LoginType.KAKAO))
-            return oAuthService.kakaoSignIn(requestDto.getToken());
-        return oAuthService.kakaoSignIn(requestDto.getToken());
+            return oAuthService.kakaoSignIn(requestDto);
+        return oAuthService.kakaoSignIn(requestDto);
     }
 
     @PostMapping("/refreshtoken")

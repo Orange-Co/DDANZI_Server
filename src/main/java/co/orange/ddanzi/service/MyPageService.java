@@ -1,5 +1,6 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.common.exception.PaymentNotFoundException;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.product.Discount;
@@ -56,7 +57,7 @@ public class MyPageService {
         for (Order order : orderList) {
             Product product = order.getItem().getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElse(null);
-            Payment payment = paymentRepository.findByBuyerAndItem(user, order.getItem());
+            Payment payment = paymentRepository.findByBuyerAndItem(user, order.getItem()).orElseThrow(() -> new PaymentNotFoundException());
             MyOrder myOrder = MyOrder.builder()
                     .productId(product.getId())
                     .orderId(order.getId())

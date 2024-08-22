@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT p from Payment p WHERE p.buyer = :buyer and p.item = :item and p.payStatus = 'PAID'")
-    Payment findByBuyerAndItem(@Param("buyer") User buyer, @Param("item")Item item);
+    Optional<Payment> findByBuyerAndItem(@Param("buyer") User buyer, @Param("item")Item item);
 }

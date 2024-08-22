@@ -5,6 +5,7 @@ import co.orange.ddanzi.domain.user.Device;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
+import co.orange.ddanzi.dto.auth.RefreshTokenResponseDto;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
 import co.orange.ddanzi.dto.auth.SigninResponseDto;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -88,9 +89,12 @@ public class OAuthService {
             return ApiResponse.onFailure(Error.REFRESH_TOKEN_EXPIRED, Map.of("refreshtoken", refreshToken));
         }
 
-        String newAccessToken = jwtUtils.createAccessToken(email);
+        RefreshTokenResponseDto responseDto = RefreshTokenResponseDto.builder()
+                .accesstoken(jwtUtils.createAccessToken(email))
+                .refreshtoken(jwtUtils.createRefreshToken(email))
+                .build();
 
-        return ApiResponse.onSuccess(Success.REFRESH_ACCESS_TOKEN_SUCCESS, Map.of("accesstoken",newAccessToken ));
+        return ApiResponse.onSuccess(Success.REFRESH_ACCESS_TOKEN_SUCCESS, responseDto);
     }
 
     public void kakaoSignUp(String email) {

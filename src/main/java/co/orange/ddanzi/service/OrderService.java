@@ -113,6 +113,8 @@ public class OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
         Payment payment = paymentRepository.findByBuyerAndItem(user, item);
+        if(payment==null)
+            return ApiResponse.onFailure(Error.PAYMENT_NOT_FOUND,null);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 

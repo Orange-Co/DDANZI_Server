@@ -43,6 +43,7 @@ public enum Success {
     PUT_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully updated the account."),
     PUT_PUSH_ALARM_SUCCESS(HttpStatus.OK, "Successfully updated the push alarm status."),
 
+    DELETE_USER_SUCCESS(HttpStatus.OK, "Successfully deleted the user."),
     DELETE_INTEREST_SUCCESS(HttpStatus.OK, "Successfully removed the product from interest List."),
     DELETE_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully deleted the delivery address."),
     DELETE_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully deleted the account"),

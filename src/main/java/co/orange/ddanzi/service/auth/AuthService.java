@@ -72,6 +72,13 @@ public class AuthService {
         return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ApiResponse<?> withdraw(){
+        User user = authUtils.getUser();
+        user.updateStatus(UserStatus.DELETE);
+        return ApiResponse.onSuccess(Success.DELETE_USER_SUCCESS, Map.of("nickname", user.getNickname()));
+    }
+
 }
 
 

@@ -60,4 +60,9 @@ public class AuthController {
         return authService.verify(requestDto);
     }
 
+    @DeleteMapping("/withdraw")
+    ApiResponse<?> withdraw(){
+        return authService.withdraw();
+    }
+
 }

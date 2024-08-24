@@ -2,6 +2,7 @@ package co.orange.ddanzi.global.jwt;
 
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.common.exception.UserNotFoundException;
+import co.orange.ddanzi.domain.user.enums.UserStatus;
 import co.orange.ddanzi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +26,13 @@ public class AuthUtils {
         if (currentUserNickname == null) {
             return null;
         }
-        return userRepository.findByEmail(currentUserNickname)
+        User user = userRepository.findByEmail(currentUserNickname)
                 .orElseThrow(() -> new UserNotFoundException());
 
+        if(user.getStatus().equals(UserStatus.DELETE))
+            throw new UserNotFoundException();
+
+        return user;
     }
 
     public Authentication getAuthentication() {

@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Embeddable
 @Data
 public class UserAgreementId implements Serializable {
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "member_id")
     private User user;
 

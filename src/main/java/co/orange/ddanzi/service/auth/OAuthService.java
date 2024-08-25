@@ -65,7 +65,7 @@ public class OAuthService {
             user = userRepository.findByEmail(email);
             log.info("이용약관 동의여부 저장");
             termService.createUserAgreements(user.get(), true);
-            connectUserAndDevice(user.get(), requestDto);
+            //connectUserAndDevice(user.get(), requestDto);
         }
 
         SigninResponseDto responseDto = SigninResponseDto.builder()

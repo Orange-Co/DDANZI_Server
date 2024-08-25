@@ -64,7 +64,7 @@ public class OAuthService {
             kakaoSignUp(email);
             user = userRepository.findByEmail(email);
             log.info("이용약관 동의여부 저장");
-            termService.createUserAgreements(user.get(), requestDto.getIsAgreedMarketingTerm());
+            termService.createUserAgreements(user.get(), true);
             connectUserAndDevice(user.get(), requestDto);
         }
 

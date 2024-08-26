@@ -7,7 +7,8 @@ public enum UserStatus {
     UNAUTHENTICATED("인증안됨"),
     ACTIVATE("활성"),
     SLEEP("휴면"),
-    DELETE("삭제")
+    DELETE("삭제"),
+    SUSPICIOUS("의심")
     ;
 
     private final String userStatus;

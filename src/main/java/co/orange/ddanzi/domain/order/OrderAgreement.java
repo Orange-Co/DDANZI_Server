@@ -1,5 +1,6 @@
 package co.orange.ddanzi.domain.order;
 
+import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.order.pk.OrderAgreementId;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -13,7 +14,7 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor
 @Table(name = "order_agreements")
 @Entity
-public class OrderAgreement {
+public class OrderAgreement extends BaseTimeEntity {
     @EmbeddedId
     @Column(name = "order_agreement_id")
     private OrderAgreementId id;

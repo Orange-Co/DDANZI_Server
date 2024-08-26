@@ -197,4 +197,9 @@ public class OrderService {
         return responseDto;
     }
 
+    public void deleteOrderOfUser(User user){
+
+    }
+
+
 }

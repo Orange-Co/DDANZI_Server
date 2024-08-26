@@ -13,9 +13,13 @@ import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.global.jwt.JwtUtils;
 import co.orange.ddanzi.repository.AuthenticationRepository;
 import co.orange.ddanzi.repository.UserRepository;
+import co.orange.ddanzi.service.ItemService;
+import co.orange.ddanzi.service.OrderService;
+import co.orange.ddanzi.service.PaymentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,6 +33,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthenticationRepository authenticationRepository;
     private final AuthUtils authUtils;
+
+    @Autowired
+    ItemService itemService;
+    @Autowired
+    OrderService orderService;
+    @Autowired
+    PaymentService paymentService;
+
 
     @Transactional
     public ApiResponse<?> testSignin(String idToken){
@@ -76,6 +88,19 @@ public class AuthService {
     public ApiResponse<?> withdraw(){
         User user = authUtils.getUser();
         user.updateStatus(UserStatus.DELETE);
+
+        //item that user sold -> check item in transaction
+        itemService.deleteItemOfUser(user);
+
+        //order that user bought -> check order is not completed
+        orderService.deleteOrderOfUser(user);
+
+        //payment -> check payment is not completed
+        paymentService.deletePaymentOfUser(user);
+
+        //delete user
+        userRepository.delete(user);
+
         return ApiResponse.onSuccess(Success.DELETE_USER_SUCCESS, Map.of("nickname", user.getNickname()));
     }
 

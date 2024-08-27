@@ -28,13 +28,7 @@ public class Product {
     private Integer originPrice;        //정가=선물하기 가격
 
     @Column(name = "store")
-    private String store;
-
-    @Column(name = "title_first_5")
-    private String titleFirst5;
-
-    @Column(name = "title_last_5")
-    private String titleLast5;
+    private String store;               //가게
 
     @ColumnDefault("0")
     @Column(name = "stock", nullable = false)

@@ -73,7 +73,7 @@ public class PaymentService {
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
-        payment.updatePaymentStatus(requestDto.getPayStatus());
+        payment.updatePaymentStatusAndEndedAt(requestDto.getPayStatus());
         log.info("Update payment status, status: {}", payment.getPayStatus());
 
         if(payment.getPayStatus().equals(PayStatus.CANCELLED)||payment.getPayStatus().equals(PayStatus.FAILED)){

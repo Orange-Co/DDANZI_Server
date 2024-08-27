@@ -62,7 +62,7 @@ public class Payment {
         this.buyer = buyer;
     }
 
-    public void updatePaymentStatus(PayStatus newStatus) {
+    public void updatePaymentStatusAndEndedAt(PayStatus newStatus) {
         this.payStatus = newStatus;
         this.endedAt = LocalDateTime.now();
     }

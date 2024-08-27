@@ -2,6 +2,7 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
+import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.item.SaveItemRequestDto;
 import co.orange.ddanzi.dto.item.SaveItemResponseDto;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 @Slf4j
@@ -70,5 +72,14 @@ public class ItemService {
 
     public void deleteItemOfUser(User user) {
 
+    }
+
+    public void updateExpiredItems(){
+        List<Item> itemList = itemRepository.findExpiryItems(LocalDate.now());
+        for(Item item : itemList){
+            item.updateStatus(ItemStatus.EXPIRED);
+            Product product = item.getProduct();
+            product.updateStock(product.getStock() - 1);
+        }
     }
 }

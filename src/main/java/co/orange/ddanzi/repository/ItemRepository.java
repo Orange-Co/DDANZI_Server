@@ -22,4 +22,7 @@ public interface ItemRepository extends JpaRepository<Item, String> {
         return items.isEmpty() ? Optional.empty() : Optional.of(items.get(0));
     }
 
+    @Query("SELECT i FROM Item  i WHERE i.dueDate < :currentDate")
+    List<Item> findExpiryItems(@Param("currentDate") LocalDate currentDate);
+
 }

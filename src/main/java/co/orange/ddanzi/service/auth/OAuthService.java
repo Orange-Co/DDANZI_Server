@@ -57,22 +57,27 @@ public class OAuthService {
         String email = getKakaoEmail(requestDto.getToken());
 
         log.info("카카오 이메일 조회 성공 email: {}", email);
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        if (user.isEmpty()){
+        if (optionalUser.isEmpty()){
             log.info("카카오 회원 가입 시작");
             kakaoSignUp(email);
-            user = userRepository.findByEmail(email);
+            optionalUser = userRepository.findByEmail(email);
             log.info("이용약관 동의여부 저장");
-            termService.createUserAgreements(user.get(), requestDto.getIsAgreedMarketingTerm());
-            connectUserAndDevice(user.get(), requestDto);
+            termService.createUserAgreements(optionalUser.get(), true);
+            //connectUserAndDevice(user.get(), requestDto);
         }
+
+        User user = optionalUser.get();
+
+        if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
+            user.updateStatus(UserStatus.ACTIVATE);
 
         SigninResponseDto responseDto = SigninResponseDto.builder()
                 .accesstoken(jwtUtils.createAccessToken(email))
                 .refreshtoken(jwtUtils.createRefreshToken(email))
-                .nickname(user.get().getNickname())
-                .status(user.get().getStatus())
+                .nickname(user.getNickname())
+                .status(user.getStatus())
                 .build();
         return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
     }

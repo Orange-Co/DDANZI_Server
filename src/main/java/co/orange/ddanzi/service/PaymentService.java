@@ -105,4 +105,8 @@ public class PaymentService {
             return false;
     }
 
+    public void deletePaymentOfUser(User user){
+
+    }
+
 }

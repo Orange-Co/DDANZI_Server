@@ -37,8 +37,8 @@ public class Address {
     @Column(name = "detail_address")
     private String detailAddress;   //상세 주소
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "user_id")
     private User user;          //회원:주소=1:N
 
     @Builder

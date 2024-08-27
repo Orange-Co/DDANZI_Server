@@ -67,4 +67,8 @@ public class ItemService {
 
         return itemId;
     }
+
+    public void deleteItemOfUser(User user) {
+
+    }
 }

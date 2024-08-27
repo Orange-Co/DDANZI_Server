@@ -17,7 +17,7 @@ public class PushAlarm {
     private Long id;
 
     @MapsId
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;          //member id (PK)
 

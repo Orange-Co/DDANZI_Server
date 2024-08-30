@@ -88,19 +88,6 @@ public class AuthService {
     public ApiResponse<?> withdraw(){
         User user = authUtils.getUser();
         user.updateStatus(UserStatus.DELETE);
-
-        //item that user sold -> check item in transaction
-        itemService.deleteItemOfUser(user);
-
-        //order that user bought -> check order is not completed
-        orderService.deleteOrderOfUser(user);
-
-        //payment -> check payment is not completed
-        paymentService.deletePaymentOfUser(user);
-
-        //delete user
-        userRepository.delete(user);
-
         return ApiResponse.onSuccess(Success.DELETE_USER_SUCCESS, Map.of("nickname", user.getNickname()));
     }
 

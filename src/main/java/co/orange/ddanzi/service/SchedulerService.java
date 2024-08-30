@@ -25,11 +25,4 @@ public class SchedulerService {
         log.info("Updating expired items");
         itemService.updateExpiredItems();
     }
-
-    @Scheduled(fixedRate = 10000)
-    public void testScheduler() {
-        log.info("Running test scheduler");
-        TimeZone tz = TimeZone.getDefault();
-        System.out.println("서버의 시간대: " + tz.getID());
-    }
 }

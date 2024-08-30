@@ -20,7 +20,7 @@ public class SchedulerService {
      *  아이템 상태변경 & 재고 수 변경
     **/
     @Transactional
-    @Scheduled(cron = "0 50 0 * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void updateExpiredItems() {
         log.info("Updating expired items");
         itemService.updateExpiredItems();

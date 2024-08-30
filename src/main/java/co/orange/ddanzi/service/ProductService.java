@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
-    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final DiscountRepository discountRepository;
     private final CategoryService categoryService;

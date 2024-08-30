@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.TimeZone;
+
 @Slf4j
 @Service
 public class SchedulerService {
@@ -22,5 +24,12 @@ public class SchedulerService {
     public void updateExpiredItems() {
         log.info("Updating expired items");
         itemService.updateExpiredItems();
+    }
+
+    @Scheduled(fixedRate = 10000)
+    public void testScheduler() {
+        log.info("Running test scheduler");
+        TimeZone tz = TimeZone.getDefault();
+        System.out.println("서버의 시간대: " + tz.getID());
     }
 }

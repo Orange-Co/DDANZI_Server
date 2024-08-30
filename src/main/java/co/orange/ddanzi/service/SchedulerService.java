@@ -15,7 +15,7 @@ public class SchedulerService {
      *  매일 자정마다 만료된 아이템 체크.
      *  아이템 상태변경 & 재고 수 변경
     **/
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 10 0 * * ?")
     public void updateExpiredItems() {
         itemService.updateExpiredItems();
     }

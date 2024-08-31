@@ -5,6 +5,7 @@ import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
 import co.orange.ddanzi.dto.item.SaveItemRequestDto;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
+import co.orange.ddanzi.dto.product.ProductRequestDto;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.UserRepository;
 import co.orange.ddanzi.service.ItemService;
@@ -23,6 +24,12 @@ public class ItemController {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+
+    @GetMapping("/check")
+    ApiResponse<?> checkProduct(@RequestBody ProductRequestDto requestDto) {
+        return productService.getMostSimilarProduct(requestDto);
+    }
+
 
     @PostMapping("/confirm")
     ApiResponse<?> confirmProduct(@RequestBody ConfirmProductRequestDto requestDto){

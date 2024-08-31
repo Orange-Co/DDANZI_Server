@@ -3,6 +3,7 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.AddressInfo;
+import co.orange.ddanzi.dto.AddressSeparateInfo;
 import co.orange.ddanzi.dto.setting.AddressResponseDto;
 import co.orange.ddanzi.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class AddressService {
     private final AddressRepository addressRepository;
+
+    public AddressSeparateInfo setAddressSeparateInfo(User user){
+        Address address = addressRepository.findByUser(user);
+        return AddressSeparateInfo.builder()
+                .recipient(address != null ? address.getRecipient() : null)
+                .zipCode(address != null ? address.getZipCode() : null)
+                .address(address != null ? address.getAddress() : null)
+                .detailAddress(address != null ? address.getDetailAddress() : null)
+                .recipientPhone(address != null ? address.getRecipientPhone() : null)
+                .build();
+    }
 
     public AddressInfo setAddressInfo(User user){
         Address address = addressRepository.findByUser(user);

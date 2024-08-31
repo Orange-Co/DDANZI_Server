@@ -5,6 +5,9 @@ import co.orange.ddanzi.dto.AddressInfo;
 import lombok.Builder;
 import lombok.Getter;
 
+
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class ItemResponseDto {
@@ -16,6 +19,6 @@ public class ItemResponseDto {
     private String orderId;
     private String buyerNickName;
     private AddressInfo addressInfo;
-    private String paidAt;
+    private LocalDateTime paidAt;
     private String paymentMethod;
 }

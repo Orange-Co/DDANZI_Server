@@ -13,15 +13,15 @@ import com.google.cloud.storage.Storage;
 
 @Configuration
 public class GcsConfig {
-    @Value("${spring.cloud.gcp.credentials.access-key}")
-    private String accesskey;
+    @Value("${spring.cloud.gcp.credentials.location}")
+    private String location;
 
     @Value("${spring.cloud.gcp.storage.project-id}")
     private String projectId;
 
     @Bean
     public Storage storage() throws IOException {
-        ClassPathResource resource = new ClassPathResource(accesskey);
+        ClassPathResource resource = new ClassPathResource(location);
         InputStream inputStream = resource.getInputStream();
         GoogleCredentials credentials = GoogleCredentials.fromStream(inputStream);
 

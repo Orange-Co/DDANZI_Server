@@ -23,8 +23,8 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping("/signed-url")
-    ApiResponse<?> createSignedUrl(){
-        return itemService.createSignedUrl();
+    ApiResponse<?> createSignedUrl(@RequestParam String fileName) {
+        return itemService.createSignedUrl(fileName);
     }
 
     @PostMapping("/check")

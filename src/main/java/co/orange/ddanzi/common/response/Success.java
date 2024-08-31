@@ -14,6 +14,7 @@ public enum Success {
 
     // 200 OK SUCCESS
     GET_REDIS_KEY_SUCCESS(HttpStatus.CREATED, "Successfully retrieved the redis key"),
+    GET_GCP_SIGNED_URL_SUCCESS(HttpStatus.OK, "Successfully retrieved the GCP signed URL"),
 
     GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
     GET_PRODUCT_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved product details."),
@@ -24,8 +25,10 @@ public enum Success {
     GET_ORDER_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully retrieved product for order information."),
     GET_ORDER_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved order details."),
 
+    GET_MOST_SIMILAR_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully retrieved most similar product."),
+    GET_ITEM_PRODUCT_SUCCESS(HttpStatus.OK, "Successfully retrieved product to register item."),
     GET_ITEM_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved item details."),
-    GET_ORDER_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully retrieved the address of the order."),
+    GET_ORDER_ADDRESS_OPTION_SUCCESS(HttpStatus.OK, "Successfully retrieved the address and option of the order."),
 
     GET_MY_PAGE_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved mypage information."),
     GET_MY_ORDER_LIST_SUCCESS(HttpStatus.OK, "Successfully retrieved my order list."),

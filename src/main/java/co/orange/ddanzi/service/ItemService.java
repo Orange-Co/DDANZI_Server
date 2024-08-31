@@ -1,5 +1,8 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.common.exception.DiscountNotFoundException;
+import co.orange.ddanzi.common.exception.ProductNotFoundException;
+import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
@@ -26,12 +29,12 @@ import java.util.List;
 public class ItemService {
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
+    private final DiscountRepository discountRepository;
 
     @Transactional
     public ApiResponse<?> saveItem(User user, SaveItemRequestDto requestDto){
-        Product product = productRepository.findById(requestDto.getProductId()).orElse(null);
-        if(product == null)
-            return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
+        Product product = productRepository.findById(requestDto.getProductId()).orElseThrow(ProductNotFoundException::new);
+        Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
 
         String itemId = createItemId(product);
         Item newItem = requestDto.toItem(itemId, user, product);
@@ -44,7 +47,7 @@ public class ItemService {
         SaveItemResponseDto responseDto = SaveItemResponseDto.builder()
                 .itemId(newItem.getId())
                 .productName(product.getName())
-                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_ITEM_SUCCESS, responseDto);
     }

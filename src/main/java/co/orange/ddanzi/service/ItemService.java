@@ -2,18 +2,18 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.ItemNotFoundException;
+import co.orange.ddanzi.common.exception.OrderNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.order.Order;
+import co.orange.ddanzi.domain.order.OrderOptionDetail;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.AddressInfo;
-import co.orange.ddanzi.dto.item.ItemResponseDto;
-import co.orange.ddanzi.dto.item.SaveItemRequestDto;
-import co.orange.ddanzi.dto.item.SaveItemResponseDto;
+import co.orange.ddanzi.dto.common.AddressSeparateInfo;
+import co.orange.ddanzi.dto.item.*;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Slf4j
@@ -40,6 +40,8 @@ public class ItemService {
     private final DiscountRepository discountRepository;
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
+    private final OrderOptionDetailRepository orderOptionDetailRepository;
+
 
     @Autowired
     TermService termService;
@@ -106,6 +108,27 @@ public class ItemService {
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
     }
 
+
+    @Transactional
+    public ApiResponse<?> getAddressAndOption(String orderId){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        AddressSeparateInfo address = addressService.setAddressSeparateInfo(user);
+
+        List<SelectedOption> selectedOptionList = setSelectedOptionList(order);
+
+        ItemAddressOptionResponseDto responseDto = ItemAddressOptionResponseDto.builder()
+                .address(address.getAddress())
+                .detailAddress(address.getDetailAddress())
+                .zipCode(address.getZipCode())
+                .recipient(address.getRecipient())
+                .recipientPhone(address.getRecipientPhone())
+                .selectedOptionList(selectedOptionList)
+                .build();
+        return ApiResponse.onSuccess(Success.GET_ORDER_ADDRESS_OPTION_SUCCESS, responseDto);
+    }
+
+
     public String createItemId(Product product) {
         String productId = product.getId();
 
@@ -133,5 +156,18 @@ public class ItemService {
             Product product = item.getProduct();
             product.updateStock(product.getStock() - 1);
         }
+    }
+
+    public List<SelectedOption> setSelectedOptionList(Order order){
+        List<OrderOptionDetail> orderOptionDetailList = orderOptionDetailRepository.findAllByOrder(order);
+        List<SelectedOption> selectedOptionList = new ArrayList<>();
+        for(OrderOptionDetail orderOptionDetail : orderOptionDetailList){
+            selectedOptionList.add(SelectedOption.builder()
+                    .option(orderOptionDetail.getOptionDetail().getOption().getContent())
+                    .selectedOption(orderOptionDetail.getOptionDetail().getContent())
+                    .build());
+
+        }
+        return selectedOptionList;
     }
 }

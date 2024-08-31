@@ -36,7 +36,11 @@ public class ItemService {
     private final TermService termService;
 
     @Transactional
-    public ApiResponse<?> saveItem(User user, SaveItemRequestDto requestDto){
+    public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
+        User user = authUtils.getUser();
+        if(user.getAuthentication() == null)
+            return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
+
         Product product = productRepository.findById(requestDto.getProductId()).orElseThrow(ProductNotFoundException::new);
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
 

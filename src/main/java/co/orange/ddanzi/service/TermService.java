@@ -36,7 +36,7 @@ public class TermService {
     }
     public void createItemAgreements(Item item){
         createItemAgreement(item, 1L);
-        createItemAgreement(item, 1L);
+        createItemAgreement(item, 2L);
     }
 
     public void createOrderAgreements(Order order){

@@ -30,6 +30,11 @@ public class ItemController {
         return productService.getMostSimilarProduct(requestDto);
     }
 
+    @GetMapping("/product/{id}")
+    ApiResponse<?> getProduct(@PathVariable("id") String id) {
+        return productService.getProductForItem(id);
+    }
+
 
     @PostMapping
     ApiResponse<?> saveItem(@RequestBody SaveItemRequestDto requestDto){

@@ -1,14 +1,15 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
-import co.orange.ddanzi.domain.product.Category;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
-import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
-import co.orange.ddanzi.dto.item.ConfirmProductResponseDto;
+import co.orange.ddanzi.domain.user.Address;
+import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.dto.product.ProductItemResponseDto;
 import co.orange.ddanzi.dto.product.ProductRequestDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
@@ -16,8 +17,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ansi.AnsiOutput;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
@@ -29,9 +28,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
+    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final DiscountRepository discountRepository;
-    private final CategoryService categoryService;
+    private final AddressRepository addressRepository;
 
     @Autowired
     RestTemplate restTemplate;
@@ -47,7 +47,24 @@ public class ProductService {
                                                                             , "productName", product.getName()));
     }
 
-    public String getMostSimilarProductId(@RequestBody ProductRequestDto requestDto){
+    @Transactional
+    public ApiResponse<?> getProductForItem(String productId){
+        User user = authUtils.getUser();
+
+        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+        Discount discount = discountRepository.findById(productId).orElseThrow(DiscountNotFoundException::new);
+        Address address = addressRepository.findByUser(user);
+        ProductItemResponseDto responseDto = ProductItemResponseDto.builder()
+                .productId(product.getId())
+                .productName(product.getName())
+                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
+                .isAddressExist(address != null)
+                .build();
+        return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
+    }
+
+    public String getMostSimilarProductId(ProductRequestDto requestDto){
         log.info("Start to get more similar product from AI Server");
         String path = "/api/v1/image";
         Map<String, String> result = restTemplate.postForObject(path, requestDto, Map.class);
@@ -56,6 +73,8 @@ public class ProductService {
         return result.get("productId");
     }
 
+
+    /*
     @Transactional
     public ApiResponse<?> confirmProduct(ConfirmProductRequestDto requestDto){
         Product product = productRepository.findByKakaoProductId(requestDto.getKakaoProductId());
@@ -96,4 +115,6 @@ public class ProductService {
 
         return productId;
     }
+
+    */
 }

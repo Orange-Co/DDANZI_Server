@@ -30,6 +30,7 @@ public class ItemService {
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
     private final DiscountRepository discountRepository;
+    private final TermService termService;
 
     @Transactional
     public ApiResponse<?> saveItem(User user, SaveItemRequestDto requestDto){
@@ -40,6 +41,8 @@ public class ItemService {
         Item newItem = requestDto.toItem(itemId, user, product);
         newItem = itemRepository.save(newItem);
         log.info("item 등록 성공, item_id: {}",newItem.getId());
+
+        termService.createItemAgreements(newItem);
 
         product.updateStock(product.getStock() + 1);
         log.info("상품의 재고 수량 업데이트 -> {}개",  product.getStock());

@@ -22,6 +22,7 @@ public enum Error {
 
     // 403 UNAUTHORIZED
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED,"Unauthorized user"),
+    ITEM_UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED,"Access denied. This item is not owned by you."),
     INVALID_JWT_EXCEPTION(HttpStatus.UNAUTHORIZED, "Invalid JWT"),
     LOG_OUT_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"Logged out user"),
     JWT_EXPIRED(HttpStatus.UNAUTHORIZED,"JWT expired"),

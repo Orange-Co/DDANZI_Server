@@ -1,5 +1,6 @@
 package co.orange.ddanzi.domain.product;
 
+import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Table(name = "items")
 @Entity
-public class Item {
+public class Item extends BaseTimeEntity {
     @Id
     @Column(name = "item_id")
     private String id;            //제품 고유 ID

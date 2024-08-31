@@ -1,6 +1,7 @@
 package co.orange.ddanzi.dto.item;
 
 
+import co.orange.ddanzi.domain.order.enums.PayMethod;
 import co.orange.ddanzi.dto.AddressInfo;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +21,5 @@ public class ItemResponseDto {
     private String buyerNickName;
     private AddressInfo addressInfo;
     private LocalDateTime paidAt;
-    private String paymentMethod;
+    private PayMethod paymentMethod;
 }

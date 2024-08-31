@@ -38,6 +38,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    //GCP
+    implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.40.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
@@ -49,7 +51,7 @@ tasks.named('test') {
 task copyYML(type: Copy){
     copy{
         from './DDANZI_Server_yml'
-        include "*.yml"
+        include "*.yml", "*.json"
         into './src/main/resources'
     }
 }

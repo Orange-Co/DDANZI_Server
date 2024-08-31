@@ -19,6 +19,7 @@ import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
+import com.google.protobuf.Api;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 
 @Slf4j
@@ -42,12 +45,22 @@ public class ItemService {
     private final OrderRepository orderRepository;
     private final OrderOptionDetailRepository orderOptionDetailRepository;
 
-
+    @Autowired
+    GcsService gcsService;
     @Autowired
     TermService termService;
-
     @Autowired
     AddressService addressService;
+
+
+
+    @Transactional
+    public ApiResponse<?> createSignedUrl(){
+        UUID uuid = UUID.randomUUID();
+        log.info("Creating uuid for SignedUrl: {}", uuid);
+        String url = gcsService.generateSignedUrl(uuid.toString());
+        return ApiResponse.onSuccess(Success.GET_GCP_SIGNED_URL_SUCCESS, Map.of("signedUrl", url));
+    }
 
     @Transactional
     public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){

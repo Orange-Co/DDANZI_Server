@@ -22,8 +22,10 @@ public class ItemController {
     private final ProductService productService;
     private final ItemService itemService;
 
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
+    @GetMapping("/signed-url")
+    ApiResponse<?> createSignedUrl(){
+        return itemService.createSignedUrl();
+    }
 
     @PostMapping("/check")
     ApiResponse<?> checkProduct(@RequestBody ProductRequestDto requestDto) {

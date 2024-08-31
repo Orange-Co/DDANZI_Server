@@ -32,7 +32,7 @@ public class GcsService {
         URL url = storage.signUrl(blobInfo,
                 15,
                 TimeUnit.MINUTES,
-                Storage.SignUrlOption.httpMethod(HttpMethod.POST),
+                Storage.SignUrlOption.httpMethod(HttpMethod.PUT),
                 Storage.SignUrlOption.withExtHeaders(extensionHeaders),
                 Storage.SignUrlOption.withV4Signature()
                 );

@@ -30,12 +30,6 @@ public class ItemController {
         return productService.getMostSimilarProduct(requestDto);
     }
 
-
-    @PostMapping("/confirm")
-    ApiResponse<?> confirmProduct(@RequestBody ConfirmProductRequestDto requestDto){
-        return productService.confirmProduct(requestDto);
-    }
-
     @PostMapping
     ApiResponse<?> saveItem(@RequestBody SaveItemRequestDto requestDto){
         User user = userRepository.findById(1L).orElse(null);

@@ -37,18 +37,23 @@ public class Order {
     @JoinColumn(name = "item_id")
     private Item item;                      //판매 제품
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;                // 결제 정보
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id")
     private User buyer;                   //구매자
 
 
     @Builder
-    public Order(String id, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer) {
+    public Order(String id, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, Payment payment, User buyer) {
         this.id = id;
         this.status = status;
         this.createdAt = createdAt;
         this.completedAt = completedAt;
         this.item = item;
+        this.payment = payment;
         this.buyer = buyer;
 
     }

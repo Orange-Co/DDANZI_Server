@@ -3,11 +3,15 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.ItemNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
+import co.orange.ddanzi.domain.order.Order;
+import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.dto.AddressInfo;
+import co.orange.ddanzi.dto.item.ItemResponseDto;
 import co.orange.ddanzi.dto.item.SaveItemRequestDto;
 import co.orange.ddanzi.dto.item.SaveItemResponseDto;
 import co.orange.ddanzi.common.error.Error;
@@ -18,11 +22,13 @@ import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -31,9 +37,15 @@ import java.util.List;
 public class ItemService {
     private final AuthUtils authUtils;
     private final ProductRepository productRepository;
-    private final ItemRepository itemRepository;
     private final DiscountRepository discountRepository;
-    private final TermService termService;
+    private final ItemRepository itemRepository;
+    private final OrderRepository orderRepository;
+
+    @Autowired
+    TermService termService;
+
+    @Autowired
+    AddressService addressService;
 
     @Transactional
     public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
@@ -66,8 +78,30 @@ public class ItemService {
     public ApiResponse<?> getItem(String itemId){
         User user = authUtils.getUser();
         Item item = itemRepository.findById(itemId).orElseThrow(ItemNotFoundException::new);
+        //check equals seller and user
+        if(!item.getSeller().equals(user))
+            return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
-        return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, null);
+        Order order = orderRepository.findByItem(item).orElse(null);
+        Payment payment = order.getPayment();
+
+        Product product = item.getProduct();
+        Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
+
+        ItemResponseDto responseDto = ItemResponseDto.builder()
+                .itemId(itemId)
+                .status(order != null ? order.getStatus().toString() : item.getStatus().toString())
+                .productName(product.getName())
+                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
+                .orderId(order != null ? order.getId() : null)
+                .buyerNickName(order!=null ? order.getBuyer().getNickname() : null)
+                .addressInfo(addressService.setAddressInfo(user))
+                .paidAt(payment.getEndedAt())
+                .paymentMethod(payment.getMethod())
+                .build();
+
+        return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
     }
 
     public String createItemId(Product product) {
@@ -88,10 +122,6 @@ public class ItemService {
         log.info("item_id 생성 완료 -> {}",itemId);
 
         return itemId;
-    }
-
-    public void deleteItemOfUser(User user) {
-
     }
 
     public void updateExpiredItems(){

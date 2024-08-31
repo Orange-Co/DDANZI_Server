@@ -83,7 +83,9 @@ public class ItemService {
             return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
         Order order = orderRepository.findByItem(item).orElse(null);
-        Payment payment = order.getPayment();
+        Payment payment = null;
+        if(order!=null)
+            payment = order.getPayment();
 
         Product product = item.getProduct();
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
@@ -97,8 +99,8 @@ public class ItemService {
                 .orderId(order != null ? order.getId() : null)
                 .buyerNickName(order!=null ? order.getBuyer().getNickname() : null)
                 .addressInfo(addressService.setAddressInfo(user))
-                .paidAt(payment.getEndedAt())
-                .paymentMethod(payment.getMethod())
+                .paidAt(payment!=null ? payment.getEndedAt():null)
+                .paymentMethod(payment!=null ? payment.getMethod():null)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);

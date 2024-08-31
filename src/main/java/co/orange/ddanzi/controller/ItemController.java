@@ -46,4 +46,9 @@ public class ItemController {
         return itemService.saveItem(user, requestDto);
     }
 
+    @GetMapping("/{id}")
+    ApiResponse<?> getItem(@PathVariable("id") String id) {
+        return itemService.getItem(id);
+    }
+
 }

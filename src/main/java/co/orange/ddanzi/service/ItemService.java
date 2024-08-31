@@ -1,6 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.exception.DiscountNotFoundException;
+import co.orange.ddanzi.common.exception.ItemNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
@@ -12,6 +13,7 @@ import co.orange.ddanzi.dto.item.SaveItemResponseDto;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ItemService {
+    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
     private final DiscountRepository discountRepository;
@@ -55,6 +58,13 @@ public class ItemService {
         return ApiResponse.onSuccess(Success.CREATE_ITEM_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ApiResponse<?> getItem(String itemId){
+        User user = authUtils.getUser();
+        Item item = itemRepository.findById(itemId).orElseThrow(ItemNotFoundException::new);
+
+        return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, null);
+    }
 
     public String createItemId(Product product) {
         String productId = product.getId();

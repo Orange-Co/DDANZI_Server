@@ -2,8 +2,7 @@ package co.orange.ddanzi.dto.order;
 
 
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
-import co.orange.ddanzi.domain.order.enums.PayMethod;
-import co.orange.ddanzi.dto.AddressInfo;
+import co.orange.ddanzi.dto.common.AddressInfo;
 import lombok.Builder;
 import lombok.Getter;
 

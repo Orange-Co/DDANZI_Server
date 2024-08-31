@@ -6,7 +6,7 @@ import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.ProductInfo;
+import co.orange.ddanzi.dto.common.ProductInfo;
 import co.orange.ddanzi.dto.mypage.MyOrder;
 import co.orange.ddanzi.dto.mypage.MyOrderResponseDto;
 import co.orange.ddanzi.dto.mypage.MyPageInterestResponseDto;

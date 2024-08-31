@@ -2,8 +2,8 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.AddressInfo;
-import co.orange.ddanzi.dto.AddressSeparateInfo;
+import co.orange.ddanzi.dto.common.AddressInfo;
+import co.orange.ddanzi.dto.common.AddressSeparateInfo;
 import co.orange.ddanzi.dto.setting.AddressResponseDto;
 import co.orange.ddanzi.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;

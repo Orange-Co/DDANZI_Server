@@ -1,4 +1,4 @@
-package co.orange.ddanzi.dto.home;
+package co.orange.ddanzi.dto.common;
 
 import lombok.Builder;
 import lombok.Getter;

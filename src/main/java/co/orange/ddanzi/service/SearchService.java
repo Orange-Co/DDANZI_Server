@@ -2,7 +2,7 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.ProductInfo;
+import co.orange.ddanzi.dto.common.ProductInfo;
 import co.orange.ddanzi.dto.search.SearchPageResponseDto;
 import co.orange.ddanzi.dto.search.SearchResultResponseDto;
 import co.orange.ddanzi.common.response.ApiResponse;

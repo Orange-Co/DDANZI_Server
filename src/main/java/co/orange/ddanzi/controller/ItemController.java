@@ -38,12 +38,9 @@ public class ItemController {
 
     @PostMapping
     ApiResponse<?> saveItem(@RequestBody SaveItemRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
-        if(user.getAuthentication() == null)
-            return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
         if(requestDto.getDueDate().isBefore(LocalDate.now()))
             return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
-        return itemService.saveItem(user, requestDto);
+        return itemService.saveItem( requestDto);
     }
 
     @GetMapping("/{id}")

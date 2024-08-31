@@ -55,10 +55,8 @@ public class ItemService {
 
 
     @Transactional
-    public ApiResponse<?> createSignedUrl(){
-        UUID uuid = UUID.randomUUID();
-        log.info("Creating uuid for SignedUrl: {}", uuid);
-        String url = gcsService.generateSignedUrl(uuid.toString());
+    public ApiResponse<?> createSignedUrl(String fileName){
+        String url = gcsService.generateSignedUrl(fileName);
         return ApiResponse.onSuccess(Success.GET_GCP_SIGNED_URL_SUCCESS, Map.of("signedUrl", url));
     }
 

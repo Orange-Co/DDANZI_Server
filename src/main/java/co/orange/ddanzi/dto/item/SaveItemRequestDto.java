@@ -14,16 +14,15 @@ import java.util.List;
 public class SaveItemRequestDto {
     private String productId;
     private String productName;
-    private String itemImgUrl;
     private LocalDate dueDate;
-    private List<TermInfo> termItem;
+    private String registeredImage;
 
     public Item toItem(String id, User user, Product product){
         return Item.builder()
                 .id(id)
                 .product(product)
                 .seller(user)
-                .imgUrl(itemImgUrl)
+                .imgUrl(registeredImage)
                 .dueDate(dueDate)
                 .status(ItemStatus.ON_SALE)
                 .build();

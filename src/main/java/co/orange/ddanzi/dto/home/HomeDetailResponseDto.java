@@ -1,5 +1,6 @@
 package co.orange.ddanzi.dto.home;
 
+import co.orange.ddanzi.dto.common.OptionInfo;
 import lombok.Builder;
 import lombok.Getter;
 

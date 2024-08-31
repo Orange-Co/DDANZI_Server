@@ -1,6 +1,5 @@
-package co.orange.ddanzi.dto.home;
+package co.orange.ddanzi.dto.common;
 
-import co.orange.ddanzi.domain.product.enums.OptionType;
 import lombok.Builder;
 import lombok.Getter;
 

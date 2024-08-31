@@ -8,6 +8,10 @@ build/
 ### YML ###
 application-*
 
+
+### KEY ###
+*.json
+
 ### STS ###
 .apt_generated
 .classpath

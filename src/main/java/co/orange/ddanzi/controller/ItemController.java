@@ -5,6 +5,7 @@ import co.orange.ddanzi.dto.item.ConfirmProductRequestDto;
 import co.orange.ddanzi.dto.item.SaveItemRequestDto;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
+import co.orange.ddanzi.dto.product.ProductRequestDto;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.UserRepository;
 import co.orange.ddanzi.service.ItemService;
@@ -21,24 +22,37 @@ public class ItemController {
     private final ProductService productService;
     private final ItemService itemService;
 
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
-
-    @PostMapping("/confirm")
-    ApiResponse<?> confirmProduct(@RequestBody ConfirmProductRequestDto requestDto){
-        return productService.confirmProduct(requestDto);
+    @GetMapping("/signed-url")
+    ApiResponse<?> createSignedUrl(@RequestParam String fileName) {
+        return itemService.createSignedUrl(fileName);
     }
+
+    @PostMapping("/check")
+    ApiResponse<?> checkProduct(@RequestBody ProductRequestDto requestDto) {
+        return productService.getMostSimilarProduct(requestDto);
+    }
+
+    @GetMapping("/product/{id}")
+    ApiResponse<?> getProduct(@PathVariable("id") String id) {
+        return productService.getProductForItem(id);
+    }
+
 
     @PostMapping
     ApiResponse<?> saveItem(@RequestBody SaveItemRequestDto requestDto){
-        User user = userRepository.findById(1L).orElse(null);
-        if(user.getAuthentication() == null)
-            return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
-        if(addressRepository.findByUser(user) == null)
-            return ApiResponse.onFailure(Error.ADDRESS_NOT_FOUND, null);
         if(requestDto.getDueDate().isBefore(LocalDate.now()))
             return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
-        return itemService.saveItem(user, requestDto);
+        return itemService.saveItem( requestDto);
+    }
+
+    @GetMapping("/{id}")
+    ApiResponse<?> getItem(@PathVariable("id") String id) {
+        return itemService.getItem(id);
+    }
+
+    @GetMapping("order/{id}")
+    ApiResponse<?> getAddressAndOption(@PathVariable("id") String id) {
+        return itemService.getAddressAndOption(id);
     }
 
 }

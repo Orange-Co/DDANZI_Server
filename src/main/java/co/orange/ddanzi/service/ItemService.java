@@ -1,42 +1,80 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.common.exception.DiscountNotFoundException;
+import co.orange.ddanzi.common.exception.ItemNotFoundException;
+import co.orange.ddanzi.common.exception.OrderNotFoundException;
+import co.orange.ddanzi.common.exception.ProductNotFoundException;
+import co.orange.ddanzi.domain.order.Order;
+import co.orange.ddanzi.domain.order.OrderOptionDetail;
+import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.item.SaveItemRequestDto;
-import co.orange.ddanzi.dto.item.SaveItemResponseDto;
+import co.orange.ddanzi.dto.common.AddressSeparateInfo;
+import co.orange.ddanzi.dto.item.*;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
+import com.google.protobuf.Api;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class ItemService {
+    private final AuthUtils authUtils;
     private final ProductRepository productRepository;
+    private final DiscountRepository discountRepository;
     private final ItemRepository itemRepository;
+    private final OrderRepository orderRepository;
+    private final OrderOptionDetailRepository orderOptionDetailRepository;
+
+    @Autowired
+    GcsService gcsService;
+    @Autowired
+    TermService termService;
+    @Autowired
+    AddressService addressService;
+
+
 
     @Transactional
-    public ApiResponse<?> saveItem(User user, SaveItemRequestDto requestDto){
-        Product product = productRepository.findById(requestDto.getProductId()).orElse(null);
-        if(product == null)
-            return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND, null);
+    public ApiResponse<?> createSignedUrl(String fileName){
+        String url = gcsService.generateSignedUrl(fileName);
+        return ApiResponse.onSuccess(Success.GET_GCP_SIGNED_URL_SUCCESS, Map.of("signedUrl", url));
+    }
+
+    @Transactional
+    public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
+        User user = authUtils.getUser();
+        if(user.getAuthentication() == null)
+            return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
+
+        Product product = productRepository.findById(requestDto.getProductId()).orElseThrow(ProductNotFoundException::new);
+        Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
 
         String itemId = createItemId(product);
         Item newItem = requestDto.toItem(itemId, user, product);
         newItem = itemRepository.save(newItem);
         log.info("item 등록 성공, item_id: {}",newItem.getId());
+
+        termService.createItemAgreements(newItem);
 
         product.updateStock(product.getStock() + 1);
         log.info("상품의 재고 수량 업데이트 -> {}개",  product.getStock());
@@ -44,9 +82,61 @@ public class ItemService {
         SaveItemResponseDto responseDto = SaveItemResponseDto.builder()
                 .itemId(newItem.getId())
                 .productName(product.getName())
-                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_ITEM_SUCCESS, responseDto);
+    }
+
+    @Transactional
+    public ApiResponse<?> getItem(String itemId){
+        User user = authUtils.getUser();
+        Item item = itemRepository.findById(itemId).orElseThrow(ItemNotFoundException::new);
+        //check equals seller and user
+        if(!item.getSeller().equals(user))
+            return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
+
+        Order order = orderRepository.findByItem(item).orElse(null);
+        Payment payment = null;
+        if(order!=null)
+            payment = order.getPayment();
+
+        Product product = item.getProduct();
+        Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
+
+        ItemResponseDto responseDto = ItemResponseDto.builder()
+                .itemId(itemId)
+                .status(order != null ? order.getStatus().toString() : item.getStatus().toString())
+                .productName(product.getName())
+                .originPrice(product.getOriginPrice())
+                .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
+                .orderId(order != null ? order.getId() : null)
+                .buyerNickName(order!=null ? order.getBuyer().getNickname() : null)
+                .addressInfo(addressService.setAddressInfo(user))
+                .paidAt(payment!=null ? payment.getEndedAt():null)
+                .paymentMethod(payment!=null ? payment.getMethod():null)
+                .build();
+
+        return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
+    }
+
+
+    @Transactional
+    public ApiResponse<?> getAddressAndOption(String orderId){
+        User user = authUtils.getUser();
+        Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        AddressSeparateInfo address = addressService.setAddressSeparateInfo(user);
+
+        List<SelectedOption> selectedOptionList = setSelectedOptionList(order);
+
+        ItemAddressOptionResponseDto responseDto = ItemAddressOptionResponseDto.builder()
+                .address(address.getAddress())
+                .detailAddress(address.getDetailAddress())
+                .zipCode(address.getZipCode())
+                .recipient(address.getRecipient())
+                .recipientPhone(address.getRecipientPhone())
+                .selectedOptionList(selectedOptionList)
+                .build();
+        return ApiResponse.onSuccess(Success.GET_ORDER_ADDRESS_OPTION_SUCCESS, responseDto);
     }
 
 
@@ -70,10 +160,6 @@ public class ItemService {
         return itemId;
     }
 
-    public void deleteItemOfUser(User user) {
-
-    }
-
     public void updateExpiredItems(){
         List<Item> itemList = itemRepository.findExpiryItems(LocalDate.now());
         for(Item item : itemList){
@@ -81,5 +167,18 @@ public class ItemService {
             Product product = item.getProduct();
             product.updateStock(product.getStock() - 1);
         }
+    }
+
+    public List<SelectedOption> setSelectedOptionList(Order order){
+        List<OrderOptionDetail> orderOptionDetailList = orderOptionDetailRepository.findAllByOrder(order);
+        List<SelectedOption> selectedOptionList = new ArrayList<>();
+        for(OrderOptionDetail orderOptionDetail : orderOptionDetailList){
+            selectedOptionList.add(SelectedOption.builder()
+                    .option(orderOptionDetail.getOptionDetail().getOption().getContent())
+                    .selectedOption(orderOptionDetail.getOptionDetail().getContent())
+                    .build());
+
+        }
+        return selectedOptionList;
     }
 }

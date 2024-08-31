@@ -25,10 +25,11 @@ public class ItemController {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
 
-    @GetMapping("/check")
+    @PostMapping("/check")
     ApiResponse<?> checkProduct(@RequestBody ProductRequestDto requestDto) {
         return productService.getMostSimilarProduct(requestDto);
     }
+
 
     @PostMapping
     ApiResponse<?> saveItem(@RequestBody SaveItemRequestDto requestDto){

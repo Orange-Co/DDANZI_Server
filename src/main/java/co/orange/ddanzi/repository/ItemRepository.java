@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, String> {
     List<Item> findAllBySeller(User user);
 
+    Integer countAllBySeller(User user);
+
     @Query("SELECT MAX(CAST(SUBSTRING(i.id, 14, 2) AS integer)) FROM Item i WHERE i.product = :product")
     Integer findMaxSequenceNumberByProduct(@Param("product") Product product);
 

@@ -174,6 +174,10 @@ public class ItemService {
         return selectedOptionList;
     }
 
+    public Integer getMyItemCount(User user){
+        return itemRepository.countAllBySeller(user);
+    }
+
     public List<MyItem> getMyItemList(User user){
         List<Item> itemList = itemRepository.findAllBySeller(user);
         List<MyItem> myItemList = new ArrayList<>();

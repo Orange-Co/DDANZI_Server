@@ -7,9 +7,7 @@ import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.common.ProductInfo;
-import co.orange.ddanzi.dto.mypage.MyOrder;
-import co.orange.ddanzi.dto.mypage.MyOrderResponseDto;
-import co.orange.ddanzi.dto.mypage.MyPageInterestResponseDto;
+import co.orange.ddanzi.dto.mypage.*;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.AuthUtils;
@@ -20,6 +18,7 @@ import co.orange.ddanzi.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,6 +36,9 @@ public class MyPageService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final InterestProductRepository interestProductRepository;
+
+    @Autowired
+    ItemService itemService;
 
     @Transactional
     public ApiResponse<?> getMyPage(){
@@ -74,6 +76,18 @@ public class MyPageService {
                 .totalCount(orderList.size())
                 .orderProductList(orderProductList)
                 .build());
+    }
+
+    @Transactional
+    public ApiResponse<?> getMyItem(){
+        User user = authUtils.getUser();
+        List<MyItem> myItemList = itemService.getMyItemList(user);
+
+        MyItemResponseDto responseDto = MyItemResponseDto.builder()
+                .totalCount(myItemList.size())
+                .itemProductList(myItemList)
+                .build();
+        return ApiResponse.onSuccess(Success.GET_MY_ITEM_LIST_SUCCESS, responseDto);
     }
 
     @Transactional

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Controller
 public class HealthCheckController {
 
-    @GetMapping("/heath-check")
+    @GetMapping("/health-check")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<?> healthCheck() {
         return ApiResponse.onSuccess(Success.SUCCESS,null);

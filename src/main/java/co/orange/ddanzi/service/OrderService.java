@@ -12,6 +12,7 @@ import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.dto.mypage.MyOrder;
 import co.orange.ddanzi.dto.order.CheckProductResponseDto;
 import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -197,9 +199,32 @@ public class OrderService {
         return responseDto;
     }
 
-    public void deleteOrderOfUser(User user){
-
+    public Integer getMyOrderCount(User user){
+        return orderRepository.countAllByBuyer(user);
     }
 
+    public List<MyOrder> getMyOrderList(User user){
+        List<Order> orderList = orderRepository.findByBuyer(user);
+
+        List<MyOrder> orderProductList = new ArrayList<>();
+
+        for (Order order : orderList) {
+            Product product = order.getItem().getProduct();
+            Discount discount = discountRepository.findById(product.getId()).orElse(null);
+            Payment payment = paymentRepository.findByBuyerAndItem(user, order.getItem()).orElseThrow(() -> new PaymentNotFoundException());
+            MyOrder myOrder = MyOrder.builder()
+                    .productId(product.getId())
+                    .orderId(order.getId())
+                    .productName(product.getName())
+                    .imgUrl(product.getImgUrl())
+                    .originPrice(product.getOriginPrice())
+                    .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
+                    .paidAt(payment.getEndedAt())
+                    .build();
+
+            orderProductList.add(myOrder);
+        }
+        return orderProductList;
+    }
 
 }

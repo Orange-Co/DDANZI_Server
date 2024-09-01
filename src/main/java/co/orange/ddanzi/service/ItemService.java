@@ -11,12 +11,14 @@ import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
+import co.orange.ddanzi.domain.user.InterestProduct;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.common.AddressSeparateInfo;
 import co.orange.ddanzi.dto.item.*;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.dto.mypage.MyItem;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import com.google.protobuf.Api;
@@ -44,6 +46,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
     private final OrderOptionDetailRepository orderOptionDetailRepository;
+    private final InterestProductRepository interestProductRepository;
 
     @Autowired
     GcsService gcsService;
@@ -51,8 +54,6 @@ public class ItemService {
     TermService termService;
     @Autowired
     AddressService addressService;
-
-
 
     @Transactional
     public ApiResponse<?> createSignedUrl(String fileName){
@@ -140,7 +141,7 @@ public class ItemService {
     }
 
 
-    public String createItemId(Product product) {
+    private String createItemId(Product product) {
         String productId = product.getId();
 
         log.info("업로드 일자 포멧팅");
@@ -160,16 +161,7 @@ public class ItemService {
         return itemId;
     }
 
-    public void updateExpiredItems(){
-        List<Item> itemList = itemRepository.findExpiryItems(LocalDate.now());
-        for(Item item : itemList){
-            item.updateStatus(ItemStatus.EXPIRED);
-            Product product = item.getProduct();
-            product.updateStock(product.getStock() - 1);
-        }
-    }
-
-    public List<SelectedOption> setSelectedOptionList(Order order){
+    private List<SelectedOption> setSelectedOptionList(Order order){
         List<OrderOptionDetail> orderOptionDetailList = orderOptionDetailRepository.findAllByOrder(order);
         List<SelectedOption> selectedOptionList = new ArrayList<>();
         for(OrderOptionDetail orderOptionDetail : orderOptionDetailList){
@@ -181,4 +173,40 @@ public class ItemService {
         }
         return selectedOptionList;
     }
+
+    public Integer getMyItemCount(User user){
+        return itemRepository.countAllBySeller(user);
+    }
+
+    public List<MyItem> getMyItemList(User user){
+        List<Item> itemList = itemRepository.findAllBySeller(user);
+        List<MyItem> myItemList = new ArrayList<>();
+        for(Item item : itemList){
+            Product product = item.getProduct();
+            Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
+
+            myItemList.add(MyItem.builder()
+                    .productId(product.getId())
+                    .itemId(item.getId())
+                    .productName(product.getName())
+                    .imgUrl(item.getImgUrl())
+                    .originPrice(product.getOriginPrice())
+                    .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
+                    .isInterested(interestProductRepository.existsByIdUserAndIdProduct(user,product))
+                    .interestCount(interestProductRepository.countByProductIdWithLimit(product.getId()))
+                    .build());
+        }
+        return myItemList;
+    }
+
+    public void updateExpiredItems(){
+        List<Item> itemList = itemRepository.findExpiryItems(LocalDate.now());
+        for(Item item : itemList){
+            item.updateStatus(ItemStatus.EXPIRED);
+            Product product = item.getProduct();
+            product.updateStock(product.getStock() - 1);
+        }
+    }
+
+
 }

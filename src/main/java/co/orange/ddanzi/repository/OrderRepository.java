@@ -16,4 +16,6 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     @Query("SELECT o from Order o where o.item  = :item")
     Optional<Order> findByItem(@Param("item") Item item);
+
+    Integer countAllByBuyer(User user);
 }

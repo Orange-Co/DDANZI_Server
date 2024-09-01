@@ -7,9 +7,7 @@ import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.common.ProductInfo;
-import co.orange.ddanzi.dto.mypage.MyOrder;
-import co.orange.ddanzi.dto.mypage.MyOrderResponseDto;
-import co.orange.ddanzi.dto.mypage.MyPageInterestResponseDto;
+import co.orange.ddanzi.dto.mypage.*;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.AuthUtils;
@@ -20,6 +18,7 @@ import co.orange.ddanzi.repository.PaymentRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,10 +32,12 @@ import java.util.Map;
 public class MyPageService {
     private final AuthUtils authUtils;
     private final HomeService homeService;
-    private final DiscountRepository discountRepository;
-    private final OrderRepository orderRepository;
-    private final PaymentRepository paymentRepository;
     private final InterestProductRepository interestProductRepository;
+
+    @Autowired
+    OrderService orderService;
+    @Autowired
+    ItemService itemService;
 
     @Transactional
     public ApiResponse<?> getMyPage(){
@@ -50,30 +51,26 @@ public class MyPageService {
     @Transactional
     public ApiResponse<?> getMyOrder(){
         User user = authUtils.getUser();
-        List<Order> orderList = orderRepository.findByBuyer(user);
+        Integer totalCount = orderService.getMyOrderCount(user);
+        List<MyOrder> orderProductList = orderService.getMyOrderList(user);
 
-        List<MyOrder> orderProductList = new ArrayList<>();
-
-        for (Order order : orderList) {
-            Product product = order.getItem().getProduct();
-            Discount discount = discountRepository.findById(product.getId()).orElse(null);
-            Payment payment = paymentRepository.findByBuyerAndItem(user, order.getItem()).orElseThrow(() -> new PaymentNotFoundException());
-            MyOrder myOrder = MyOrder.builder()
-                    .productId(product.getId())
-                    .orderId(order.getId())
-                    .productName(product.getName())
-                    .imgUrl(product.getImgUrl())
-                    .originPrice(product.getOriginPrice())
-                    .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
-                    .paidAt(payment.getEndedAt())
-                    .build();
-
-            orderProductList.add(myOrder);
-        }
         return ApiResponse.onSuccess(Success.GET_MY_ORDER_LIST_SUCCESS, MyOrderResponseDto.builder()
-                .totalCount(orderList.size())
+                .totalCount(totalCount)
                 .orderProductList(orderProductList)
                 .build());
+    }
+
+    @Transactional
+    public ApiResponse<?> getMyItem(){
+        User user = authUtils.getUser();
+        Integer totalCount = itemService.getMyItemCount(user);
+        List<MyItem> myItemList = itemService.getMyItemList(user);
+
+        MyItemResponseDto responseDto = MyItemResponseDto.builder()
+                .totalCount(totalCount)
+                .itemProductList(myItemList)
+                .build();
+        return ApiResponse.onSuccess(Success.GET_MY_ITEM_LIST_SUCCESS, responseDto);
     }
 
     @Transactional

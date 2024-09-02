@@ -74,7 +74,7 @@ public class PaymentService {
     public ApiResponse<?> endPayment(UpdatePaymentRequestDto requestDto){
         User buyer = authUtils.getUser();
         Order order = orderService.getOrderRecord(requestDto.getOrderId());
-        Payment payment = order.getPayment();
+        Payment payment = paymentRepository.findByOrder(order);
         Item item = order.getItem();
         Product product = item.getProduct();
         if(isAvailableToChangePayment(buyer, payment)){

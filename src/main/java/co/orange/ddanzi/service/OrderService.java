@@ -82,7 +82,7 @@ public class OrderService {
 
         Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(OrderNotFoundException::new);
         log.info("Checking the payment is done.");
-        Payment payment = order.getPayment();
+        Payment payment = paymentRepository.findByOrder(order);
         if(!payment.getPayStatus().equals(PayStatus.PAID))
             return ApiResponse.onFailure(Error.PAYMENT_REQUIRED,null);
 
@@ -104,7 +104,7 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
-        Payment payment = order.getPayment();
+        Payment payment = paymentRepository.findByOrder(order);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
@@ -217,7 +217,7 @@ public class OrderService {
         for (Order order : orderList) {
             Product product = order.getItem().getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElse(null);
-            Payment payment = order.getPayment();
+            Payment payment = paymentRepository.findByOrder(order);
             MyOrder myOrder = MyOrder.builder()
                     .productId(product.getId())
                     .orderId(order.getId())

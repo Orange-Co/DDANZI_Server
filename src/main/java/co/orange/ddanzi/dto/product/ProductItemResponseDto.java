@@ -8,7 +8,8 @@ import lombok.Getter;
 public class ProductItemResponseDto {
     private String productId;
     private String productName;
+    private String imageUrl;
     private Integer originPrice;
     private Integer salePrice;
-    private Boolean isAddressExist;
+    private Boolean isAccountExist;
 }

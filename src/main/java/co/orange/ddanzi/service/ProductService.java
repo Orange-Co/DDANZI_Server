@@ -5,10 +5,12 @@ import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
+import co.orange.ddanzi.domain.user.Account;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.dto.item.CheckItemResponseDto;
 import co.orange.ddanzi.dto.product.ProductItemResponseDto;
 import co.orange.ddanzi.dto.product.ProductRequestDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
@@ -31,7 +33,7 @@ public class ProductService {
     private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final DiscountRepository discountRepository;
-    private final AddressRepository addressRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
     RestTemplate restTemplate;
@@ -41,10 +43,14 @@ public class ProductService {
         if(productId == null)
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND,null);
         log.info("Find product by id: {}", productId);
-        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
 
-        return ApiResponse.onSuccess(Success.GET_MOST_SIMILAR_PRODUCT_SUCCESS, Map.of("productId", productId
-                                                                            , "productName", product.getName()));
+        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+        CheckItemResponseDto responseDto = CheckItemResponseDto.builder()
+                .productId(product.getId())
+                .productName(product.getName())
+                .imgUrl(product.getImgUrl())
+                .build();
+        return ApiResponse.onSuccess(Success.GET_MOST_SIMILAR_PRODUCT_SUCCESS, responseDto);
     }
 
     @Transactional
@@ -53,13 +59,15 @@ public class ProductService {
 
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         Discount discount = discountRepository.findById(productId).orElseThrow(DiscountNotFoundException::new);
-        Address address = addressRepository.findByUser(user);
+        Account account = accountRepository.findByUserId(user);
+
         ProductItemResponseDto responseDto = ProductItemResponseDto.builder()
                 .productId(product.getId())
                 .productName(product.getName())
+                .imageUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
                 .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
-                .isAddressExist(address != null)
+                .isAccountExist(account != null)
                 .build();
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
     }

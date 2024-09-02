@@ -58,7 +58,6 @@ public class OrderService {
     public ApiResponse<?> checkOrderProduct(String productId){
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException());
-        Item item = itemRepository.findNearestExpiryItem(product).orElseThrow(()-> new ItemNotFoundException());
         Discount discount = discountRepository.findById(productId).orElse(null);
 
         User user = authUtils.getUser();
@@ -66,7 +65,7 @@ public class OrderService {
         Integer charge = paymentService.calculateCharge(salePrice);
 
         CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
-                .itemId(item.getId())
+                .productId(product.getId())
                 .productName(product.getName())
                 .modifiedProductName(createModifiedProductName(product.getName()))
                 .imgUrl(product.getImgUrl())

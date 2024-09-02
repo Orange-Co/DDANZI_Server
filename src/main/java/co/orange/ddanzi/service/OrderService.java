@@ -10,15 +10,11 @@ import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
-import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.mypage.MyOrder;
-import co.orange.ddanzi.dto.order.CheckProductResponseDto;
-import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
+import co.orange.ddanzi.dto.order.*;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.dto.order.OrderResponseDto;
-import co.orange.ddanzi.dto.order.UpdateOrderResponseDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
@@ -27,10 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 @Slf4j
@@ -39,7 +36,6 @@ import java.util.Random;
 public class OrderService {
     private final AuthUtils authUtils;
     private final ProductRepository productRepository;
-    private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final DiscountRepository discountRepository;
@@ -80,33 +76,25 @@ public class OrderService {
     }
 
     @Transactional
-    public ApiResponse<?> createOrder(CreateOrderRequestDto requestDto){
+    public ApiResponse<?> saveOrder(SaveOrderRequestDto requestDto){
+
+        Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(OrderNotFoundException::new);
         log.info("Checking the payment is done.");
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // 형변환 해놨음 다시 수정필요
-
-        Payment payment = paymentRepository.findById(Long.parseLong(requestDto.getPaymentId())).orElseThrow(() -> new PaymentNotFoundException());
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
+        Payment payment = order.getPayment();
         if(!payment.getPayStatus().equals(PayStatus.PAID))
             return ApiResponse.onFailure(Error.PAYMENT_REQUIRED,null);
 
         User user = authUtils.getUser();
-        if(!payment.getBuyer().equals(user))
+        if(!order.getBuyer().equals(user))
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE,null);
 
-        Item item = itemRepository.findById(requestDto.getItemId()).orElseThrow(() -> new ItemNotFoundException());
-        item.updateStatus(ItemStatus.CLOSED);
-        log.info("Updated item status.");
-
-
-        Order order = createOrderRecord(requestDto, user, item);
+        order.updateStatus(OrderStatus.ORDER_PLACE);
         termService.createOrderAgreements(order);
 
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
 
-        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, Map.of("orderId", order.getId()));
+        return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, SaveOrderResponseDto.builder().orderId(order.getId()).orderStatus(order.getStatus()).build());
     }
 
     @Transactional
@@ -150,7 +138,7 @@ public class OrderService {
                 .build());
     }
 
-    public Order createOrder(User buyer, Item item){
+    public Order createOrderRecord(User buyer, Item item){
         String orderId = createOrderId(item.getId());
         Order newOrder = Order.builder()
                     .id(orderId)
@@ -161,6 +149,10 @@ public class OrderService {
                     .build();
         log.info("Created new order.");
         return orderRepository.save(newOrder);
+    }
+
+    public Order getOrderRecord(String orderId){
+        return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
     }
 
     private String createModifiedProductName(String productName){
@@ -175,19 +167,18 @@ public class OrderService {
     }
 
 
-    private Order createOrderRecord(CreateOrderRequestDto requestDto, User user, Item item){
-        String orderId = createOrderId(requestDto.getItemId());
-        Order order = requestDto.toOrder(orderId, user, item);
-        order = orderRepository.save(order);
-        log.info("Create new order, order_id: {}", orderId);
-        return  order;
-    }
-
     private String createOrderId(String itemId){
+        String uploadDatePart = itemId.substring(itemId.length() - 8, itemId.length() - 2);
+        LocalDate uploadDate = LocalDate.parse(uploadDatePart, DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        LocalDate currentDate = LocalDate.now();
+        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(uploadDate, currentDate);
+
         Random random = new Random();
         char firstChar = (char) ('A' + random.nextInt(26));
         char secondChar = (char) ('A' + random.nextInt(26));
-        return itemId + firstChar + secondChar;
+        char thirdChar = (char) ('A' + random.nextInt(26));
+        return itemId + daysBetween + firstChar + secondChar + thirdChar;
     }
 
     private OrderResponseDto setOrderResponseDto(User user, Order order, Item item, Payment payment){

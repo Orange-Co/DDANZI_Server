@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +148,19 @@ public class OrderService {
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
                 .build());
+    }
+
+    public Order createOrder(User buyer, Item item){
+        String orderId = createOrderId(item.getId());
+        Order newOrder = Order.builder()
+                    .id(orderId)
+                    .buyer(buyer)
+                    .item(item)
+                    .createdAt(LocalDateTime.now())
+                    .status(OrderStatus.ORDER_PENDING)
+                    .build();
+        log.info("Created new order.");
+        return orderRepository.save(newOrder);
     }
 
     private String createModifiedProductName(String productName){

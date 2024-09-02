@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ItemResponseDto {
     private String itemId;
+    private String imgUrl;
     private String status;
     private String productName;
     private Integer originPrice;

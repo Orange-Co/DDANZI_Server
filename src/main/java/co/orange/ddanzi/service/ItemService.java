@@ -83,6 +83,7 @@ public class ItemService {
         SaveItemResponseDto responseDto = SaveItemResponseDto.builder()
                 .itemId(newItem.getId())
                 .productName(product.getName())
+                .imgUrl(product.getImgUrl())
                 .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_ITEM_SUCCESS, responseDto);
@@ -106,6 +107,7 @@ public class ItemService {
 
         ItemResponseDto responseDto = ItemResponseDto.builder()
                 .itemId(itemId)
+                .imgUrl(product.getImgUrl())
                 .status(order != null ? order.getStatus().toString() : item.getStatus().toString())
                 .productName(product.getName())
                 .originPrice(product.getOriginPrice())

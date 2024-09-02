@@ -10,6 +10,7 @@ import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.dto.item.CheckItemResponseDto;
 import co.orange.ddanzi.dto.product.ProductItemResponseDto;
 import co.orange.ddanzi.dto.product.ProductRequestDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
@@ -42,10 +43,14 @@ public class ProductService {
         if(productId == null)
             return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND,null);
         log.info("Find product by id: {}", productId);
-        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
 
-        return ApiResponse.onSuccess(Success.GET_MOST_SIMILAR_PRODUCT_SUCCESS, Map.of("productId", productId
-                                                                            , "productName", product.getName()));
+        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+        CheckItemResponseDto responseDto = CheckItemResponseDto.builder()
+                .productId(product.getId())
+                .productName(product.getName())
+                .imgUrl(product.getImgUrl())
+                .build();
+        return ApiResponse.onSuccess(Success.GET_MOST_SIMILAR_PRODUCT_SUCCESS, responseDto);
     }
 
     @Transactional

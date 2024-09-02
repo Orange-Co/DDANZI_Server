@@ -1,7 +1,6 @@
 package co.orange.ddanzi.controller;
 
-import co.orange.ddanzi.domain.order.enums.OrderStatus;
-import co.orange.ddanzi.dto.order.CreateOrderRequestDto;
+import co.orange.ddanzi.dto.order.SaveOrderRequestDto;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +18,8 @@ public class OrderController {
     }
 
     @PostMapping
-    ApiResponse<?> createOrder(@RequestBody CreateOrderRequestDto requestDto){
-        return orderService.createOrder(requestDto);
+    ApiResponse<?> saveOrder(@RequestBody SaveOrderRequestDto requestDto){
+        return orderService.saveOrder(requestDto);
     }
 
     @GetMapping("/{id}")

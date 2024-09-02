@@ -3,8 +3,10 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.ItemNotFoundException;
 import co.orange.ddanzi.common.exception.PaymentNotFoundException;
+import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
+import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
@@ -18,9 +20,11 @@ import co.orange.ddanzi.dto.payment.UpdatePaymentResponseDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.ItemRepository;
 import co.orange.ddanzi.repository.PaymentRepository;
+import co.orange.ddanzi.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -29,34 +33,32 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
 
     private final AuthUtils authUtils;
+    private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
     private final PaymentRepository paymentRepository;
 
+    @Autowired
+    OrderService orderService;
+
     @Transactional
     public ApiResponse<?> startPayment(CreatePaymentRequestDto requestDto){
-        Item item = itemRepository.findById(requestDto.getItemId()).orElseThrow(()-> new ItemNotFoundException());
-        log.info("Find item, item_id: {}", requestDto.getItemId());
+        User buyer = authUtils.getUser();
+        Product product = productRepository.findById(requestDto.getProductId()).orElseThrow(ProductNotFoundException::new);
+        Item item = itemRepository.findNearestExpiryItem(product).orElseThrow(ItemNotFoundException::new);
 
-        if(!item.getStatus().equals(ItemStatus.ON_SALE))
-            return ApiResponse.onFailure(Error.ITEM_IS_NOT_ON_SALE,null);
+        Order newOrder = orderService.createOrder(buyer, item);
 
-        Payment payment = requestDto.toEntity(item, authUtils.getUser());
-        payment = paymentRepository.save(payment);
+        Payment newPayment = requestDto.toEntity(newOrder);
+        newPayment = paymentRepository.save(newPayment);
         log.info("Register payment");
 
         item.updateStatus(ItemStatus.IN_TRANSACTION);
         log.info("Update item status, item_status: {}", item.getStatus());
 
-        Product product = item.getProduct();
-        product.updateStock(product.getStock() - 1);
-        log.info("Update stock of product, product_id: {}", product.getId());
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // 형변환 해놨음 다시 수정필요
         CreatePaymentResponseDto responseDto = CreatePaymentResponseDto.builder()
-                .paymentId(payment.getId().toString())
-                .payStatus(payment.getPayStatus())
-                .startedAt(payment.getStartedAt())
+                .orderId(newOrder.getId())
+                .payStatus(newPayment.getPayStatus())
+                .startedAt(newPayment.getStartedAt())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_PAYMENT_SUCCESS, responseDto);
     }

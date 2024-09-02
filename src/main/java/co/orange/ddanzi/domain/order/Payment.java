@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 
 import java.time.LocalDateTime;
 
@@ -25,8 +26,8 @@ public class Payment {
     private Integer charge;                 //수수료
 
     @Column(name = "total_price")
-    private Integer totalPrice;
-    //최종 금액
+    private Integer totalPrice;             //최종 금액
+
     @Enumerated(EnumType.STRING)
     @Column(name = "method")
     private PayMethod method;               //결제 수단
@@ -41,25 +42,19 @@ public class Payment {
     @Column(name = "ended_at")
     private LocalDateTime endedAt;          //결제 완료
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
-    private Item item;                      //판매 제품
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id")
-    private User buyer;                     //구매자
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    private Order order;                    //주문 ID
 
     @Builder
-    public Payment(Integer charge, Integer totalPrice, PayMethod method, PayStatus payStatus, LocalDateTime startedAt, LocalDateTime endedAt, Item item, User buyer) {
+    public Payment(Integer charge, Integer totalPrice, PayMethod method, PayStatus payStatus, LocalDateTime startedAt, LocalDateTime endedAt, Order order) {
         this.charge = charge;
         this.totalPrice = totalPrice;
         this.method = method;
         this.payStatus = payStatus;
         this.startedAt = startedAt;
         this.endedAt = endedAt;
-        this.item = item;
-        this.buyer = buyer;
+        this.order = order;
     }
 
     public void updatePaymentStatusAndEndedAt(PayStatus newStatus) {

@@ -21,6 +21,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -46,6 +47,7 @@ public class OrderService {
     @Autowired
     TermService termService;
     @Autowired
+    @Lazy
     PaymentService paymentService;
     @Autowired
     OrderOptionDetailService orderOptionDetailService;
@@ -102,7 +104,7 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
-        Payment payment = paymentRepository.findByBuyerAndItem(user, item).orElseThrow(()-> new PaymentNotFoundException());
+        Payment payment = order.getPayment();
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
@@ -215,7 +217,7 @@ public class OrderService {
         for (Order order : orderList) {
             Product product = order.getItem().getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElse(null);
-            Payment payment = paymentRepository.findByBuyerAndItem(user, order.getItem()).orElseThrow(() -> new PaymentNotFoundException());
+            Payment payment = order.getPayment();
             MyOrder myOrder = MyOrder.builder()
                     .productId(product.getId())
                     .orderId(order.getId())

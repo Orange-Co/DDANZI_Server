@@ -7,6 +7,7 @@ import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.PaymentHistory;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
@@ -19,6 +20,7 @@ import co.orange.ddanzi.dto.payment.UpdatePaymentRequestDto;
 import co.orange.ddanzi.dto.payment.UpdatePaymentResponseDto;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.ItemRepository;
+import co.orange.ddanzi.repository.PaymentHistoryRepository;
 import co.orange.ddanzi.repository.PaymentRepository;
 import co.orange.ddanzi.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class PaymentService {
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
     private final PaymentRepository paymentRepository;
+    private final PaymentHistoryRepository paymentHistoryRepository;
 
     @Autowired
     OrderService orderService;
@@ -55,6 +60,8 @@ public class PaymentService {
         item.updateStatus(ItemStatus.IN_TRANSACTION);
         log.info("Update item status, item_status: {}", item.getStatus());
 
+        createPaymentHistory(buyer, newPayment);
+
         CreatePaymentResponseDto responseDto = CreatePaymentResponseDto.builder()
                 .orderId(newOrder.getId())
                 .payStatus(newPayment.getPayStatus())
@@ -65,12 +72,12 @@ public class PaymentService {
 
     @Transactional
     public ApiResponse<?> endPayment(UpdatePaymentRequestDto requestDto){
-
+        User buyer = authUtils.getUser();
         Order order = orderService.getOrderRecord(requestDto.getOrderId());
         Payment payment = order.getPayment();
         Item item = order.getItem();
         Product product = item.getProduct();
-        if(isAvailableToChangePayment(payment)){
+        if(isAvailableToChangePayment(buyer, payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
@@ -90,6 +97,8 @@ public class PaymentService {
             product.updateStock(product.getStock() - 1);
         }
 
+        createPaymentHistory(buyer, payment);
+
         UpdatePaymentResponseDto responseDto = UpdatePaymentResponseDto.builder()
                 .orderId(order.getId())
                 .payStatus(payment.getPayStatus())
@@ -103,8 +112,28 @@ public class PaymentService {
         return (int) Math.floor(salePrice*0.032);
     }
 
-    private boolean isAvailableToChangePayment(Payment payment){
-        User user = authUtils.getUser();
+    private void createPaymentHistory(User user, Payment payment){
+        PaymentHistory paymentHistory = PaymentHistory.builder()
+                .buyerId(user.getId())
+                .payStatus(payment.getPayStatus())
+                .payment(payment)
+                .createAt(LocalDateTime.now())
+                .build();
+        paymentHistoryRepository.save(paymentHistory);
+    }
+
+    private void createPaymentHistoryWithError(User user, Payment payment, String error){
+        PaymentHistory paymentHistory = PaymentHistory.builder()
+                .buyerId(user.getId())
+                .payStatus(payment.getPayStatus())
+                .payment(payment)
+                .error(error)
+                .createAt(LocalDateTime.now())
+                .build();
+        paymentHistoryRepository.save(paymentHistory);
+    }
+
+    private boolean isAvailableToChangePayment(User user, Payment payment){
         return payment.getOrder().getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING);
     }
 

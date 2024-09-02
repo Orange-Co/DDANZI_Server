@@ -171,7 +171,7 @@ public class OrderService {
 
     private String createOrderId(String itemId){
         String uploadDatePart = itemId.substring(itemId.length() - 8, itemId.length() - 2);
-        LocalDate uploadDate = LocalDate.parse(uploadDatePart, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        LocalDate uploadDate = LocalDate.parse(uploadDatePart, DateTimeFormatter.ofPattern("yyMMdd"));
 
         LocalDate currentDate = LocalDate.now();
         long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(uploadDate, currentDate);

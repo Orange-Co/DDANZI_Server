@@ -5,6 +5,7 @@ import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Product;
+import co.orange.ddanzi.domain.user.Account;
 import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -31,7 +32,7 @@ public class ProductService {
     private final AuthUtils authUtils;
     private final ProductRepository productRepository;
     private final DiscountRepository discountRepository;
-    private final AddressRepository addressRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
     RestTemplate restTemplate;
@@ -53,13 +54,15 @@ public class ProductService {
 
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         Discount discount = discountRepository.findById(productId).orElseThrow(DiscountNotFoundException::new);
-        Address address = addressRepository.findByUser(user);
+        Account account = accountRepository.findByUserId(user);
+
         ProductItemResponseDto responseDto = ProductItemResponseDto.builder()
                 .productId(product.getId())
                 .productName(product.getName())
+                .imageUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
                 .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
-                .isAddressExist(address != null)
+                .isAccountExist(account != null)
                 .build();
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
     }

@@ -77,7 +77,7 @@ public class PaymentService {
         Payment payment = paymentRepository.findByOrder(order);
         Item item = order.getItem();
         Product product = item.getProduct();
-        if(isAvailableToChangePayment(buyer, payment)){
+        if(!isAvailableToChangePayment(buyer, payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 

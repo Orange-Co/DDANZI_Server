@@ -10,5 +10,5 @@ public class ProductItemResponseDto {
     private String productName;
     private Integer originPrice;
     private Integer salePrice;
-    private Boolean isAddressExist;
+    private Boolean isAccountExist;
 }

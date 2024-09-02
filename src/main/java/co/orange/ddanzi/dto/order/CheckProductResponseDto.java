@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CheckProductResponseDto {
-    private String itemId;
+    private String productId;
     private String productName;
     private String modifiedProductName;
     private String imgUrl;

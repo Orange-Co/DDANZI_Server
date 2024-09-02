@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,6 @@ public class OrderService {
     public ApiResponse<?> checkOrderProduct(String productId){
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException());
-        Item item = itemRepository.findNearestExpiryItem(product).orElseThrow(()-> new ItemNotFoundException());
         Discount discount = discountRepository.findById(productId).orElse(null);
 
         User user = authUtils.getUser();
@@ -66,7 +66,7 @@ public class OrderService {
         Integer charge = paymentService.calculateCharge(salePrice);
 
         CheckProductResponseDto responseDto = CheckProductResponseDto.builder()
-                .itemId(item.getId())
+                .productId(product.getId())
                 .productName(product.getName())
                 .modifiedProductName(createModifiedProductName(product.getName()))
                 .imgUrl(product.getImgUrl())
@@ -148,6 +148,19 @@ public class OrderService {
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
                 .build());
+    }
+
+    public Order createOrder(User buyer, Item item){
+        String orderId = createOrderId(item.getId());
+        Order newOrder = Order.builder()
+                    .id(orderId)
+                    .buyer(buyer)
+                    .item(item)
+                    .createdAt(LocalDateTime.now())
+                    .status(OrderStatus.ORDER_PENDING)
+                    .build();
+        log.info("Created new order.");
+        return orderRepository.save(newOrder);
     }
 
     private String createModifiedProductName(String productName){

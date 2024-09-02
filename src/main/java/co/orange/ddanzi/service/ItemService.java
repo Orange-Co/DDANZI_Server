@@ -54,6 +54,8 @@ public class ItemService {
     TermService termService;
     @Autowired
     AddressService addressService;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Transactional
     public ApiResponse<?> createSignedUrl(String fileName){
@@ -100,7 +102,7 @@ public class ItemService {
         Order order = orderRepository.findByItem(item).orElse(null);
         Payment payment = null;
         if(order!=null)
-            payment = order.getPayment();
+            payment = paymentRepository.findByOrder(order);
 
         Product product = item.getProduct();
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);

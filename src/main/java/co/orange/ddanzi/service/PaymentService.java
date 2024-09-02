@@ -46,7 +46,7 @@ public class PaymentService {
         Product product = productRepository.findById(requestDto.getProductId()).orElseThrow(ProductNotFoundException::new);
         Item item = itemRepository.findNearestExpiryItem(product).orElseThrow(ItemNotFoundException::new);
 
-        Order newOrder = orderService.createOrder(buyer, item);
+        Order newOrder = orderService.createOrderRecord(buyer, item);
 
         Payment newPayment = requestDto.toEntity(newOrder);
         newPayment = paymentRepository.save(newPayment);
@@ -87,7 +87,6 @@ public class PaymentService {
         else if(payment.getPayStatus().equals(PayStatus.PAID)){
             log.info("Payment is paid");
             item.updateStatus(ItemStatus.CLOSED);
-            order.updateStatus(OrderStatus.ORDER_PLACE);
             product.updateStock(product.getStock() - 1);
         }
 

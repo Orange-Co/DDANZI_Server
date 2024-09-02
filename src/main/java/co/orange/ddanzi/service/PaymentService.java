@@ -2,12 +2,12 @@ package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.ItemNotFoundException;
-import co.orange.ddanzi.common.exception.PaymentNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
@@ -65,13 +65,12 @@ public class PaymentService {
 
     @Transactional
     public ApiResponse<?> endPayment(UpdatePaymentRequestDto requestDto){
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // 형변환 해놨음 다시 수정필요
-        Payment payment = paymentRepository.findById(Long.parseLong(requestDto.getPaymentId())).orElseThrow(()-> new PaymentNotFoundException());
-        Item item = payment.getItem();
-        Product product = item.getProduct();
 
-        if(!isAvailableToChangePayment(payment)){
+        Order order = orderService.getOrderRecord(requestDto.getOrderId());
+        Payment payment = order.getPayment();
+        Item item = order.getItem();
+        Product product = item.getProduct();
+        if(isAvailableToChangePayment(payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
@@ -81,13 +80,19 @@ public class PaymentService {
         if(payment.getPayStatus().equals(PayStatus.CANCELLED)||payment.getPayStatus().equals(PayStatus.FAILED)){
             log.info("Payment is failed");
             item.updateStatus(ItemStatus.ON_SALE);
+            order.updateStatus(OrderStatus.CANCELLED);
             product.updateStock(product.getStock() + 1);
         }
 
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // 형변환 해놨음 다시 수정필요
+        else if(payment.getPayStatus().equals(PayStatus.PAID)){
+            log.info("Payment is paid");
+            item.updateStatus(ItemStatus.CLOSED);
+            order.updateStatus(OrderStatus.ORDER_PLACE);
+            product.updateStock(product.getStock() - 1);
+        }
+
         UpdatePaymentResponseDto responseDto = UpdatePaymentResponseDto.builder()
-                .paymentId(payment.getId().toString())
+                .orderId(order.getId())
                 .payStatus(payment.getPayStatus())
                 .endedAt(payment.getEndedAt())
                 .build();
@@ -101,10 +106,7 @@ public class PaymentService {
 
     private boolean isAvailableToChangePayment(Payment payment){
         User user = authUtils.getUser();
-        if(payment.getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING))
-            return true;
-        else
-            return false;
+        return payment.getOrder().getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING);
     }
 
     public void deletePaymentOfUser(User user){

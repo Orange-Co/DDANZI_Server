@@ -23,6 +23,9 @@ public class PaymentHistory {
     @Column(name = "pay_status")
     private PayStatus payStatus;
 
+    @Column(name = "error")
+    private String error;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     private Payment payment;
@@ -31,9 +34,10 @@ public class PaymentHistory {
     private LocalDateTime createAt;
 
     @Builder
-    public PaymentHistory(Long buyerId, PayStatus payStatus, Payment payment, LocalDateTime createAt) {
+    public PaymentHistory(Long buyerId, PayStatus payStatus, String error, Payment payment, LocalDateTime createAt) {
         this.buyerId = buyerId;
         this.payStatus = payStatus;
+        this.error = error;
         this.payment = payment;
         this.createAt = createAt;
     }

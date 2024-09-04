@@ -56,4 +56,8 @@ public class Order {
     public void updateStatus(OrderStatus newStatus) {
         this.status = newStatus;
     }
+
+    public void updateItem(Item newItem) {
+        this.item = newItem;
+    }
 }

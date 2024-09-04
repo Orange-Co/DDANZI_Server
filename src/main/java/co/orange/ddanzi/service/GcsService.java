@@ -49,11 +49,11 @@ public class GcsService {
             contentType = switch (extension){
                 case "jpg","jpeg" -> "image/jpeg";
                 case "png" -> "image/png";
-                default -> "unknown";
+                default -> "application/octet-stream";
             };
         }
         else {
-            contentType = "unknown";
+            contentType = "application/octet-stream";
         }
         return contentType;
     }

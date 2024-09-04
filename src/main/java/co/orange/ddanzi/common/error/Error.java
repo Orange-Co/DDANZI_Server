@@ -48,6 +48,8 @@ public enum Error {
 
     // 405 METHOD_NOT_ALLOWED
 
+    // 422 UNPROCESSABLE ENTITY
+    NO_ITEM_ON_SALE(HttpStatus.UNPROCESSABLE_ENTITY, "현재 재고가 없어 환불 처리가 진행되었습니다."),
 
     // 409 CONFLICT,
     ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
@@ -57,6 +59,7 @@ public enum Error {
 
     // 500 INTERNAL SERVER ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),
+    REFUND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "재고가 없어 환불처리를 진행하였으나 환불에 실패하였습니다. 고객센터에 문의바랍니다."),
     ;
 
     private final HttpStatus httpStatus;

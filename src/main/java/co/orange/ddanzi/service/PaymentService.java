@@ -55,10 +55,7 @@ public class PaymentService {
 
         Payment newPayment = requestDto.toEntity(newOrder);
         newPayment = paymentRepository.save(newPayment);
-        log.info("Register payment");
-
-        item.updateStatus(ItemStatus.IN_TRANSACTION);
-        log.info("Update item status, item_status: {}", item.getStatus());
+        log.info("Start payment");
 
         createPaymentHistory(buyer, newPayment);
 
@@ -80,6 +77,10 @@ public class PaymentService {
         if(!isAvailableToChangePayment(buyer, payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
+        log.info("End payment");
+
+        item.updateStatus(ItemStatus.IN_TRANSACTION);
+        log.info("Update item status, item_status: {}", item.getStatus());
 
         payment.updatePaymentStatusAndEndedAt(requestDto.getPayStatus());
         log.info("Update payment status, status: {}", payment.getPayStatus());
@@ -92,7 +93,7 @@ public class PaymentService {
         }
 
         else if(payment.getPayStatus().equals(PayStatus.PAID)){
-            log.info("Payment is paid");
+            log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
         }

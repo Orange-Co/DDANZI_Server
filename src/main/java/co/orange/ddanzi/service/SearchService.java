@@ -32,7 +32,7 @@ public class SearchService {
     @Transactional
     public ApiResponse<?> searchPage(String devicetoken) {
         User user = authUtils.getUser();
-        List<String> topSearchedList = List.of("예시1", "예시2", "예시3");
+        List<String> topSearchedList = List.of("멀티비타민", "망고", "핸드크림");
         log.info("Searching page for devicetoken: {}", devicetoken);
         Set<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
         List<Product> productList = productRepository.findByIdIn(recentViewedProductIds);

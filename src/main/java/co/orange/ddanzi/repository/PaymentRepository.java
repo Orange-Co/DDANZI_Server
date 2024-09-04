@@ -1,5 +1,6 @@
 package co.orange.ddanzi.repository;
 
+import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.user.User;
@@ -10,6 +11,5 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    @Query("SELECT p from Payment p WHERE p.buyer = :buyer and p.item = :item and p.payStatus = 'PAID'")
-    Optional<Payment> findByBuyerAndItem(@Param("buyer") User buyer, @Param("item")Item item);
+    Payment findByOrder(Order order);
 }

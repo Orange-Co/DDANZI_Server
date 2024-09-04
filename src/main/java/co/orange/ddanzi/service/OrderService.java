@@ -21,6 +21,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -46,6 +47,7 @@ public class OrderService {
     @Autowired
     TermService termService;
     @Autowired
+    @Lazy
     PaymentService paymentService;
     @Autowired
     OrderOptionDetailService orderOptionDetailService;
@@ -80,7 +82,7 @@ public class OrderService {
 
         Order order = orderRepository.findById(requestDto.getOrderId()).orElseThrow(OrderNotFoundException::new);
         log.info("Checking the payment is done.");
-        Payment payment = order.getPayment();
+        Payment payment = paymentRepository.findByOrder(order);
         if(!payment.getPayStatus().equals(PayStatus.PAID))
             return ApiResponse.onFailure(Error.PAYMENT_REQUIRED,null);
 
@@ -102,7 +104,7 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
-        Payment payment = paymentRepository.findByBuyerAndItem(user, item).orElseThrow(()-> new PaymentNotFoundException());
+        Payment payment = paymentRepository.findByOrder(order);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
     }
 
@@ -168,17 +170,23 @@ public class OrderService {
 
 
     private String createOrderId(String itemId){
-        String uploadDatePart = itemId.substring(itemId.length() - 8, itemId.length() - 2);
-        LocalDate uploadDate = LocalDate.parse(uploadDatePart, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String orderId;
+        do {
+            String uploadDatePart = itemId.substring(itemId.length() - 8, itemId.length() - 2);
+            LocalDate uploadDate = LocalDate.parse(uploadDatePart, DateTimeFormatter.ofPattern("yyMMdd"));
 
-        LocalDate currentDate = LocalDate.now();
-        long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(uploadDate, currentDate);
+            LocalDate currentDate = LocalDate.now();
+            long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(uploadDate, currentDate);
 
-        Random random = new Random();
-        char firstChar = (char) ('A' + random.nextInt(26));
-        char secondChar = (char) ('A' + random.nextInt(26));
-        char thirdChar = (char) ('A' + random.nextInt(26));
-        return itemId + daysBetween + firstChar + secondChar + thirdChar;
+            Random random = new Random();
+            char firstChar = (char) ('A' + random.nextInt(26));
+            char secondChar = (char) ('A' + random.nextInt(26));
+            char thirdChar = (char) ('A' + random.nextInt(26));
+
+            orderId = itemId + daysBetween + firstChar + secondChar + thirdChar;
+        }while (orderRepository.existsById(orderId));
+        log.info("Created order id: " + orderId);
+        return orderId;
     }
 
     private OrderResponseDto setOrderResponseDto(User user, Order order, Item item, Payment payment){
@@ -215,7 +223,7 @@ public class OrderService {
         for (Order order : orderList) {
             Product product = order.getItem().getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElse(null);
-            Payment payment = paymentRepository.findByBuyerAndItem(user, order.getItem()).orElseThrow(() -> new PaymentNotFoundException());
+            Payment payment = paymentRepository.findByOrder(order);
             MyOrder myOrder = MyOrder.builder()
                     .productId(product.getId())
                     .orderId(order.getId())

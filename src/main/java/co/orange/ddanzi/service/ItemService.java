@@ -54,6 +54,8 @@ public class ItemService {
     TermService termService;
     @Autowired
     AddressService addressService;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Transactional
     public ApiResponse<?> createSignedUrl(String fileName){
@@ -83,6 +85,7 @@ public class ItemService {
         SaveItemResponseDto responseDto = SaveItemResponseDto.builder()
                 .itemId(newItem.getId())
                 .productName(product.getName())
+                .imgUrl(product.getImgUrl())
                 .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
                 .build();
         return ApiResponse.onSuccess(Success.CREATE_ITEM_SUCCESS, responseDto);
@@ -99,13 +102,14 @@ public class ItemService {
         Order order = orderRepository.findByItem(item).orElse(null);
         Payment payment = null;
         if(order!=null)
-            payment = order.getPayment();
+            payment = paymentRepository.findByOrder(order);
 
         Product product = item.getProduct();
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
 
         ItemResponseDto responseDto = ItemResponseDto.builder()
                 .itemId(itemId)
+                .imgUrl(product.getImgUrl())
                 .status(order != null ? order.getStatus().toString() : item.getStatus().toString())
                 .productName(product.getName())
                 .originPrice(product.getOriginPrice())

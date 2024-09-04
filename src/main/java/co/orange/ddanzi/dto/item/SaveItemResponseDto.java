@@ -8,5 +8,7 @@ import lombok.Getter;
 public class SaveItemResponseDto {
     private String itemId;
     private String productName;
+    private String imgUrl;
     private Integer salePrice;
+
 }

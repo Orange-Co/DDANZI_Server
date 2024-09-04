@@ -50,7 +50,7 @@ public class ItemController {
         return itemService.getItem(id);
     }
 
-    @GetMapping("order/{id}")
+    @GetMapping("/order/{id}")
     ApiResponse<?> getAddressAndOption(@PathVariable("id") String id) {
         return itemService.getAddressAndOption(id);
     }

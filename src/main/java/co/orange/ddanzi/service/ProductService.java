@@ -64,7 +64,7 @@ public class ProductService {
         ProductItemResponseDto responseDto = ProductItemResponseDto.builder()
                 .productId(product.getId())
                 .productName(product.getName())
-                .imageUrl(product.getImgUrl())
+                .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
                 .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
                 .isAccountExist(account != null)

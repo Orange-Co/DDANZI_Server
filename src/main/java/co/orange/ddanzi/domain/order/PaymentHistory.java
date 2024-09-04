@@ -20,6 +20,7 @@ public class PaymentHistory {
     @Column(name = "buyer_id")
     private Long buyerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "pay_status")
     private PayStatus payStatus;
 

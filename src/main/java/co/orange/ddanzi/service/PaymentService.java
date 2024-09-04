@@ -55,10 +55,7 @@ public class PaymentService {
 
         Payment newPayment = requestDto.toEntity(newOrder);
         newPayment = paymentRepository.save(newPayment);
-        log.info("Register payment");
-
-        item.updateStatus(ItemStatus.IN_TRANSACTION);
-        log.info("Update item status, item_status: {}", item.getStatus());
+        log.info("Start payment");
 
         createPaymentHistory(buyer, newPayment);
 
@@ -81,6 +78,19 @@ public class PaymentService {
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
+        if(item.getStatus().equals(ItemStatus.IN_TRANSACTION)){
+            log.info("해당 제품은 이미 결제 되어 새로운 제품을 탐색합니다.");
+            Item newItem = itemRepository.findNearestExpiryItem(product).orElse(null);
+            if(newItem ==null){
+                log.info("환불을 진행합니다.");
+                refundPayment(buyer, payment);
+            }
+        }
+        log.info("End payment");
+
+        item.updateStatus(ItemStatus.IN_TRANSACTION);
+        log.info("Update item status, item_status: {}", item.getStatus());
+
         payment.updatePaymentStatusAndEndedAt(requestDto.getPayStatus());
         log.info("Update payment status, status: {}", payment.getPayStatus());
 
@@ -92,7 +102,7 @@ public class PaymentService {
         }
 
         else if(payment.getPayStatus().equals(PayStatus.PAID)){
-            log.info("Payment is paid");
+            log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
         }
@@ -137,7 +147,7 @@ public class PaymentService {
         return payment.getOrder().getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING);
     }
 
-    public void deletePaymentOfUser(User user){
+    private void refundPayment(User user, Payment payment){
 
     }
 

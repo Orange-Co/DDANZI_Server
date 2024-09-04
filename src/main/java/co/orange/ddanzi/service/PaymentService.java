@@ -14,10 +14,7 @@ import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.dto.payment.CreatePaymentRequestDto;
-import co.orange.ddanzi.dto.payment.CreatePaymentResponseDto;
-import co.orange.ddanzi.dto.payment.UpdatePaymentRequestDto;
-import co.orange.ddanzi.dto.payment.UpdatePaymentResponseDto;
+import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.ItemRepository;
 import co.orange.ddanzi.repository.PaymentHistoryRepository;
@@ -27,9 +24,17 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,6 +49,11 @@ public class PaymentService {
 
     @Autowired
     OrderService orderService;
+
+    @Value("${ddanzi.portone.key}")
+    private String key;
+    @Value("${ddanzi.portone.store-id}")
+    private String storeId;
 
     @Transactional
     public ApiResponse<?> startPayment(CreatePaymentRequestDto requestDto){
@@ -81,9 +91,21 @@ public class PaymentService {
         if(item.getStatus().equals(ItemStatus.IN_TRANSACTION)){
             log.info("해당 제품은 이미 결제 되어 새로운 제품을 탐색합니다.");
             Item newItem = itemRepository.findNearestExpiryItem(product).orElse(null);
-            if(newItem ==null){
+            if(newItem == null){
                 log.info("환불을 진행합니다.");
-                refundPayment(buyer, payment);
+                try {
+                    refundPayment(buyer, order, payment);
+                    payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
+                    createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리");
+                    return ApiResponse.onFailure(Error.NO_ITEM_ON_SALE, Map.of("orderId", order.getId()));
+                }catch (Exception e){
+                    createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
+                    return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("orderId", order.getId()));
+                }
+            }
+            else{
+                log.info("새로운 제품을 할당하였습니다.");
+                order.updateItem(newItem);
             }
         }
         log.info("End payment");
@@ -147,8 +169,31 @@ public class PaymentService {
         return payment.getOrder().getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING);
     }
 
-    private void refundPayment(User user, Payment payment){
+    public void refundPayment(User user, Order order, Payment payment){
 
+        String baseUrl = "https://api.portone.io/payments/{paymentId}/cancel";
+        String url = UriComponentsBuilder.fromUriString(baseUrl)
+                .buildAndExpand(order.getId())
+                .toUriString();
+        log.info("결제 취소 url 생성");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "PortOne "+ key);
+
+        RefundRequestDto requestDto = RefundRequestDto.builder()
+                .storeId(storeId)
+                .amount(payment.getTotalPrice())
+                .taxFreeAmount(payment.getTotalPrice())
+                .reason("현재 남은 재고가 없어 고객에게 결제 금액 환불합니다. ")
+                .build();
+
+        HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);
+        log.info("헤더 및 request body 생성");
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.postForObject(url, entity, String.class);
+        log.info("결제 취소 api 호출");
     }
 
 }

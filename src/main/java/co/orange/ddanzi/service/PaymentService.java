@@ -77,6 +77,15 @@ public class PaymentService {
         if(!isAvailableToChangePayment(buyer, payment)){
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
+
+        if(item.getStatus().equals(ItemStatus.IN_TRANSACTION)){
+            log.info("해당 제품은 이미 결제 되어 새로운 제품을 탐색합니다.");
+            Item newItem = itemRepository.findNearestExpiryItem(product).orElse(null);
+            if(newItem ==null){
+                log.info("환불을 진행합니다.");
+                refundPayment(buyer, payment);
+            }
+        }
         log.info("End payment");
 
         item.updateStatus(ItemStatus.IN_TRANSACTION);
@@ -138,7 +147,7 @@ public class PaymentService {
         return payment.getOrder().getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING);
     }
 
-    public void deletePaymentOfUser(User user){
+    private void refundPayment(User user, Payment payment){
 
     }
 

@@ -53,5 +53,6 @@ task copyYML(type: Copy){
         from './DDANZI_Server_yml'
         into './src/main/resources'
         include '**/*'
+        exclude 'README.md'
     }
 }

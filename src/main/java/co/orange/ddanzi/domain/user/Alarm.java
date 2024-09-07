@@ -18,11 +18,17 @@ public class Alarm {
     @Column(name = "alarm_id")
     private Long id;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "content")
     private String content;
 
     @Column(name = "alarm_case")
     private FcmCase alarmCase;
+
+    @Column(name = "is_checked")
+    private Boolean isChecked;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -33,10 +39,16 @@ public class Alarm {
 
 
     @Builder
-    public Alarm(FcmCase alarmCase, String content, User user) {
+    public Alarm(String title, FcmCase alarmCase, String content, User user) {
+        this.title = title;
         this.alarmCase = alarmCase;
         this.content = content;
         this.user = user;
+        this.isChecked = false;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void checkAlarm(Boolean isChecked){
+        this.isChecked = isChecked;
     }
 }

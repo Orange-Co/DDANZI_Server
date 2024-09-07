@@ -1,7 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
-import co.orange.ddanzi.common.fcm.FcmCase;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.fcm.FcmSendDto;

@@ -42,6 +42,8 @@ public class FirebaseUtils {
         return Message
                 .builder()
                 .setNotification(notification)
+                .putData("title", fcmCase.getTitle())
+                .putData("body", fcmCase.getBody())
                 .setToken(fcmSendDto)
                 .build();
     }

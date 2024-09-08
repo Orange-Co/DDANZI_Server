@@ -24,7 +24,7 @@ public class PushAlarm {
     @Column(name = "fcm_token")
     private String fcmToken;
 
-    @Column(name = "is_allowed", nullable = false)
+    @Column(name = "is_allowed")
     @ColumnDefault("false")
     private Boolean isAllowed;      //푸시 알람 허용 여부 (default false)
 
@@ -37,5 +37,9 @@ public class PushAlarm {
 
     public void update(PushAlarmRequestDto requestDto) {
         this.isAllowed = requestDto.getIsAllowed();
+    }
+
+    public void updateToken(String token) {
+        this.fcmToken = token;
     }
 }

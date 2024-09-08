@@ -154,7 +154,7 @@ public class SettingService {
     @Transactional
     public ApiResponse<?> updatePushAlarm(PushAlarmRequestDto requestDto){
         User user = authUtils.getUser();
-        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user);
+        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
         if(pushAlarm == null){
             return ApiResponse.onFailure(Error.PUSH_ALARM_NOT_FOUND, null);
         }

@@ -16,6 +16,7 @@ import co.orange.ddanzi.repository.UserRepository;
 import co.orange.ddanzi.service.ItemService;
 import co.orange.ddanzi.service.OrderService;
 import co.orange.ddanzi.service.PaymentService;
+import co.orange.ddanzi.service.TermService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +31,13 @@ import java.util.*;
 @Service
 public class AuthService {
     private final JwtUtils jwtUtils;
-    private final UserRepository userRepository;
-    private final AuthenticationRepository authenticationRepository;
     private final AuthUtils authUtils;
 
+    private final UserRepository userRepository;
+    private final AuthenticationRepository authenticationRepository;
+
     @Autowired
-    ItemService itemService;
-    @Autowired
-    OrderService orderService;
-    @Autowired
-    PaymentService paymentService;
+    TermService termService;
 
 
     @Transactional
@@ -75,6 +73,8 @@ public class AuthService {
 
         user.setAuthentication(UserStatus.ACTIVATE,newAuthentication);
         log.info("회원 정보 변경 완료 user_authentication_id -> {}", user.getAuthentication().getId());
+
+        termService.createUserAgreements(user, requestDto.getIsAgreedMarketingTerm());
 
         VerifyResponseDto responseDto = VerifyResponseDto.builder()
                 .nickname(user.getNickname())

@@ -1,11 +1,14 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.domain.user.PushAlarm;
+import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.fcm.FcmSendDto;
 import co.orange.ddanzi.global.firebase.FirebaseUtils;
+import co.orange.ddanzi.repository.PushAlarmRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import java.util.Map;
 @Service
 public class FcmService {
     private final FirebaseUtils firebaseUtils;
+    private final PushAlarmRepository pushAlarmRepository;
 
     public ApiResponse<?> testSendMessage(FcmSendDto requestDto) throws FirebaseMessagingException {
         try {
@@ -34,4 +38,18 @@ public class FcmService {
         return ApiResponse.onSuccess(Success.SUCCESS, Map.of("fcmToken", requestDto.getFcmToken() ));
     }
 
+    public void registerFcmToken(User user, String fcmToken) {
+        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
+        if(pushAlarm == null) {
+            PushAlarm newPushAlarm = PushAlarm.builder()
+                    .user(user)
+                    .fcmToken(fcmToken)
+                    .build();
+            pushAlarmRepository.save(newPushAlarm);
+        }
+        else{
+            pushAlarm.updateToken(fcmToken);
+        }
+
+    }
 }

@@ -14,6 +14,7 @@ public class VerifyRequestDto {
     private String phone;
     private LocalDate birth;
     private Sex sex;
+    private Boolean isAgreedMarketingTerm;
 
     public Authentication toEntity(User user, String phone){
         return Authentication.builder()

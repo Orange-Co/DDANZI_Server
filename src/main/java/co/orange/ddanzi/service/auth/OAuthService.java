@@ -13,7 +13,7 @@ import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.JwtUtils;
 import co.orange.ddanzi.repository.DeviceRepository;
 import co.orange.ddanzi.repository.UserRepository;
-import co.orange.ddanzi.service.TermService;
+import co.orange.ddanzi.service.FcmService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +49,7 @@ public class OAuthService {
     private final DeviceRepository deviceRepository;
 
     @Autowired
-    TermService termService;
+    private FcmService fcmService;
 
     @Transactional
     public ApiResponse<?> kakaoSignIn(SigninRequestDto requestDto) throws JsonProcessingException {
@@ -64,11 +64,13 @@ public class OAuthService {
             kakaoSignUp(email);
             optionalUser = userRepository.findByEmail(email);
             log.info("이용약관 동의여부 저장");
-            termService.createUserAgreements(optionalUser.get(), true);
-            //connectUserAndDevice(user.get(), requestDto);
+            User user = optionalUser.get();
+            connectUserAndDevice(user, requestDto);
         }
 
         User user = optionalUser.get();
+
+        fcmService.registerFcmToken(user,requestDto.getFcmToken());
 
         if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
             user.updateStatus(UserStatus.ACTIVATE);

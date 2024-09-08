@@ -9,5 +9,5 @@ public class SigninRequestDto {
     private LoginType type;
     private String devicetoken;
     private String deviceType;
-    private Boolean isAgreedMarketingTerm;
+    private String fcmToken;
 }

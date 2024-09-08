@@ -2,7 +2,6 @@ package co.orange.ddanzi.service.auth;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.domain.user.Device;
-import co.orange.ddanzi.domain.user.PushAlarm;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
@@ -13,9 +12,8 @@ import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.JwtUtils;
 import co.orange.ddanzi.repository.DeviceRepository;
-import co.orange.ddanzi.repository.PushAlarmRepository;
 import co.orange.ddanzi.repository.UserRepository;
-import co.orange.ddanzi.service.TermService;
+import co.orange.ddanzi.service.FcmService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,10 +47,9 @@ public class OAuthService {
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
     private final DeviceRepository deviceRepository;
-    private final PushAlarmRepository pushAlarmRepository;
 
     @Autowired
-    TermService termService;
+    private FcmService fcmService;
 
     @Transactional
     public ApiResponse<?> kakaoSignIn(SigninRequestDto requestDto) throws JsonProcessingException {
@@ -69,10 +66,11 @@ public class OAuthService {
             log.info("이용약관 동의여부 저장");
             User user = optionalUser.get();
             connectUserAndDevice(user, requestDto);
-            registerFcmToken(user,requestDto.getFcmToken());
         }
 
         User user = optionalUser.get();
+
+        fcmService.registerFcmToken(user,requestDto.getFcmToken());
 
         if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
             user.updateStatus(UserStatus.ACTIVATE);
@@ -123,14 +121,6 @@ public class OAuthService {
                 .type(requestDto.getDeviceType())
                 .build();
         deviceRepository.save(device);
-    }
-
-    private void registerFcmToken(User user, String fcmToken) {
-        PushAlarm pushAlarm = PushAlarm.builder()
-                .user(user)
-                .fcmToken(fcmToken)
-                .build();
-        pushAlarmRepository.save(pushAlarm);
     }
 
     public String getKakaoEmail(String accessToken) throws JsonProcessingException {

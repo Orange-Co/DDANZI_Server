@@ -38,4 +38,8 @@ public class PushAlarm {
     public void update(PushAlarmRequestDto requestDto) {
         this.isAllowed = requestDto.getIsAllowed();
     }
+
+    public void updateToken(String token) {
+        this.fcmToken = token;
+    }
 }

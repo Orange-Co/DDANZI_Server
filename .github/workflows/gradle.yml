@@ -39,46 +39,13 @@ jobs:
         docker build -t ${{ secrets.DOCKERHUB_REPOSITORY }} .
         docker tag ${{ secrets.DOCKERHUB_REPOSITORY }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7}
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7}
-#
-#    ## 아티팩트 업로드
-#    - name: Upload build artifacts
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: build-artifacts
-#        path: build/libs/  # Gradle 빌드 결과물 경로
-#
-#  # Docker Push
-#  docker_push:
-#    runs-on: ubuntu-latest
-#    needs: build  # This ensures the build job runs before this job
-#
-#    steps:
-#    ## 체크아웃 (필요한 경우)
-#    - name: Checkout
-#      uses: actions/checkout@v3
-#      with:
-#          token: ${{ secrets.TOKEN }}
-#          submodules: true
-#
-#    ## 아티팩트 다운로드
-#    - name: Download build artifacts
-#      uses: actions/download-artifact@v3
-#      with:
-#        name: build-artifacts
-#        path: build/libs
-#
-#    ## Docker build & push
-#    - name: Docker build and push
-#      run: |
-#        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-#        docker build -t ${{ secrets.DOCKERHUB_REPOSITORY }} .
-#        docker tag ${{ secrets.DOCKERHUB_REPOSITORY }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7}
-#        docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7}
+
 
   # Deploy
-  deploy:
+  deploy_production:
     runs-on: ubuntu-latest
     needs: build
+    if: github.ref == 'refs/heads/deploy'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -96,3 +63,26 @@ jobs:
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7}
             sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7} ddanzi  
             sudo docker-compose up -d --remove-orphans
+  # Deploy
+  deploy_staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/deploy'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEVELOP_VM_INSTANCE }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: GITHUB_SHA
+          script: |
+            sudo docker-compose down
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7}
+            sudo docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPOSITORY }}:${GITHUB_SHA::7} ddanzi  
+            sudo docker-compose up -d --remove-orphans
+

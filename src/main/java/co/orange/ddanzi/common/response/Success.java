@@ -19,6 +19,8 @@ public enum Success {
     GET_HOME_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved home information."),
     GET_PRODUCT_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved product details."),
 
+    GET_ALARM_LIST_SUCCESS(HttpStatus.OK, "Successfully retrieved user's alarm list."),
+
     GET_SEARCH_SCREEN_SUCCESS(HttpStatus.OK, "Successfully retrieved the search screen."),
     GET_SEARCH_RESULTS_SUCCESS(HttpStatus.OK, "Successfully performed the search."),
 
@@ -41,6 +43,7 @@ public enum Success {
 
     PATCH_ORDER_STATUS_SUCCESS(HttpStatus.OK, "Successfully updated the order status."),
     PATCH_PAYMENT_STATUS_SUCCESS(HttpStatus.OK, "Successfully updated payment status."),
+    PATCH_ALARM_ISCHECKED_SUCCESS(HttpStatus.OK, "Successfully updated the alarm's checked status."),
 
     PUT_ADDRESS_SUCCESS(HttpStatus.OK, "Successfully updated the delivery address."),
     PUT_ACCOUNT_SUCCESS(HttpStatus.OK, "Successfully updated the account."),

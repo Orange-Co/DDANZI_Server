@@ -21,13 +21,17 @@ public class PushAlarm {
     @JoinColumn(name = "user_id")
     private User user;          //member id (PK)
 
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Column(name = "is_allowed", nullable = false)
     @ColumnDefault("false")
     private Boolean isAllowed;      //푸시 알람 허용 여부 (default false)
 
     @Builder
-    public PushAlarm(User user, Boolean isAllowed) {
+    public PushAlarm(User user, String fcmToken, Boolean isAllowed) {
         this.user = user;
+        this.fcmToken = fcmToken;
         this.isAllowed = isAllowed;
     }
 

@@ -23,24 +23,25 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    //lombok
+    // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    //jpa
+    // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     // mysql
     implementation 'mysql:mysql-connector-java:8.0.32'
-    //redis
+    // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    //jwt
+    // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-    //GCP
+    // GCP
     implementation group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.40.1'
-
+    // Google Firebase Admin
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
@@ -51,7 +52,8 @@ tasks.named('test') {
 task copyYML(type: Copy){
     copy{
         from './DDANZI_Server_yml'
-        include "*.yml", "*.json"
         into './src/main/resources'
+        include '**/*'
+        exclude 'README.md'
     }
 }

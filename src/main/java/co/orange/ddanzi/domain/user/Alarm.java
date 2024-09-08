@@ -19,12 +19,6 @@ public class Alarm {
     @Column(name = "alarm_id")
     private Long id;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "content")
-    private String content;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "alarm_case")
     private FcmCase alarmCase;
@@ -45,10 +39,8 @@ public class Alarm {
 
 
     @Builder
-    public Alarm(String title, FcmCase alarmCase, String content, User user, Order order) {
-        this.title = title;
+    public Alarm(FcmCase alarmCase, User user, Order order) {
         this.alarmCase = alarmCase;
-        this.content = content;
         this.user = user;
         this.isChecked = false;
         this.createdAt = LocalDateTime.now();

@@ -1,4 +1,4 @@
-package co.orange.ddanzi.common.fcm;
+package co.orange.ddanzi.domain.user.enums;
 
 import lombok.AllArgsConstructor;
 

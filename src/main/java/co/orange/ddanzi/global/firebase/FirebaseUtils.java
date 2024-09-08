@@ -1,16 +1,11 @@
 package co.orange.ddanzi.global.firebase;
 
-import co.orange.ddanzi.common.fcm.FcmCase;
-import co.orange.ddanzi.dto.fcm.FcmSendDto;
-import com.google.auth.oauth2.GoogleCredentials;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 @Component

@@ -157,7 +157,6 @@ public class OrderService {
                     .id(orderId)
                     .buyer(buyer)
                     .item(item)
-                    .createdAt(LocalDateTime.now())
                     .status(OrderStatus.ORDER_PENDING)
                     .build();
         log.info("Created new order.");

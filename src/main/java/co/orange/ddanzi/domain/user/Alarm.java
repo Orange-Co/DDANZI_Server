@@ -1,5 +1,6 @@
 package co.orange.ddanzi.domain.user;
 
+import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.user.enums.FcmCase;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -18,12 +19,6 @@ public class Alarm {
     @Column(name = "alarm_id")
     private Long id;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "content")
-    private String content;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "alarm_case")
     private FcmCase alarmCase;
@@ -38,15 +33,18 @@ public class Alarm {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
 
     @Builder
-    public Alarm(String title, FcmCase alarmCase, String content, User user) {
-        this.title = title;
+    public Alarm(FcmCase alarmCase, User user, Order order) {
         this.alarmCase = alarmCase;
-        this.content = content;
         this.user = user;
         this.isChecked = false;
         this.createdAt = LocalDateTime.now();
+        this.order = order;
     }
 
     public void checkAlarm(Boolean isChecked){

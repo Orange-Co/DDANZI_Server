@@ -25,6 +25,9 @@ public class Authentication extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name="ci")
+    private String ci;
+
     @Column(name = "name", nullable = false, length = 255)
     private String name;                    //이름
 
@@ -45,8 +48,9 @@ public class Authentication extends BaseTimeEntity {
 
 
     @Builder
-    public Authentication(User user, String name, String phone, LocalDate birth, Sex sex, Nation nation) {
+    public Authentication(User user, String ci, String name, String phone, LocalDate birth, Sex sex, Nation nation) {
         this.user = user;
+        this.ci = ci;
         this.name = name;
         this.phone = phone;
         this.birth = birth;

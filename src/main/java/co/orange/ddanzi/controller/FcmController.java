@@ -19,4 +19,9 @@ public class FcmController {
     ApiResponse<?> testFcm(@RequestBody FcmSendDto requestDto) throws FirebaseMessagingException {
         return fcmService.testSendMessage(requestDto);
     }
+
+    @PostMapping("/fcm/report")
+    ApiResponse<?> reportNotification(@RequestBody FcmSendDto requestDto) throws FirebaseMessagingException {
+        return fcmService.reportNotification(requestDto);
+    }
 }

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 public class VerifyRequestDto {
+    private String ci;
     private String name;
     private String phone;
     private LocalDate birth;
@@ -19,6 +20,7 @@ public class VerifyRequestDto {
     public Authentication toEntity(User user, String phone){
         return Authentication.builder()
                 .user(user)
+                .ci(ci)
                 .name(name)
                 .phone(phone)
                 .nation(Nation.KOR)

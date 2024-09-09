@@ -1,32 +1,33 @@
 package co.orange.ddanzi.global.firebase;
 
 import co.orange.ddanzi.domain.user.enums.FcmCase;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.MulticastMessage;
-import com.google.firebase.messaging.Notification;
+import co.orange.ddanzi.repository.PushAlarmRepository;
+import com.google.firebase.messaging.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+
+@Slf4j
+@RequiredArgsConstructor
 @Component
 public class FirebaseUtils {
-//    @Value("${firebase.credentials.location}")
-//    private String location;
+    private final PushAlarmRepository pushAlarmRepository;
 
-//    private String getAccessToken(){
-//       try{
-//           GoogleCredentials googleCredentials = GoogleCredentials
-//                   .fromStream(new ClassPathResource(location).getInputStream())
-//                   .createScoped(List.of("<https://www.googleapis.com/auth/cloud-platform>"));
-//
-//           googleCredentials.refreshIfExpired();
-//           return googleCredentials.getAccessToken().getTokenValue();
-//       }
-//       catch (IOException e) {
-//           e.printStackTrace();
-//           return null;
-//       }
-//    }
+    public String sendMessage(String fcmToken, FcmCase fcmCase) {
+        try {
+            log.info("Sending FCM message: {}", fcmCase.getTitle());
+            return FirebaseMessaging.getInstance().send(makeMessage(fcmToken , fcmCase));
+        } catch (FirebaseMessagingException e) {
+            log.error("FirebaseMessagingException occurred: {}", e.getMessage());
+            return  "FCM 메시지 전송 실패: " + e.getMessage();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return e.getMessage();
+        }
+    }
 
     public Message makeMessage(String fcmSendDto, FcmCase fcmCase) {
         Notification notification = Notification
@@ -54,4 +55,24 @@ public class FirebaseUtils {
                 .build();
 
     }
+
+
+    //    @Value("${firebase.credentials.location}")
+//    private String location;
+
+//    private String getAccessToken(){
+//       try{
+//           GoogleCredentials googleCredentials = GoogleCredentials
+//                   .fromStream(new ClassPathResource(location).getInputStream())
+//                   .createScoped(List.of("<https://www.googleapis.com/auth/cloud-platform>"));
+//
+//           googleCredentials.refreshIfExpired();
+//           return googleCredentials.getAccessToken().getTokenValue();
+//       }
+//       catch (IOException e) {
+//           e.printStackTrace();
+//           return null;
+//       }
+//    }
+
 }

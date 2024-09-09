@@ -3,7 +3,6 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.*;
 import co.orange.ddanzi.domain.order.Order;
-import co.orange.ddanzi.domain.order.OrderHistory;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
@@ -12,6 +11,7 @@ import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.mypage.MyOrder;
 import co.orange.ddanzi.dto.order.*;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -21,7 +21,6 @@ import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -43,19 +42,15 @@ public class OrderService {
     private final PaymentRepository paymentRepository;
     private final DiscountRepository discountRepository;
 
+    private final AddressService addressService;
+    private final TermService termService;
+    private final OrderOptionDetailService orderOptionDetailService;
+    private final HistoryService historyService;
+    private final FcmService fcmService;
 
-    @Autowired
-    AddressService addressService;
-    @Autowired
-    TermService termService;
     @Autowired
     @Lazy
     PaymentService paymentService;
-    @Autowired
-    OrderOptionDetailService orderOptionDetailService;
-    @Autowired
-    HistoryService historyService;
-
 
     @Transactional
     public ApiResponse<?> checkOrderProduct(String productId){
@@ -101,6 +96,8 @@ public class OrderService {
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
 
+        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A1);
+
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, SaveOrderResponseDto.builder().orderId(order.getId()).orderStatus(order.getStatus()).build());
     }
 
@@ -117,12 +114,14 @@ public class OrderService {
     public ApiResponse<?> confirmedOrderToBuy(String orderId){
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
+
         if(!order.getBuyer().equals(user) || order.getStatus()!=OrderStatus.SHIPPING)
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.COMPLETED);
         historyService.createOrderHistory(order);
 
+        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
@@ -139,6 +138,7 @@ public class OrderService {
 
         order.updateStatus(OrderStatus.SHIPPING);
         historyService.createOrderHistory(order);
+        fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B2);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
@@ -152,7 +152,6 @@ public class OrderService {
                     .id(orderId)
                     .buyer(buyer)
                     .item(item)
-                    .createdAt(LocalDateTime.now())
                     .status(OrderStatus.ORDER_PENDING)
                     .build();
         log.info("Created new order.");
@@ -162,6 +161,41 @@ public class OrderService {
     public Order getOrderRecord(String orderId){
         return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
     }
+
+    /**
+     * 환불 API 붙이기!!!!!!
+     *
+     *
+     */
+    public void checkOrderPlacedOrder(){
+        LocalDateTime oneDayLimit = LocalDateTime.now().minusHours(24);
+        List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
+        for(Order order : orderPlaceOrders){
+            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2);
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1);
+            order.updateStatus(OrderStatus.CANCELLED);
+        }
+    }
+
+    public void checkShippingOrder(){
+        LocalDateTime threeDayLimit = LocalDateTime.now().minusHours(72);
+        List<Order> shippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.SHIPPING, threeDayLimit);
+        for(Order order : shippingOrders){
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B3);
+            order.updateStatus(OrderStatus.DELAYED_SHIPPING);
+        }
+    }
+
+    public void checkDelayedShippingOrder(){
+        LocalDateTime sixDayLimit = LocalDateTime.now().minusHours(72);
+        List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.DELAYED_SHIPPING, sixDayLimit);
+        for(Order order : delayedShippingOrders){
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4);
+            order.updateStatus(OrderStatus.WARNING);
+        }
+    }
+
+
 
     private String createModifiedProductName(String productName){
         return productName.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9,._\\s ]", "");
@@ -199,7 +233,7 @@ public class OrderService {
         Product product = item.getProduct();
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(() -> new DiscountNotFoundException());
 
-        OrderResponseDto responseDto = OrderResponseDto.builder()
+        return OrderResponseDto.builder()
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
                 .productName(product.getName())
@@ -213,8 +247,6 @@ public class OrderService {
                 .charge(payment.getCharge())
                 .totalPrice(payment.getTotalPrice())
                 .build();
-
-        return responseDto;
     }
 
     public Integer getMyOrderCount(User user){

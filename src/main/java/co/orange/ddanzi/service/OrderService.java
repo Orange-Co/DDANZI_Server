@@ -48,11 +48,12 @@ public class OrderService {
     @Autowired
     TermService termService;
     @Autowired
-    OrderOptionDetailService orderOptionDetailService;
-    @Autowired
     @Lazy
     PaymentService paymentService;
     @Autowired
+    OrderOptionDetailService orderOptionDetailService;
+    @Autowired
+    HistoryService historyService;
     private FcmService fcmService;
 
 
@@ -95,6 +96,7 @@ public class OrderService {
 
         order.updateStatus(OrderStatus.ORDER_PLACE);
         termService.createOrderAgreements(order);
+        historyService.createOrderHistory(order);
 
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
@@ -122,6 +124,8 @@ public class OrderService {
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.COMPLETED);
+        historyService.createOrderHistory(order);
+
         fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
@@ -138,6 +142,7 @@ public class OrderService {
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.SHIPPING);
+        historyService.createOrderHistory(order);
         fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B2);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()

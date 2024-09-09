@@ -11,6 +11,7 @@ import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.mypage.MyOrder;
 import co.orange.ddanzi.dto.order.*;
 import co.orange.ddanzi.common.response.ApiResponse;
@@ -47,10 +48,12 @@ public class OrderService {
     @Autowired
     TermService termService;
     @Autowired
+    OrderOptionDetailService orderOptionDetailService;
+    @Autowired
     @Lazy
     PaymentService paymentService;
     @Autowired
-    OrderOptionDetailService orderOptionDetailService;
+    private FcmService fcmService;
 
 
     @Transactional
@@ -96,6 +99,8 @@ public class OrderService {
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
 
+        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A1);
+
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, SaveOrderResponseDto.builder().orderId(order.getId()).orderStatus(order.getStatus()).build());
     }
 
@@ -117,7 +122,7 @@ public class OrderService {
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.COMPLETED);
-
+        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
@@ -133,6 +138,7 @@ public class OrderService {
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.SHIPPING);
+        fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B2);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())

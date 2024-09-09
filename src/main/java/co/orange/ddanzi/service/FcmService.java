@@ -11,6 +11,7 @@ import co.orange.ddanzi.global.firebase.FirebaseUtils;
 import co.orange.ddanzi.repository.PushAlarmRepository;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class FcmService {
     private final FirebaseUtils firebaseUtils;
     private final PushAlarmRepository pushAlarmRepository;
 
+    @Transactional
     public ApiResponse<?> testSendMessage(FcmSendDto requestDto) throws FirebaseMessagingException {
         try {
             log.info("Sending FCM message: {}", FirebaseMessaging.getInstance().send(firebaseUtils.makeMessage(requestDto.getFcmToken(), FcmCase.A1)));
@@ -38,6 +40,12 @@ public class FcmService {
         return ApiResponse.onSuccess(Success.SUCCESS, Map.of("fcmToken", requestDto.getFcmToken() ));
     }
 
+    @Transactional
+    public ApiResponse<?> reportNotification(FcmSendDto requestDto) throws FirebaseMessagingException {
+        firebaseUtils.sendMessage(requestDto.getFcmToken(), FcmCase.A4);
+        return ApiResponse.onSuccess(Success.SUCCESS, Map.of("title", FcmCase.A4.getTitle()));
+    }
+
     public void registerFcmToken(User user, String fcmToken) {
         PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
         if(pushAlarm == null) {
@@ -47,9 +55,17 @@ public class FcmService {
                     .build();
             pushAlarmRepository.save(newPushAlarm);
         }
-        else{
+        else {
             pushAlarm.updateToken(fcmToken);
         }
+    }
 
+    public boolean sendMessageToUser(User user, FcmCase fcmCase) {
+        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
+        if(pushAlarm == null)
+            return false;
+        String fcmToken = pushAlarm.getFcmToken();
+        firebaseUtils.sendMessage(fcmToken, fcmCase);
+        return true;
     }
 }

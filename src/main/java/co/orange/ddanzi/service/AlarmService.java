@@ -1,5 +1,6 @@
 package co.orange.ddanzi.service;
 
+import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.domain.order.Order;
@@ -9,6 +10,7 @@ import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.alarm.MyAlarm;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.AlarmRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,16 @@ public class AlarmService {
                 myAlarm.orderId(order.getId());
         }
         return ApiResponse.onSuccess(Success.GET_ALARM_LIST_SUCCESS,myAlarmList);
+    }
+
+    @Transactional
+    public ApiResponse<?> checkedAlarm(Long alarmId){
+        Alarm alarm = alarmRepository.findById(alarmId).orElse(null);
+        if(alarm == null){
+            return ApiResponse.onFailure(Error.ERROR, null);
+        }
+        alarm.checkAlarm(Boolean.TRUE);
+        return ApiResponse.onSuccess(Success.PATCH_ALARM_ISCHECKED_SUCCESS, true);
     }
 
     private String createAlarmTime(LocalDateTime createdAt){

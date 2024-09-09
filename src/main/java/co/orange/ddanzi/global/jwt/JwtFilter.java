@@ -48,8 +48,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         return path.equals("/api/v1/auth/signin/test")
                 || path.equals("/api/v1/auth/signin")
+                || path.equals("/api/v1/health")
                 || path.equals("/health-check")
-                || path.equals("api/v1/health")
                 ;
     }
 

@@ -1,5 +1,6 @@
 package co.orange.ddanzi.domain.order;
 
+import co.orange.ddanzi.common.domain.BaseTimeEntity;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.product.Item;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "orders")
 @Entity
-public class Order {
+public class Order extends BaseTimeEntity {
     @Id
     @Column(name = "order_id")
     private String id;                        //주문 고유 ID = UUID
@@ -25,10 +26,6 @@ public class Order {
     @ColumnDefault("'ORDER_PLACE'")
     @Column(name = "status", nullable = false)
     private OrderStatus status;             //주문 상태(입금완료/배송중/거래완료/거래취소)
-
-    @CreatedDate
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;        //주문일자
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;      //거래완료 일자
@@ -43,10 +40,9 @@ public class Order {
 
 
     @Builder
-    public Order(String id, OrderStatus status, LocalDateTime createdAt, LocalDateTime completedAt, Item item, User buyer) {
+    public Order(String id, OrderStatus status, LocalDateTime completedAt, Item item, User buyer) {
         this.id = id;
         this.status = status;
-        this.createdAt = createdAt;
         this.completedAt = completedAt;
         this.item = item;
         this.buyer = buyer;

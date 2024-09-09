@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class AlarmService {
                     .alarmCase(alarmCase)
                     .title(alarmCase.getTitle())
                     .content(alarmCase.getBody())
+                    .time(createAlarmTime(alarm.getCreatedAt()))
                     .isChecked(alarm.getIsChecked());
 
             if(alarmCase == FcmCase.A1 || alarmCase == FcmCase.A2 || alarmCase == FcmCase.A3 || alarmCase == FcmCase.A4){
@@ -48,4 +50,18 @@ public class AlarmService {
         }
         return ApiResponse.onSuccess(Success.GET_ALARM_LIST_SUCCESS,myAlarmList);
     }
+
+    private String createAlarmTime(LocalDateTime createdAt){
+        Duration duration = Duration.between(createdAt, LocalDateTime.now());
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+        if (hours < 1) {
+            return minutes + "분 전";
+        } else if (hours < 24) {
+            return hours + "시간 전";
+        } else {
+            return createdAt.toLocalDate().toString();
+        }
+    }
+
 }

@@ -3,6 +3,7 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.*;
 import co.orange.ddanzi.domain.order.Order;
+import co.orange.ddanzi.domain.order.OrderHistory;
 import co.orange.ddanzi.domain.order.Payment;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
@@ -20,6 +21,7 @@ import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,8 @@ public class OrderService {
     PaymentService paymentService;
     @Autowired
     OrderOptionDetailService orderOptionDetailService;
+    @Autowired
+    HistoryService historyService;
 
 
     @Transactional
@@ -92,6 +96,7 @@ public class OrderService {
 
         order.updateStatus(OrderStatus.ORDER_PLACE);
         termService.createOrderAgreements(order);
+        historyService.createOrderHistory(order);
 
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
@@ -112,11 +117,11 @@ public class OrderService {
     public ApiResponse<?> confirmedOrderToBuy(String orderId){
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
-
         if(!order.getBuyer().equals(user) || order.getStatus()!=OrderStatus.SHIPPING)
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.COMPLETED);
+        historyService.createOrderHistory(order);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
@@ -133,6 +138,7 @@ public class OrderService {
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
 
         order.updateStatus(OrderStatus.SHIPPING);
+        historyService.createOrderHistory(order);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())

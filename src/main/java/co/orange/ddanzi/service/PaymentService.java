@@ -44,6 +44,8 @@ public class PaymentService {
 
     @Autowired
     OrderService orderService;
+    @Autowired
+    HistoryService historyService;
 
     @Transactional
     public ApiResponse<?> startPayment(CreatePaymentRequestDto requestDto){
@@ -52,6 +54,7 @@ public class PaymentService {
         Item item = itemRepository.findNearestExpiryItem(product).orElseThrow(ItemNotFoundException::new);
 
         Order newOrder = orderService.createOrderRecord(buyer, item);
+        historyService.createOrderHistory(newOrder);
 
         Payment newPayment = requestDto.toEntity(newOrder);
         newPayment = paymentRepository.save(newPayment);

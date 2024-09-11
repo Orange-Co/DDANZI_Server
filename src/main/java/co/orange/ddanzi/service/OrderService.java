@@ -103,11 +103,10 @@ public class OrderService {
 
     @Transactional
     public ApiResponse<?> getOrder(String orderId){
-        User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
         Payment payment = paymentRepository.findByOrder(order);
-        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(order, item, payment));
     }
 
     @Transactional
@@ -232,7 +231,7 @@ public class OrderService {
         return orderId;
     }
 
-    private OrderResponseDto setOrderResponseDto(User user, Order order, Item item, Payment payment){
+    private OrderResponseDto setOrderResponseDto(Order order, Item item, Payment payment){
         Product product = item.getProduct();
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(() -> new DiscountNotFoundException());
 
@@ -242,7 +241,7 @@ public class OrderService {
                 .productName(product.getName())
                 .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
-                .addressInfo(addressService.setAddressInfo(user))
+                .addressInfo(addressService.setAddressInfo(order.getBuyer()))
                 .sellerNickname(item.getSeller().getNickname())
                 .paymentMethod(payment.getMethod().getDescription())
                 .paidAt(payment.getEndedAt())

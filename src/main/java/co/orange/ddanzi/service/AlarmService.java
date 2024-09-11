@@ -29,6 +29,7 @@ public class AlarmService {
     private final AuthUtils authUtils;
     private final AlarmRepository alarmRepository;
 
+    @Transactional
     public ApiResponse<?> getAlarms(){
         User user = authUtils.getUser();
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);

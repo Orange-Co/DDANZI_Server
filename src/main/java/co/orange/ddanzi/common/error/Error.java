@@ -16,6 +16,7 @@ public enum Error {
     ACCOUNT_NAME_DOES_NOT_MATCH(HttpStatus.BAD_REQUEST, "The account name does not match to user name."),
     DUE_DATE_IS_INCORRECT(HttpStatus.BAD_REQUEST, "The due date is incorrect."),
     ITEM_IS_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "The item is not on sale."),
+    INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST,"잘못된 주문 상태입니다."),
 
     //402 Payment Required
     PAYMENT_REQUIRED(HttpStatus.PAYMENT_REQUIRED, "Payment is required to place the order."),

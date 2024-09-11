@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Slf4j
@@ -114,8 +115,11 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getBuyer().equals(user) || !(order.getStatus()==OrderStatus.SHIPPING || order.getStatus()==OrderStatus.DELAYED_SHIPPING || order.getStatus() ==OrderStatus.WARNING))
+        if(!order.getBuyer().equals(user))
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        if(!(order.getStatus()==OrderStatus.SHIPPING || order.getStatus()==OrderStatus.DELAYED_SHIPPING || order.getStatus() ==OrderStatus.WARNING))
+            return ApiResponse.onFailure(Error.INVALID_ORDER_STATUS,Map.of("orderStatus", order.getStatus()));
 
         order.updateStatus(OrderStatus.COMPLETED);
         historyService.createOrderHistory(order);
@@ -132,8 +136,11 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getItem().getSeller().equals(user) || order.getStatus()!=OrderStatus.ORDER_PLACE)
+        if(!order.getItem().getSeller().equals(user))
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        if(order.getStatus()!=OrderStatus.ORDER_PLACE)
+            return ApiResponse.onFailure(Error.INVALID_ORDER_STATUS, Map.of("orderStatus", order.getStatus()));
 
         order.updateStatus(OrderStatus.SHIPPING);
         historyService.createOrderHistory(order);

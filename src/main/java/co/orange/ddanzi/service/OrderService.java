@@ -254,7 +254,7 @@ public class OrderService {
     }
 
     public List<MyOrder> getMyOrderList(User user){
-        List<Order> orderList = orderRepository.findByBuyer(user);
+        List<Order> orderList = orderRepository.findByBuyerAndStatus(user);
 
         List<MyOrder> orderProductList = new ArrayList<>();
 

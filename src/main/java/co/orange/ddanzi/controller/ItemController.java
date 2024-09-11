@@ -40,8 +40,6 @@ public class ItemController {
 
     @PostMapping
     ApiResponse<?> saveItem(@RequestBody SaveItemRequestDto requestDto){
-        if(requestDto.getDueDate().isBefore(LocalDate.now()))
-            return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
         return itemService.saveItem( requestDto);
     }
 

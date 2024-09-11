@@ -28,7 +28,10 @@ public class AddressService {
     }
 
     public AddressInfo setAddressInfo(User user){
-        Address address = addressRepository.findByUser(user);
+        Address address = null;
+        if(user != null){
+            address = addressRepository.findByUser(user);
+        }
         return AddressInfo.builder()
                 .recipient(address != null ? address.getRecipient() : null)
                 .zipCode(address != null ? address.getZipCode() : null)

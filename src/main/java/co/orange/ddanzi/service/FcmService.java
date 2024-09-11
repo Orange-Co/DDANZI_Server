@@ -8,8 +8,12 @@ import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.fcm.FcmSendDto;
+import co.orange.ddanzi.dto.fcm.ReportSendDto;
 import co.orange.ddanzi.global.firebase.FirebaseUtils;
+import co.orange.ddanzi.repository.OrderRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
+import co.orange.ddanzi.repository.UserRepository;
+import co.orange.ddanzi.service.auth.AuthService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import jakarta.transaction.Transactional;
@@ -26,6 +30,8 @@ public class FcmService {
     private final FirebaseUtils firebaseUtils;
     private final PushAlarmRepository pushAlarmRepository;
     private final AlarmService alarmService;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Transactional
     public ApiResponse<?> testSendMessage(FcmSendDto requestDto) throws FirebaseMessagingException {
@@ -43,8 +49,14 @@ public class FcmService {
     }
 
     @Transactional
-    public ApiResponse<?> reportNotification(FcmSendDto requestDto) throws FirebaseMessagingException {
-        firebaseUtils.sendMessage(requestDto.getFcmToken(), FcmCase.A4);
+    public ApiResponse<?> reportNotification(ReportSendDto requestDto) throws FirebaseMessagingException {
+        User user = userRepository.findByEmail(requestDto.getEmail()).get();
+        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
+        Order order = orderRepository.findById(requestDto.getOrderId()).orElse(null);
+
+        firebaseUtils.sendMessage(pushAlarm.getFcmToken(), FcmCase.A4);
+        alarmService.createAlarm(user, FcmCase.A4, order);
+
         return ApiResponse.onSuccess(Success.SUCCESS, Map.of("title", FcmCase.A4.getTitle()));
     }
 

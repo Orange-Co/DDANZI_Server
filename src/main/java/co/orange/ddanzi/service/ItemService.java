@@ -121,7 +121,7 @@ public class ItemService {
                 .buyerNickName(order!=null ? order.getBuyer().getNickname() : null)
                 .addressInfo(order!=null ? addressService.setAddressInfo(order.getBuyer()) : addressService.setAddressInfo(null))
                 .paidAt(payment!=null ? payment.getEndedAt():null)
-                .paymentMethod(payment!=null ? payment.getMethod():null)
+                .paymentMethod(payment!=null ? payment.getMethod().getDescription():null)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);

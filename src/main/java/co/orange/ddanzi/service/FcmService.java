@@ -61,6 +61,7 @@ public class FcmService {
     }
 
     public boolean sendMessageToUser(User user, FcmCase fcmCase) {
+        log.info("Sending FCM message: {}", fcmCase.getTitle());
         PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
         if(pushAlarm == null)
             return false;

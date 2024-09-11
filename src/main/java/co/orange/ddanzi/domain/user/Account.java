@@ -20,7 +20,8 @@ public class Account {
     @Column(name = "number", unique = true, nullable = false)
     private String number;          //계좌 번호
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id")
     private Bank bank;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

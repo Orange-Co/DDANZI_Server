@@ -14,7 +14,8 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, String> {
 
-    List<Order> findByBuyer(User user);
+    @Query("SELECT o from Order o where o.buyer  = :user AND o.status <>'ORDER_PENDING'")
+    List<Order> findByBuyerAndStatus(User user);
 
     @Query("SELECT o from Order o where o.item  = :item")
     Optional<Order> findByItem(@Param("item") Item item);

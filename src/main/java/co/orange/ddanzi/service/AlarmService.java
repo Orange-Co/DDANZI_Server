@@ -7,6 +7,7 @@ import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.user.Alarm;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.FcmCase;
+import co.orange.ddanzi.dto.alarm.AlarmResponseDto;
 import co.orange.ddanzi.dto.alarm.MyAlarm;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.AlarmRepository;
@@ -28,6 +29,7 @@ public class AlarmService {
     private final AuthUtils authUtils;
     private final AlarmRepository alarmRepository;
 
+    @Transactional
     public ApiResponse<?> getAlarms(){
         User user = authUtils.getUser();
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
@@ -49,8 +51,9 @@ public class AlarmService {
             }
             else
                 myAlarm.orderId(order.getId());
+            myAlarmList.add(myAlarm.build());
         }
-        return ApiResponse.onSuccess(Success.GET_ALARM_LIST_SUCCESS,myAlarmList);
+        return ApiResponse.onSuccess(Success.GET_ALARM_LIST_SUCCESS, AlarmResponseDto.builder().alarmList(myAlarmList).build());
     }
 
     @Transactional
@@ -74,6 +77,16 @@ public class AlarmService {
         } else {
             return createdAt.toLocalDate().toString();
         }
+    }
+
+    public void createAlarm(User user, FcmCase alarmCase, Order order){
+        log.info("Create Alarm Record");
+        Alarm newAlarm = Alarm.builder()
+                .alarmCase(alarmCase)
+                .user(user)
+                .order(order)
+                .build();
+        alarmRepository.save(newAlarm);
     }
 
 }

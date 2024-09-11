@@ -130,9 +130,8 @@ public class ItemService {
 
     @Transactional
     public ApiResponse<?> getAddressAndOption(String orderId){
-        User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
-        AddressSeparateInfo address = addressService.setAddressSeparateInfo(user);
+        AddressSeparateInfo address = addressService.setAddressSeparateInfo(order.getBuyer());
 
         List<SelectedOption> selectedOptionList = setSelectedOptionList(order);
 

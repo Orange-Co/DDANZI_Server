@@ -38,20 +38,17 @@ public class AlarmService {
         for(Alarm alarm : alarmList){
             Order order = alarm.getOrder();
             FcmCase alarmCase = alarm.getAlarmCase();
-            MyAlarm.MyAlarmBuilder myAlarm = MyAlarm.builder()
+            MyAlarm myAlarm = MyAlarm.builder()
                     .alarmId(alarm.getId())
                     .alarmCase(alarmCase)
                     .title(alarmCase.getTitle())
                     .content(alarmCase.getBody())
                     .time(createAlarmTime(alarm.getCreatedAt()))
-                    .isChecked(alarm.getIsChecked());
-
-            if(alarmCase == FcmCase.A1 || alarmCase == FcmCase.A2 || alarmCase == FcmCase.A3 || alarmCase == FcmCase.A4){
-                myAlarm.itemId(order.getItem().getId());
-            }
-            else
-                myAlarm.orderId(order.getId());
-            myAlarmList.add(myAlarm.build());
+                    .isChecked(alarm.getIsChecked())
+                    .orderId(order.getId())
+                    .itemId(order.getItem().getId())
+                    .build();
+            myAlarmList.add(myAlarm);
         }
         return ApiResponse.onSuccess(Success.GET_ALARM_LIST_SUCCESS, AlarmResponseDto.builder().alarmList(myAlarmList).build());
     }

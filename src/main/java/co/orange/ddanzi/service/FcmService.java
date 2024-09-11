@@ -1,6 +1,7 @@
 package co.orange.ddanzi.service;
 
 import co.orange.ddanzi.common.error.Error;
+import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.user.PushAlarm;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.FcmCase;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class FcmService {
     private final FirebaseUtils firebaseUtils;
     private final PushAlarmRepository pushAlarmRepository;
+    private final AlarmService alarmService;
 
     @Transactional
     public ApiResponse<?> testSendMessage(FcmSendDto requestDto) throws FirebaseMessagingException {
@@ -60,13 +62,14 @@ public class FcmService {
         }
     }
 
-    public boolean sendMessageToUser(User user, FcmCase fcmCase) {
+    public boolean sendMessageToUser(User user, FcmCase fcmCase, Order order) {
         log.info("Sending FCM message: {}", fcmCase.getTitle());
         PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
         if(pushAlarm == null)
             return false;
         String fcmToken = pushAlarm.getFcmToken();
         firebaseUtils.sendMessage(fcmToken, fcmCase);
+        alarmService.createAlarm(user, fcmCase, order);
         return true;
     }
 }

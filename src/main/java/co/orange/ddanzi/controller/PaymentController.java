@@ -22,4 +22,9 @@ public class PaymentController {
     ApiResponse<?> endPayment(@RequestBody UpdatePaymentRequestDto requestDto){
         return paymentService.endPayment(requestDto);
     }
+
+    @PostMapping("/test")
+    ApiResponse<?> refundTest(@RequestBody UpdatePaymentRequestDto requestDto){
+        return paymentService.refundTest(requestDto);
+    }
 }

@@ -1,6 +1,5 @@
 package co.orange.ddanzi.dto.setting;
 
-import co.orange.ddanzi.domain.user.enums.Bank;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,6 +8,6 @@ import lombok.Getter;
 public class AccountResponseDto {
     private Long accountId;
     private String name;
-    private Bank bank;
+    private String bank;
     private String accountNumber;
 }

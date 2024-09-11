@@ -1,17 +1,17 @@
 package co.orange.ddanzi.dto.setting;
 
 import co.orange.ddanzi.domain.user.Account;
+import co.orange.ddanzi.domain.user.Bank;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.domain.user.enums.Bank;
 import lombok.Getter;
 
 @Getter
 public class AccountRequestDto {
     private String accountName;
-    private Bank bank;
+    private String bank;
     private String accountNumber;
 
-    public Account toEntity(User user){
+    public Account toEntity(User user, Bank bank) {
         return Account.builder()
                 .user(user)
                 .bank(bank)

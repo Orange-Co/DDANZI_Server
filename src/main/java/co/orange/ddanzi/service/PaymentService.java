@@ -143,6 +143,15 @@ public class PaymentService {
         return ApiResponse.onSuccess(Success.PATCH_PAYMENT_STATUS_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ApiResponse<?> refundTest(UpdatePaymentRequestDto requestDto){
+        User buyer = authUtils.getUser();
+        Order order = orderService.getOrderRecord(requestDto.getOrderId());
+        Payment payment = paymentRepository.findByOrder(order);
+        refundPayment(buyer, order, payment);
+        return ApiResponse.onSuccess(Success.SUCCESS, true);
+    }
+
     public Integer calculateCharge(Integer salePrice){
         return (int) Math.floor(salePrice*0.032);
     }
@@ -173,12 +182,13 @@ public class PaymentService {
     }
 
     public void refundPayment(User user, Order order, Payment payment){
-
+        if(!user.equals(order.getBuyer()))
+            throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
         String baseUrl = "https://api.portone.io/payments/{paymentId}/cancel";
         String url = UriComponentsBuilder.fromUriString(baseUrl)
                 .buildAndExpand(order.getId())
                 .toUriString();
-        log.info("결제 취소 url 생성");
+        log.info("결제 취소 url 생성, url-> {}", url);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

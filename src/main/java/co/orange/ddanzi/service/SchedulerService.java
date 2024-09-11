@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 public class SchedulerService {
@@ -22,7 +24,7 @@ public class SchedulerService {
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void updateExpiredItems() {
-        log.info("Updating expired items");
+        log.info("Updating expired items, time : ", LocalDateTime.now());
         itemService.updateExpiredItems();
     }
 

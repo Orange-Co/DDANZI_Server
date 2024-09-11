@@ -96,7 +96,7 @@ public class OrderService {
         createOrderOptionDetails(order, requestDto.getSelectedOptionDetailIdList());
         log.info("Created order option details.");
 
-        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A1);
+        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A1, order);
 
         return ApiResponse.onSuccess(Success.CREATE_ORDER_SUCCESS, SaveOrderResponseDto.builder().orderId(order.getId()).orderStatus(order.getStatus()).build());
     }
@@ -121,7 +121,7 @@ public class OrderService {
         order.updateStatus(OrderStatus.COMPLETED);
         historyService.createOrderHistory(order);
 
-        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3);
+        fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3, order);
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
                 .orderStatus(order.getStatus())
@@ -138,7 +138,7 @@ public class OrderService {
 
         order.updateStatus(OrderStatus.SHIPPING);
         historyService.createOrderHistory(order);
-        fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B2);
+        fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B2, order);
 
         return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, UpdateOrderResponseDto.builder()
                 .orderId(order.getId())
@@ -167,30 +167,33 @@ public class OrderService {
      *
      *
      */
+    @Transactional
     public void checkOrderPlacedOrder(){
         LocalDateTime oneDayLimit = LocalDateTime.now().minusMinutes(1);
         List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
         for(Order order : orderPlaceOrders){
-            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2);
-            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1);
+            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
             order.updateStatus(OrderStatus.CANCELLED);
         }
     }
 
+    @Transactional
     public void checkShippingOrder(){
         LocalDateTime threeDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> shippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.SHIPPING, threeDayLimit);
         for(Order order : shippingOrders){
-            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B3);
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B3, order);
             order.updateStatus(OrderStatus.DELAYED_SHIPPING);
         }
     }
 
+    @Transactional
     public void checkDelayedShippingOrder(){
         LocalDateTime sixDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.DELAYED_SHIPPING, sixDayLimit);
         for(Order order : delayedShippingOrders){
-            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4);
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4, order);
             order.updateStatus(OrderStatus.WARNING);
         }
     }

@@ -1,6 +1,6 @@
 package co.orange.ddanzi.domain.user;
 
-import co.orange.ddanzi.domain.user.enums.Bank;
+
 import co.orange.ddanzi.dto.setting.AccountRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -17,12 +17,11 @@ public class Account {
     @Column(name = "account_id")
     private Long id;                //계좌 고유 ID
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "bank")
-    private Bank bank;              //은행 정보
-
     @Column(name = "number", unique = true, nullable = false)
     private String number;          //계좌 번호
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Bank bank;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
@@ -35,8 +34,8 @@ public class Account {
         this.user = user;
     }
 
-    public void update(AccountRequestDto requestDto) {
-        this.bank = requestDto.getBank();
-        this.number = requestDto.getAccountNumber();
+    public void updateAccount(Bank bank, String number) {
+        this.bank = bank;
+        this.number = number;
     }
 }

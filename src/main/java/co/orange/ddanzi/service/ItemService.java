@@ -65,6 +65,9 @@ public class ItemService {
 
     @Transactional
     public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
+        if(requestDto.getReceivedDate().plusDays(7).isBefore(LocalDate.now()))
+            return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
+
         User user = authUtils.getUser();
         if(user.getAuthentication() == null)
             return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);

@@ -119,7 +119,7 @@ public class ItemService {
                 .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
                 .orderId(order != null ? order.getId() : null)
                 .buyerNickName(order!=null ? order.getBuyer().getNickname() : null)
-                .addressInfo(addressService.setAddressInfo(order.getBuyer()))
+                .addressInfo(order!=null ? addressService.setAddressInfo(order.getBuyer()) : null)
                 .paidAt(payment!=null ? payment.getEndedAt():null)
                 .paymentMethod(payment!=null ? payment.getMethod():null)
                 .build();

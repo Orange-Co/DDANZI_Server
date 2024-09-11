@@ -8,6 +8,7 @@ import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
+import co.orange.ddanzi.repository.BankRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class SettingService {
     private final AuthUtils authUtils;
     private final AddressRepository addressRepository;
     private final AccountRepository accountRepository;
+    private final BankRepository bankRepository;
     private final PushAlarmRepository pushAlarmRepository;
 
     @Autowired
@@ -121,8 +123,9 @@ public class SettingService {
         if (accountExists)
             return ApiResponse.onFailure(Error.ACCOUNT_ALREADY_EXISTS, null);
 
+        Bank bank = bankRepository.findByBankCode(requestDto.getBank());
         log.info("계좌 생성");
-        Account newAccount = requestDto.toEntity(user);
+        Account newAccount = requestDto.toEntity(user, bank);
         newAccount = accountRepository.save(newAccount);
 
         AccountResponseDto responseDto = setAccountDto(newAccount, user.getAuthentication());
@@ -136,7 +139,8 @@ public class SettingService {
         if(updatedAccount == null){
             return ApiResponse.onFailure(Error.ACCOUNT_NOT_FOUND, null);
         }
-        updatedAccount.update(requestDto);
+        Bank bank = bankRepository.findByBankCode(requestDto.getBank());
+        updatedAccount.updateAccount(bank, requestDto.getAccountNumber());
         AccountResponseDto responseDto = setAccountDto(updatedAccount, user.getAuthentication());
         return ApiResponse.onSuccess(Success.PUT_ACCOUNT_SUCCESS, responseDto);
     }
@@ -166,7 +170,7 @@ public class SettingService {
         return AccountResponseDto.builder()
                 .accountId(account != null ? account.getId() : null)
                 .name(authentication != null ? authentication.getName() : null)
-                .bank(account != null ? account.getBank() : null)
+                .bank(account != null ? account.getBank().getBankCode() : null)
                 .accountNumber(account != null ? account.getNumber() : null)
                 .build();
     }

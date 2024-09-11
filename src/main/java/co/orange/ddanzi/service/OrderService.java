@@ -168,7 +168,7 @@ public class OrderService {
      *
      */
     public void checkOrderPlacedOrder(){
-        LocalDateTime oneDayLimit = LocalDateTime.now().minusHours(24);
+        LocalDateTime oneDayLimit = LocalDateTime.now().minusMinutes(1);
         List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
         for(Order order : orderPlaceOrders){
             fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2);
@@ -178,7 +178,7 @@ public class OrderService {
     }
 
     public void checkShippingOrder(){
-        LocalDateTime threeDayLimit = LocalDateTime.now().minusHours(72);
+        LocalDateTime threeDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> shippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.SHIPPING, threeDayLimit);
         for(Order order : shippingOrders){
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B3);
@@ -187,7 +187,7 @@ public class OrderService {
     }
 
     public void checkDelayedShippingOrder(){
-        LocalDateTime sixDayLimit = LocalDateTime.now().minusHours(72);
+        LocalDateTime sixDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.DELAYED_SHIPPING, sixDayLimit);
         for(Order order : delayedShippingOrders){
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4);

@@ -30,20 +30,20 @@ public class SchedulerService {
     /**
      * 1시간마다 실행
      * */
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 60000)
     public void scheduleCheckOrderPlacedOrder() {
         log.info("입금 후 1일(24시간)이 지났는데, 판매확정이 되지 않은 주문 확인");
         orderService.checkOrderPlacedOrder();
     }
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 60000)
     public void scheduleCheckShippingOrder() {
         log.info("판매확정 후 3일 (72시간)이 지났는데, 구매확정이 되지 않은 주문 확인");
         orderService.checkShippingOrder();
     }
 
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 60000)
     public void scheduleCheckDelayedShippingOrder() {
         log.info("판매확정 후 6일 (144시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않은 주문 확인");
         orderService.checkDelayedShippingOrder();

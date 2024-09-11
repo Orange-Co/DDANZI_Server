@@ -21,6 +21,7 @@ public class Account {
     private String number;          //계좌 번호
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_id")
     private Bank bank;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

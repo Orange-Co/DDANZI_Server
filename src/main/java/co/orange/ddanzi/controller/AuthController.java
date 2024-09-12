@@ -39,7 +39,7 @@ public class AuthController {
 
     @PostMapping("/refreshtoken")
     ApiResponse<?> refreshAccessToken(@RequestBody RefreshTokenRequestDto requestDto) throws JsonProcessingException{
-        return oAuthService.refreshAccessToken(requestDto.getRefreshtoken());
+        return authService.refreshAccessToken(requestDto.getRefreshtoken());
     }
 
     @PostMapping("/logout")

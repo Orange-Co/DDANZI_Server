@@ -84,26 +84,6 @@ public class OAuthService {
         return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
     }
 
-    @Transactional
-    public ApiResponse<?> refreshAccessToken(String refreshToken) throws JsonProcessingException {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            return ApiResponse.onFailure(Error.REFRESH_TOKEN_IS_NULL, Map.of("refreshtoken", refreshToken));
-        }
-
-        String email = jwtUtils.getIdFromRefreshToken(refreshToken);
-
-        if (!jwtUtils.isValidRefreshToken(email, refreshToken)) {
-            return ApiResponse.onFailure(Error.REFRESH_TOKEN_EXPIRED, Map.of("refreshtoken", refreshToken));
-        }
-
-        RefreshTokenResponseDto responseDto = RefreshTokenResponseDto.builder()
-                .accesstoken(jwtUtils.createAccessToken(email))
-                .refreshtoken(jwtUtils.createRefreshToken(email))
-                .build();
-
-        return ApiResponse.onSuccess(Success.REFRESH_ACCESS_TOKEN_SUCCESS, responseDto);
-    }
-
     public void kakaoSignUp(String email) {
         User user = User.builder()
                 .email(email)

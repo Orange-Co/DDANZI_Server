@@ -43,6 +43,8 @@ dependencies {
     // Google Firebase Admin
     implementation 'com.google.firebase:firebase-admin:9.2.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15to18', version: '1.78.1' // 최신 버전 확인 후 사용
+
 }
 
 tasks.named('test') {

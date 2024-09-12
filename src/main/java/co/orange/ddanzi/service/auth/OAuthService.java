@@ -1,41 +1,40 @@
 package co.orange.ddanzi.service.auth;
 
-import co.orange.ddanzi.common.error.Error;
-import co.orange.ddanzi.domain.user.Device;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
-import co.orange.ddanzi.dto.auth.RefreshTokenResponseDto;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
-import co.orange.ddanzi.dto.auth.SigninResponseDto;
-import co.orange.ddanzi.common.response.ApiResponse;
-import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.global.jwt.JwtUtils;
-import co.orange.ddanzi.repository.DeviceRepository;
+import co.orange.ddanzi.dto.oauth.AppleIdTokenPayload;
+import co.orange.ddanzi.dto.oauth.AppleProperties;
+import co.orange.ddanzi.dto.oauth.AppleSocialTokenInfoResponse;
 import co.orange.ddanzi.repository.UserRepository;
-import co.orange.ddanzi.service.FcmService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwsHeader;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.security.PrivateKey;
+import java.security.Security;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -44,83 +43,35 @@ import java.util.stream.Collectors;
 @Service
 public class OAuthService {
 
-    private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
-    private final DeviceRepository deviceRepository;
+    private final RestTemplate restTemplate;
+    private final AppleProperties appleProperties;
 
-    @Autowired
-    private FcmService fcmService;
-
+    /**
+     * KAKAO LOGIN
+     */
     @Transactional
-    public ApiResponse<?> kakaoSignIn(SigninRequestDto requestDto) throws JsonProcessingException {
+    public User kakaoSignIn(SigninRequestDto requestDto) throws JsonProcessingException {
         log.info("카카오 로그인 진입");
         String email = getKakaoEmail(requestDto.getToken());
 
         log.info("카카오 이메일 조회 성공 email: {}", email);
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElse(null);
 
-        if (optionalUser.isEmpty()){
-            log.info("카카오 회원 가입 시작");
-            kakaoSignUp(email);
-            optionalUser = userRepository.findByEmail(email);
-            log.info("이용약관 동의여부 저장");
-            User user = optionalUser.get();
-            connectUserAndDevice(user, requestDto);
+        if (user == null){
+            return kakaoSignUp(email);
         }
-
-        User user = optionalUser.get();
-
-        fcmService.registerFcmToken(user,requestDto.getFcmToken());
-
-        if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
-            user.updateStatus(UserStatus.ACTIVATE);
-
-        SigninResponseDto responseDto = SigninResponseDto.builder()
-                .accesstoken(jwtUtils.createAccessToken(email))
-                .refreshtoken(jwtUtils.createRefreshToken(email))
-                .nickname(user.getNickname())
-                .status(user.getStatus())
-                .build();
-        return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
+        return user;
     }
 
-    @Transactional
-    public ApiResponse<?> refreshAccessToken(String refreshToken) throws JsonProcessingException {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            return ApiResponse.onFailure(Error.REFRESH_TOKEN_IS_NULL, Map.of("refreshtoken", refreshToken));
-        }
-
-        String email = jwtUtils.getIdFromRefreshToken(refreshToken);
-
-        if (!jwtUtils.isValidRefreshToken(email, refreshToken)) {
-            return ApiResponse.onFailure(Error.REFRESH_TOKEN_EXPIRED, Map.of("refreshtoken", refreshToken));
-        }
-
-        RefreshTokenResponseDto responseDto = RefreshTokenResponseDto.builder()
-                .accesstoken(jwtUtils.createAccessToken(email))
-                .refreshtoken(jwtUtils.createRefreshToken(email))
-                .build();
-
-        return ApiResponse.onSuccess(Success.REFRESH_ACCESS_TOKEN_SUCCESS, responseDto);
-    }
-
-    public void kakaoSignUp(String email) {
+    public User kakaoSignUp(String email) {
         User user = User.builder()
                 .email(email)
                 .type(LoginType.KAKAO)
                 .status(UserStatus.UNAUTHENTICATED)
                 .nickname(generateNickname())
                 .build();
-        userRepository.save(user);
-    }
-
-    public void connectUserAndDevice(User user, SigninRequestDto requestDto) {
-        Device device = Device.builder()
-                .user(user)
-                .deviceToken(requestDto.getDevicetoken())
-                .type(requestDto.getDeviceType())
-                .build();
-        deviceRepository.save(device);
+        return userRepository.save(user);
     }
 
     public String getKakaoEmail(String accessToken) throws JsonProcessingException {
@@ -159,6 +110,107 @@ public class OAuthService {
         }
     }
 
+    /**
+     * APPLE LOGIN
+     */
+    @Transactional
+    public User appleSignin(SigninRequestDto requestDto) throws JsonProcessingException {
+        log.info("애플 로그인 진입");
+        String email = getAppleEmail(requestDto.getToken());
+        log.info("애플 이메일 조회 성공: {}", email);
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            log.info("애플 회원가입 시작");
+            return appleSignup(email);
+        }
+        return user;
+    }
+
+    public User appleSignup(String email){
+        User newUser = User.builder()
+                .email(email)
+                .nickname(generateNickname())
+                .status(UserStatus.UNAUTHENTICATED)
+                .type(LoginType.APPLE)
+                .build();
+        return userRepository.save(newUser);
+    }
+
+    public String getAppleEmail(String authorizationCode) {
+        log.info("애플 서버 통신 준비");
+        String url = appleProperties.getAudience() + "/auth/token";
+        MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
+        requestParams.add("client_id", appleProperties.getClientId());
+        requestParams.add("client_secret", generateClientSecret());
+        requestParams.add("grant_type", appleProperties.getGrantType());
+        requestParams.add("code", authorizationCode);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestParams, headers);
+
+        ResponseEntity<AppleSocialTokenInfoResponse> response = restTemplate.postForEntity(
+                url,
+                requestEntity,
+                AppleSocialTokenInfoResponse.class
+        );
+        log.info("애플 서버 통신 완료");
+        log.info("응답 상태 코드: {}", response.getStatusCode());
+        log.info("응답 본문: {}", response.getBody());
+
+        String idToken = response.getBody().getIdToken();
+        AppleIdTokenPayload payload = decodePayload(idToken, AppleIdTokenPayload.class);
+
+        return payload.getEmail();
+    }
+
+    private String generateClientSecret() {
+
+        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
+
+        return Jwts.builder()
+                .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
+                .setIssuer(appleProperties.getTeamId())
+                .setAudience(appleProperties.getAudience())
+                .setSubject(appleProperties.getClientId())
+                .setExpiration(Date.from(expiration.atZone(ZoneId.systemDefault()).toInstant()))
+                .setIssuedAt(new Date())
+                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
+                .compact();
+    }
+
+    private PrivateKey getPrivateKey() {
+        Security.addProvider(new  org.bouncycastle.jce.provider.BouncyCastleProvider());
+        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+
+        try {
+            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
+
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
+            return converter.getPrivateKey(privateKeyInfo);
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting private key from String", e);
+        }
+    }
+
+
+    // TokenDecoder 메소드를 GetMemberInfoService 내부에 통합
+    private <T> T decodePayload(String token, Class<T> targetClass) {
+        String[] tokenParts = token.split("\\.");
+        String payloadJWT = tokenParts[1];
+        Base64.Decoder decoder = Base64.getUrlDecoder();
+        String payload = new String(decoder.decode(payloadJWT));
+        ObjectMapper objectMapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try {
+            return objectMapper.readValue(payload, targetClass);
+        } catch (Exception e) {
+            throw new RuntimeException("Error decoding token payload", e);
+        }
+    }
+
     private List<String> loadWordsFromFile(String classpath) throws IOException {
         ClassPathResource resource = new ClassPathResource(classpath);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
@@ -178,4 +230,5 @@ public class OAuthService {
             return null;
         }
     }
+
 }

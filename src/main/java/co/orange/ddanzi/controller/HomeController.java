@@ -4,6 +4,7 @@ import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.service.HomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -14,8 +15,8 @@ public class HomeController {
     private final HomeService homeService;
 
     @GetMapping
-    public ApiResponse<?> home() {
-        return homeService.getProductList();
+    public ApiResponse<?> home(Pageable pageable) {
+        return homeService.getProductList(pageable);
     }
 
     @GetMapping( "/product/{id}")

@@ -16,6 +16,8 @@ import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -36,19 +38,19 @@ public class HomeService {
     private final RedisRepository redisRepository;
 
     @Transactional
-    public ApiResponse<?> getProductList(){
+    public ApiResponse<?> getProductList(Pageable pageable) {
         User user = authUtils.getUser();
         Banner banner = bannerRepository.findByIsSelected(Boolean.TRUE);
-        List<Product> productList = productRepository.findAllByStock(0);
+        Page<Product> productPage = productRepository.findAllByStock(pageable, 0);
 
-        List<ProductInfo> productInfoList = new ArrayList<>();
+        List<ProductInfo> productInfoList;
         if(user!=null) {
             log.info("User is not null");
-            productInfoList = setProductList(user, productList, interestProductRepository);
+            productInfoList = setProductList(user, productPage.getContent(), interestProductRepository);
         }
         else{
             log.info("User is null");
-            productInfoList = setProductListInNotUser(productList, interestProductRepository);
+            productInfoList = setProductListInNotUser(productPage.getContent(), interestProductRepository);
         }
 
 

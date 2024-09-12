@@ -22,5 +22,5 @@ public class ItemResponseDto {
     private String buyerNickName;
     private AddressInfo addressInfo;
     private LocalDateTime paidAt;
-    private PayMethod paymentMethod;
+    private String paymentMethod;
 }

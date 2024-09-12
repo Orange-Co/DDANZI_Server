@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Slf4j
@@ -103,11 +104,10 @@ public class OrderService {
 
     @Transactional
     public ApiResponse<?> getOrder(String orderId){
-        User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
         Item item = order.getItem();
         Payment payment = paymentRepository.findByOrder(order);
-        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(user, order, item, payment));
+        return ApiResponse.onSuccess(Success.GET_ORDER_DETAIL_SUCCESS, setOrderResponseDto(order, item, payment));
     }
 
     @Transactional
@@ -115,8 +115,11 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getBuyer().equals(user) || !(order.getStatus()==OrderStatus.SHIPPING || order.getStatus()==OrderStatus.DELAYED_SHIPPING || order.getStatus() ==OrderStatus.WARNING))
+        if(!order.getBuyer().equals(user))
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        if(!(order.getStatus()==OrderStatus.SHIPPING || order.getStatus()==OrderStatus.DELAYED_SHIPPING || order.getStatus() ==OrderStatus.WARNING))
+            return ApiResponse.onFailure(Error.INVALID_ORDER_STATUS,Map.of("orderStatus", order.getStatus()));
 
         order.updateStatus(OrderStatus.COMPLETED);
         historyService.createOrderHistory(order);
@@ -133,8 +136,11 @@ public class OrderService {
         User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
 
-        if(!order.getItem().getSeller().equals(user) || order.getStatus()!=OrderStatus.ORDER_PLACE)
+        if(!order.getItem().getSeller().equals(user))
             return ApiResponse.onFailure(Error.UNAUTHORIZED_USER,null);
+
+        if(order.getStatus()!=OrderStatus.ORDER_PLACE)
+            return ApiResponse.onFailure(Error.INVALID_ORDER_STATUS, Map.of("orderStatus", order.getStatus()));
 
         order.updateStatus(OrderStatus.SHIPPING);
         historyService.createOrderHistory(order);
@@ -180,6 +186,7 @@ public class OrderService {
 
     @Transactional
     public void checkShippingOrder(){
+        //판매확정 후 3일 (72시간)이 지났는데, 구매확정이 되지 않았을 시
         LocalDateTime threeDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> shippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.SHIPPING, threeDayLimit);
         for(Order order : shippingOrders){
@@ -190,11 +197,23 @@ public class OrderService {
 
     @Transactional
     public void checkDelayedShippingOrder(){
+        //판매확정 후 6일 (144시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않았을 시
         LocalDateTime sixDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.DELAYED_SHIPPING, sixDayLimit);
         for(Order order : delayedShippingOrders){
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4, order);
             order.updateStatus(OrderStatus.WARNING);
+        }
+    }
+
+    @Transactional
+    public void checkWarningOrder(){
+        //판매확정 후 7일 (168시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않았을 시
+        LocalDateTime sevenDayLimit = LocalDateTime.now().minusMinutes(1);
+        List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.WARNING, sevenDayLimit);
+        for(Order order : delayedShippingOrders){
+            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3, order);
+            order.updateStatus(OrderStatus.COMPLETED);
         }
     }
 
@@ -232,7 +251,7 @@ public class OrderService {
         return orderId;
     }
 
-    private OrderResponseDto setOrderResponseDto(User user, Order order, Item item, Payment payment){
+    private OrderResponseDto setOrderResponseDto(Order order, Item item, Payment payment){
         Product product = item.getProduct();
         Discount discount = discountRepository.findById(product.getId()).orElseThrow(() -> new DiscountNotFoundException());
 
@@ -242,7 +261,7 @@ public class OrderService {
                 .productName(product.getName())
                 .imgUrl(product.getImgUrl())
                 .originPrice(product.getOriginPrice())
-                .addressInfo(addressService.setAddressInfo(user))
+                .addressInfo(addressService.setAddressInfo(order.getBuyer()))
                 .sellerNickname(item.getSeller().getNickname())
                 .paymentMethod(payment.getMethod().getDescription())
                 .paidAt(payment.getEndedAt())

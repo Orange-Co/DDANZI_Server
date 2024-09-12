@@ -10,6 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
-    @Query("SELECT a FROM Alarm a WHERE a.user = :user AND a.createdAt >= :sevenDaysAgo")
+    @Query("SELECT a FROM Alarm a WHERE a.user = :user AND a.createdAt >= :sevenDaysAgo ORDER BY a.createdAt DESC")
     List<Alarm> findRecentAlarmsByUser(@Param("user") User user, @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 }

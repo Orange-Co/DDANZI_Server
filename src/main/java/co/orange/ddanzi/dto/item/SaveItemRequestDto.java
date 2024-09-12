@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class SaveItemRequestDto {
     private String productId;
     private String productName;
-    private LocalDate dueDate;
+    private LocalDate receivedDate;
     private String registeredImage;
 
     public Item toItem(String id, User user, Product product){
@@ -21,7 +21,7 @@ public class SaveItemRequestDto {
                 .product(product)
                 .seller(user)
                 .imgUrl(registeredImage)
-                .dueDate(dueDate)
+                .dueDate(receivedDate.plusDays(7))
                 .status(ItemStatus.ON_SALE)
                 .build();
     }

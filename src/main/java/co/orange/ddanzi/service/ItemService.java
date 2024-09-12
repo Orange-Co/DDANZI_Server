@@ -65,6 +65,9 @@ public class ItemService {
 
     @Transactional
     public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
+        if(requestDto.getReceivedDate().plusDays(7).isBefore(LocalDate.now()))
+            return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
+
         User user = authUtils.getUser();
         if(user.getAuthentication() == null)
             return ApiResponse.onFailure(Error.AUTHENTICATION_INFO_NOT_FOUND, null);
@@ -116,9 +119,9 @@ public class ItemService {
                 .salePrice(product.getOriginPrice()-discount.getDiscountPrice())
                 .orderId(order != null ? order.getId() : null)
                 .buyerNickName(order!=null ? order.getBuyer().getNickname() : null)
-                .addressInfo(addressService.setAddressInfo(user))
+                .addressInfo(order!=null ? addressService.setAddressInfo(order.getBuyer()) : addressService.setAddressInfo(null))
                 .paidAt(payment!=null ? payment.getEndedAt():null)
-                .paymentMethod(payment!=null ? payment.getMethod():null)
+                .paymentMethod(payment!=null ? payment.getMethod().getDescription():null)
                 .build();
 
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
@@ -127,9 +130,8 @@ public class ItemService {
 
     @Transactional
     public ApiResponse<?> getAddressAndOption(String orderId){
-        User user = authUtils.getUser();
         Order order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
-        AddressSeparateInfo address = addressService.setAddressSeparateInfo(user);
+        AddressSeparateInfo address = addressService.setAddressSeparateInfo(order.getBuyer());
 
         List<SelectedOption> selectedOptionList = setSelectedOptionList(order);
 

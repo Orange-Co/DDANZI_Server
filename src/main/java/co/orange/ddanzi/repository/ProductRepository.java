@@ -2,6 +2,8 @@ package co.orange.ddanzi.repository;
 
 import co.orange.ddanzi.domain.product.Category;
 import co.orange.ddanzi.domain.product.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,7 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Product findByKakaoProductId(Long kakaoProductId);
 
     @Query(value = "SELECT * FROM products p WHERE p.stock > :stock", nativeQuery = true)
-    List<Product> findAllByStock(Integer stock);
+    Page<Product> findAllByStock(Pageable pageable, Integer stock);
 
     @Query(value = "SELECT * FROM products p WHERE p.stock > 0 AND p.name LIKE %:keyword% ", nativeQuery = true)
     List<Product> findAllByName(@Param("keyword") String keyword);

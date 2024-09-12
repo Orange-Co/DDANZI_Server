@@ -1,31 +1,34 @@
 package co.orange.ddanzi.service.auth;
 
 import co.orange.ddanzi.domain.user.Authentication;
+import co.orange.ddanzi.domain.user.Device;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
+import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
-import co.orange.ddanzi.dto.auth.RefreshTokenResponseDto;
-import co.orange.ddanzi.dto.auth.SigninResponseDto;
-import co.orange.ddanzi.dto.auth.VerifyRequestDto;
-import co.orange.ddanzi.dto.auth.VerifyResponseDto;
+import co.orange.ddanzi.dto.auth.*;
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.global.jwt.JwtUtils;
 import co.orange.ddanzi.repository.AuthenticationRepository;
+import co.orange.ddanzi.repository.DeviceRepository;
 import co.orange.ddanzi.repository.UserRepository;
-import co.orange.ddanzi.service.ItemService;
-import co.orange.ddanzi.service.OrderService;
-import co.orange.ddanzi.service.PaymentService;
-import co.orange.ddanzi.service.TermService;
+import co.orange.ddanzi.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -34,13 +37,39 @@ import java.util.*;
 public class AuthService {
     private final JwtUtils jwtUtils;
     private final AuthUtils authUtils;
-
+    private final OAuthService oAuthService;
     private final UserRepository userRepository;
     private final AuthenticationRepository authenticationRepository;
+    private final DeviceRepository deviceRepository;
+
+    private final FcmService fcmService;
 
     @Autowired
     TermService termService;
 
+    @Transactional
+    public ApiResponse<?> signin(SigninRequestDto requestDto) throws JsonProcessingException {
+       User user;
+        if(requestDto.getType().equals(LoginType.KAKAO)) {
+            user = oAuthService.kakaoSignIn(requestDto);
+        }
+        else{
+            user = oAuthService.appleSignin(requestDto);
+        }
+        connectUserAndDevice(user, requestDto);
+        fcmService.registerFcmToken(user,requestDto.getFcmToken());
+
+        if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
+            user.updateStatus(UserStatus.ACTIVATE);
+
+        SigninResponseDto responseDto = SigninResponseDto.builder()
+                .accesstoken(jwtUtils.createAccessToken(user.getEmail()))
+                .refreshtoken(jwtUtils.createRefreshToken(user.getEmail()))
+                .nickname(user.getNickname())
+                .status(user.getStatus())
+                .build();
+        return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
+    }
 
     @Transactional
     public ApiResponse<?> testSignin(String idToken){
@@ -113,6 +142,15 @@ public class AuthService {
         return ApiResponse.onSuccess(Success.DELETE_USER_SUCCESS, Map.of("nickname", user.getNickname()));
     }
 
+    public void connectUserAndDevice(User user, SigninRequestDto requestDto) {
+        log.info("유저의 디바이스 토큰 저장");
+        Device device = Device.builder()
+                .user(user)
+                .deviceToken(requestDto.getDevicetoken())
+                .type(requestDto.getDeviceType())
+                .build();
+        deviceRepository.save(device);
+    }
 }
 
 

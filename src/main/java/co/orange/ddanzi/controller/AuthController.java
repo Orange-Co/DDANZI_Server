@@ -2,7 +2,6 @@ package co.orange.ddanzi.controller;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.Success;
-import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.dto.auth.RefreshTokenRequestDto;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
 import co.orange.ddanzi.dto.auth.VerifyRequestDto;
@@ -22,7 +21,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
-    private final OAuthService oAuthService;
     private final JwtUtils jwtUtils;
 
     @PostMapping("/signin/test")
@@ -32,9 +30,7 @@ public class AuthController {
 
     @PostMapping("/signin")
     ApiResponse<?> signin(@RequestBody SigninRequestDto requestDto) throws JsonProcessingException {
-        if(requestDto.getType().equals(LoginType.KAKAO))
-            return oAuthService.kakaoSignIn(requestDto);
-        return oAuthService.kakaoSignIn(requestDto);
+            return authService.signin(requestDto);
     }
 
     @PostMapping("/refreshtoken")

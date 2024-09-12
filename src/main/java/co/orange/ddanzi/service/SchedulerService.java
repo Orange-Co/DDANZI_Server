@@ -44,10 +44,15 @@ public class SchedulerService {
         orderService.checkShippingOrder();
     }
 
-
     @Scheduled(fixedRate = 60000)
     public void scheduleCheckDelayedShippingOrder() {
         log.info("판매확정 후 6일 (144시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않은 주문 확인");
         orderService.checkDelayedShippingOrder();
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void scheduleCheckWarningOrder() {
+        log.info("판매확정 후 6일 (144시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않은 주문 확인");
+        orderService.checkWarningOrder();
     }
 }

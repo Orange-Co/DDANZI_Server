@@ -206,7 +206,7 @@ public class ItemService {
     }
 
     public void updateExpiredItems(){
-        List<Item> itemList = itemRepository.findExpiryItems(LocalDate.now());
+        List<Item> itemList = itemRepository.findOnSaleExpiryItems(LocalDate.now());
         for(Item item : itemList){
             item.updateStatus(ItemStatus.EXPIRED);
             Product product = item.getProduct();

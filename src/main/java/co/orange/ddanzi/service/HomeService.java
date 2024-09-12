@@ -3,6 +3,7 @@ package co.orange.ddanzi.service;
 import co.orange.ddanzi.domain.Banner;
 import co.orange.ddanzi.domain.product.*;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.dto.common.PageInfo;
 import co.orange.ddanzi.dto.common.ProductInfo;
 import co.orange.ddanzi.dto.common.OptionDetailInfo;
 import co.orange.ddanzi.dto.common.OptionInfo;
@@ -53,9 +54,14 @@ public class HomeService {
             productInfoList = setProductListInNotUser(productPage.getContent(), interestProductRepository);
         }
 
+        PageInfo pageInfo = PageInfo.builder()
+                .totalElements(productPage.getTotalElements())
+                .numberOfElements(productPage.getNumberOfElements())
+                .build();
 
         HomeResponseDto responseDto = HomeResponseDto.builder()
                 .homeImgUrl(banner.getImgUrl())
+                .pageInfo(pageInfo)
                 .productList(productInfoList).build();
         return ApiResponse.onSuccess(Success.GET_HOME_INFO_SUCCESS, responseDto);
     }

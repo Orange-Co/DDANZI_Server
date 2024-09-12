@@ -2,6 +2,7 @@ package co.orange.ddanzi.controller;
 
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.dto.fcm.FcmSendDto;
+import co.orange.ddanzi.dto.fcm.ReportSendDto;
 import co.orange.ddanzi.service.FcmService;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class FcmController {
     }
 
     @PostMapping("/fcm/report")
-    ApiResponse<?> reportNotification(@RequestBody FcmSendDto requestDto) throws FirebaseMessagingException {
+    ApiResponse<?> reportNotification(@RequestBody ReportSendDto requestDto) throws FirebaseMessagingException {
         return fcmService.reportNotification(requestDto);
     }
 }

@@ -186,6 +186,7 @@ public class OrderService {
 
     @Transactional
     public void checkShippingOrder(){
+        //판매확정 후 3일 (72시간)이 지났는데, 구매확정이 되지 않았을 시
         LocalDateTime threeDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> shippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.SHIPPING, threeDayLimit);
         for(Order order : shippingOrders){
@@ -196,11 +197,23 @@ public class OrderService {
 
     @Transactional
     public void checkDelayedShippingOrder(){
+        //판매확정 후 6일 (144시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않았을 시
         LocalDateTime sixDayLimit = LocalDateTime.now().minusMinutes(3);
         List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.DELAYED_SHIPPING, sixDayLimit);
         for(Order order : delayedShippingOrders){
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4, order);
             order.updateStatus(OrderStatus.WARNING);
+        }
+    }
+
+    @Transactional
+    public void checkWarningOrder(){
+        //판매확정 후 7일 (168시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않았을 시
+        LocalDateTime sevenDayLimit = LocalDateTime.now().minusMinutes(1);
+        List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.WARNING, sevenDayLimit);
+        for(Order order : delayedShippingOrders){
+            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3, order);
+            order.updateStatus(OrderStatus.COMPLETED);
         }
     }
 

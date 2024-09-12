@@ -30,18 +30,24 @@ public class TermService {
     private final OrderAgreementRepository orderAgreementRepository;
 
     public void createUserAgreements(User user, Boolean isAgreedMarketingTerm){
+        log.info("---Start to register join Agreement---");
         createUserAgreement(user, 1L, true);
         createUserAgreement(user, 2L, true);
         createUserAgreement(user, 3L, isAgreedMarketingTerm);
+        log.info("---Complete registering---");
     }
     public void createItemAgreements(Item item){
+        log.info("---Start to register item Agreement---");
         createItemAgreement(item, 1L);
         createItemAgreement(item, 2L);
+        log.info("---Complete registering---");
     }
 
     public void createOrderAgreements(Order order){
+        log.info("---Start to register order Agreement---");
         createOrderAgreement(order, 1L);
         createOrderAgreement(order, 2L);
+        log.info("---Complete registering---");
     }
 
     public void createUserAgreement(User user, Long termJoinId, boolean isAgreed){
@@ -49,23 +55,19 @@ public class TermService {
 
         UserAgreementId userAgreementId = new UserAgreementId();
         userAgreementId.setUser(user); userAgreementId.setTermJoin(termJoin);
-        log.info("Set user agreements id");
 
         UserAgreement userAgreement = UserAgreement.builder()
                 .id(userAgreementId)
                 .isAgreed(isAgreed).build();
 
         userAgreementRepository.save(userAgreement);
-        log.info("---Create userAgreement---");
     }
 
     public void createItemAgreement(Item item, Long termItemId){
-        log.info("Creating item agreements for term order {}", termItemId);
         TermItem termItem = termItemRepository.findById(termItemId).orElseThrow(()->new RuntimeException("Term item not found"));
 
         ItemAgreementId itemAgreementId = new ItemAgreementId();
         itemAgreementId.setItem(item); itemAgreementId.setTermItem(termItem);
-        log.info("Set item agreements id");
 
         ItemAgreement itemAgreement = ItemAgreement.builder()
                 .id(itemAgreementId)
@@ -73,17 +75,14 @@ public class TermService {
                 .build();
 
         itemAgreementsRepository.save(itemAgreement);
-        log.info("---Create item Agreement---");
     }
 
     public void createOrderAgreement(Order order, Long termOrderId){
-        log.info("Creating order agreements for term order {}", termOrderId);
         TermOrder termOrder = termOrderRepository.findById(termOrderId).orElseThrow(()->new RuntimeException("Term order not found"));
 
         OrderAgreementId orderAgreementId = new OrderAgreementId();
         orderAgreementId.setOrder(order);
         orderAgreementId.setTermOrder(termOrder);
-        log.info("Set order agreements id");
 
         OrderAgreement orderAgreement = OrderAgreement.builder()
                 .id(orderAgreementId)
@@ -91,7 +90,6 @@ public class TermService {
                 .build();
 
         orderAgreementRepository.save(orderAgreement);
-        log.info("---Create orderAgreement---");
     }
 
 }

@@ -7,7 +7,7 @@ build/
 
 ### YML ###
 application-*
-
+application.yml
 
 ### KEY ###
 *.json

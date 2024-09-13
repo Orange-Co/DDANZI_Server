@@ -1,11 +1,11 @@
 package co.orange.ddanzi.global.redis;
 
-import java.util.Set;
+import java.util.List;
 
 public interface RedisRepository {
-    void saveDeviceToken(String deviceToken, String productId);
+    void saveRecentProduct(String deviceToken, String productId);
 
-    Set<String> getRecentProducts(String deviceToken);
+    List<String> getRecentProducts(String deviceToken);
 
-    void deleteDeviceToken(String deviceToken);
+    void deleteRecentProduct(String deviceToken);
 }

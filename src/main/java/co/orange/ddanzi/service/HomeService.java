@@ -56,7 +56,7 @@ public class HomeService {
 
         PageInfo pageInfo = PageInfo.builder()
                 .totalElements(productPage.getTotalElements())
-                .numberOfElements(12)
+                .numberOfElements(productPage.getSize())
                 .build();
 
         HomeResponseDto responseDto = HomeResponseDto.builder()

@@ -34,7 +34,7 @@ public class SearchService {
         User user = authUtils.getUser();
         List<String> topSearchedList = List.of("멀티비타민", "망고", "핸드크림");
         log.info("Searching page for devicetoken: {}", devicetoken);
-        Set<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
+        List<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
         List<Product> productList = productRepository.findByIdIn(recentViewedProductIds);
         List<ProductInfo> productInfoList = homeService.setProductList(user, productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_SCREEN_SUCCESS, SearchPageResponseDto.builder()

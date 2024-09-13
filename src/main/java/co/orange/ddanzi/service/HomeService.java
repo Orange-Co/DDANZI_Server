@@ -104,7 +104,7 @@ public class HomeService {
         log.info("해당 상품의 찜 개수 조회");
         Integer interestCount = interestProductRepository.countByProductIdWithLimit(productId);
 
-        redisRepository.saveDeviceToken(devicetoken, productId);
+        redisRepository.saveRecentProduct(devicetoken, productId);
         log.info("최근 본 상품 등록");
 
         HomeDetailResponseDto responseDto = HomeDetailResponseDto.builder()

@@ -17,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,8 +37,7 @@ public class SearchService {
         User user = authUtils.getUser();
         List<String> topSearchedList = List.of("멀티비타민", "망고", "핸드크림");
         log.info("Searching page for devicetoken: {}", devicetoken);
-        Set<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
-        List<Product> productList = productRepository.findByIdIn(recentViewedProductIds);
+        List<Product> productList = getSortedRecentViewedProducts(devicetoken);
         List<ProductInfo> productInfoList = homeService.setProductList(user, productList, interestProductRepository);
         return ApiResponse.onSuccess(Success.GET_SEARCH_SCREEN_SUCCESS, SearchPageResponseDto.builder()
                 .topSearchedList(topSearchedList)
@@ -54,5 +56,15 @@ public class SearchService {
                         .topSearchedList(topSearchedList)
                         .searchedProductList(productInfoList)
                         .build());
+    }
+
+    public List<Product> getSortedRecentViewedProducts(String devicetoken) {
+        List<String> recentViewedProductIds = redisRepository.getRecentProducts(devicetoken);
+        List<Product> productList = productRepository.findByIdIn(recentViewedProductIds);
+        Map<String, Product> productMap = productList.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+        return recentViewedProductIds.stream()
+                .map(productMap::get)
+                .collect(Collectors.toList());
     }
 }

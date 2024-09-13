@@ -25,6 +25,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query(value = "SELECT * FROM products p WHERE p.stock > 0 AND p.name LIKE %:keyword% ", nativeQuery = true)
     List<Product> findAllByName(@Param("keyword") String keyword);
 
-    @Query("SELECT p FROM Product p WHERE p.id IN :productIds ORDER BY FIELD(p.id, :productIds)")
     List<Product> findByIdIn(List<String> productIds);
 }

@@ -26,6 +26,11 @@ public class RedisRepositoryImpl implements RedisRepository {
     @Override
     public void saveRecentProduct(String deviceToken, String productId) {
         String key = DEVICE_PREFIX + deviceToken;
+
+        List<String> currentList = redisTemplate.opsForList().range(key, 0, -1);
+        if (currentList != null && currentList.contains(productId)) {
+            redisTemplate.opsForList().remove(key, 0, productId);
+        }
         redisTemplate.opsForList().leftPush(key, productId);
         redisTemplate.opsForList().trim(key, 0, MAX_RECENT_PRODUCTS - 1); // 리스트 길이 제한
         redisTemplate.expire(key, EXPIRATION_TIME, TimeUnit.SECONDS);

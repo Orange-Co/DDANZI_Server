@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -38,12 +39,17 @@ public class ProductService {
     @Autowired
     RestTemplate restTemplate;
 
+    @Transactional
     public ApiResponse<?> getMostSimilarProduct(@RequestBody ProductRequestDto requestDto){
         String productId = getMostSimilarProductId(requestDto);
-        if(productId == null)
-            return ApiResponse.onFailure(Error.PRODUCT_NOT_FOUND,null);
+        if(productId == null) {
+            return ApiResponse.onSuccess(Success.GET_MOST_SIMILAR_PRODUCT_SUCCESS, CheckItemResponseDto.builder()
+                    .productId("")
+                    .productName("")
+                    .imgUrl("")
+                    .build());
+        }
         log.info("Find product by id: {}", productId);
-
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         CheckItemResponseDto responseDto = CheckItemResponseDto.builder()
                 .productId(product.getId())
@@ -75,10 +81,13 @@ public class ProductService {
     public String getMostSimilarProductId(ProductRequestDto requestDto){
         log.info("Start to get more similar product from AI Server");
         String path = "/api/v1/image";
-        Map<String, String> result = restTemplate.postForObject(path, requestDto, Map.class);
-        if(result == null)
+        try {
+            Map<String, String> result = restTemplate.postForObject(path, requestDto, Map.class);
+            return result.get("productId");
+        } catch (HttpServerErrorException e) {
+            log.error("Server error occurred while fetching similar product", e);
             return null;
-        return result.get("productId");
+        }
     }
 
 

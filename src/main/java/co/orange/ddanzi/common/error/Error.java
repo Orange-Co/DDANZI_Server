@@ -54,7 +54,7 @@ public enum Error {
 
     // 409 CONFLICT,
     ACCOUNT_ALREADY_EXISTS(HttpStatus.CONFLICT, "The account already exists."),
-    AUTHENTICATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "The identity authentication of user already exists."),
+    AUTHENTICATION_CANNOT_CHANGE(HttpStatus.CONFLICT, "The identity authentication of user cannot be changed."),
     PAYMENT_CANNOT_CHANGE(HttpStatus.CONFLICT, "The payment status cannot be changed."),
     ORDER_STATUS_CANNOT_CHANGE(HttpStatus.CONFLICT, "The order status cannot be changed."),
 

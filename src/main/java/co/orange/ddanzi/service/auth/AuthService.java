@@ -41,19 +41,22 @@ public class AuthService {
     private final TermService termService;
 
     @Transactional
+    public ApiResponse<?> testSignin(String email){
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User user = optionalUser.get();
+        SigninResponseDto responseDto = SigninResponseDto.builder()
+                .accesstoken(jwtUtils.createAccessToken(user.getEmail()))
+                .nickname(user.getNickname())
+                .build();
+        return ApiResponse.onSuccess(Success.SUCCESS, responseDto);
+    }
+
+    @Transactional
     public ApiResponse<?> signin(SigninRequestDto requestDto) throws JsonProcessingException {
-       User user;
-        if(requestDto.getType().equals(LoginType.KAKAO)) {
-            user = oAuthService.kakaoSignIn(requestDto);
-        }
-        else{
-            user = oAuthService.appleSignin(requestDto);
-        }
+        User user = authenticateUser(requestDto);
         connectUserAndDevice(user, requestDto);
         fcmService.registerFcmToken(user,requestDto.getFcmToken());
-
-        if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
-            user.updateStatus(UserStatus.UNAUTHENTICATED);
+        checkInactiveUser(user);
 
         SigninResponseDto responseDto = SigninResponseDto.builder()
                 .accesstoken(jwtUtils.createAccessToken(user.getEmail()))
@@ -64,21 +67,7 @@ public class AuthService {
         return ApiResponse.onSuccess(Success.SIGNIN_KAKAO_SUCCESS, responseDto);
     }
 
-    @Transactional
-    public ApiResponse<?> testSignin(String idToken){
-        Optional<User> optionalUser = userRepository.findByEmail(idToken);
-        if(optionalUser.isEmpty()){
-            return ApiResponse.onFailure(Error.ERROR, null);
-        }
-        User user = optionalUser.get();
 
-        SigninResponseDto responseDto = SigninResponseDto.builder()
-                .accesstoken(jwtUtils.createAccessToken(user.getEmail()))
-                .refreshtoken(jwtUtils.createRefreshToken(user.getEmail()))
-                .nickname(user.getNickname())
-                .build();
-        return ApiResponse.onSuccess(Success.SUCCESS, responseDto);
-    }
 
 
     @Transactional
@@ -88,11 +77,10 @@ public class AuthService {
 
         Authentication authentication = user.getAuthentication();
         if(authentication != null) {
-            if (!authentication.getCi().equals(requestDto.getCi()))
-                return ApiResponse.onFailure(Error.AUTHENTICATION_CANNOT_CHANGE, null);
+            verifyExistingAuthentication(user, requestDto);
         }
         else{
-            String phone = requestDto.getPhone().replace("-", "").replace(" ","");
+            String phone = formatPhone(requestDto.getPhone());
 
             authentication = requestDto.toEntity(user, phone);
             authentication = authenticationRepository.save(authentication);
@@ -103,13 +91,7 @@ public class AuthService {
 
             termService.createUserAgreements(user, requestDto.getIsAgreedMarketingTerm());
         }
-
-        VerifyResponseDto responseDto = VerifyResponseDto.builder()
-                .nickname(user.getNickname())
-                .phone(authentication.getPhone())
-                .status(user.getStatus())
-                .build();
-        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, responseDto);
+        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, setVerifyResponse(user));
     }
 
     @Transactional
@@ -140,6 +122,27 @@ public class AuthService {
         return ApiResponse.onSuccess(Success.DELETE_USER_SUCCESS, Map.of("nickname", user.getNickname()));
     }
 
+    private ApiResponse<?> verifyExistingAuthentication(User user, VerifyRequestDto requestDto) {
+        if (!user.getAuthentication().getCi().equals(requestDto.getCi())) {
+            return ApiResponse.onFailure(Error.AUTHENTICATION_CANNOT_CHANGE, null);
+        }
+        return setVerifyResponse(user);
+    }
+
+    private User authenticateUser(SigninRequestDto requestDto) throws JsonProcessingException {
+        if (requestDto.getType().equals(LoginType.KAKAO)) {
+            return oAuthService.kakaoSignIn(requestDto);
+        } else {
+            return oAuthService.appleSignin(requestDto);
+        }
+    }
+
+    public void checkInactiveUser(User user){
+        if(user.getStatus() == UserStatus.DELETE||user.getStatus()== UserStatus.SLEEP)
+            user.updateStatus(UserStatus.UNAUTHENTICATED);
+
+    }
+
     public void connectUserAndDevice(User user, SigninRequestDto requestDto) {
         log.info("유저의 디바이스 토큰 저장");
         Device device = Device.builder()
@@ -148,6 +151,19 @@ public class AuthService {
                 .type(requestDto.getDeviceType())
                 .build();
         deviceRepository.save(device);
+    }
+
+    private String formatPhone(String phone) {
+        return phone.replace("-", "").replace(" ", "");
+    }
+
+    private ApiResponse<?> setVerifyResponse(User user) {
+        VerifyResponseDto responseDto = VerifyResponseDto.builder()
+                .nickname(user.getNickname())
+                .phone(user.getAuthentication().getPhone())
+                .status(user.getStatus())
+                .build();
+        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, responseDto);
     }
 }
 

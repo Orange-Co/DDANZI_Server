@@ -7,7 +7,7 @@ build/
 
 ### YML ###
 application-*
-application.yml
+/src/main/resources/application.yml
 
 ### KEY ###
 *.json

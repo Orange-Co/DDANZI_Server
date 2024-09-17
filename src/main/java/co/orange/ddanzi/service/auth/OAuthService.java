@@ -219,7 +219,7 @@ public class OAuthService {
 
     public byte[] readPrivateKey() {
 
-        Resource resource = new ClassPathResource(appleProperties.getKeyId());
+        Resource resource = new ClassPathResource(appleProperties.getPrivateKey());
         byte[] content = null;
 
         try (InputStream keyInputStream = resource.getInputStream();

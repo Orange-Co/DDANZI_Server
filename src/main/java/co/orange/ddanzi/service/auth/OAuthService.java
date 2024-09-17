@@ -145,6 +145,7 @@ public class OAuthService {
 
     public String getAppleEmail(String authorizationCode) {
         log.info("애플 서버 통신 준비");
+        log.info("authorizationCode: {}", authorizationCode);
         String url = appleProperties.getAudience() + "/auth/token";
         MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
         requestParams.add("client_id", appleProperties.getClientId());

@@ -10,6 +10,7 @@ application-*
 
 ### KEY ###
 *.json
+*.p8
 
 ### STS ###
 .apt_generated

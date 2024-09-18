@@ -1,4 +1,4 @@
 spring:
   profiles:
-    active: product, db, gcs
+    active: product, develop, gcs
 

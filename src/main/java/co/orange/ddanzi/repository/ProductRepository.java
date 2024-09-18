@@ -19,8 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query("SELECT p FROM Product p WHERE p.kakaoProductId = :kakaoProductId")
     Product findByKakaoProductId(Long kakaoProductId);
 
-    @Query(value = "SELECT * FROM products p WHERE p.stock > :stock", nativeQuery = true)
-    Page<Product> findAllByStock(Pageable pageable, Integer stock);
+    @Query(value = "SELECT * FROM products p WHERE p.stock > :stock ORDER BY p.closest_due_date asc ", nativeQuery = true)
+    Page<Product> findAllByStockAAndClosestDueDate(Pageable pageable, Integer stock);
 
     @Query(value = "SELECT * FROM products p WHERE p.stock > 0 AND p.name LIKE %:keyword% ", nativeQuery = true)
     List<Product> findAllByName(@Param("keyword") String keyword);

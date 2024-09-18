@@ -51,4 +51,8 @@ public class Product {
     public void updateStock(Integer stock) {
         this.stock = stock;
     }
+
+    public void updateClosestDueDate(LocalDate closestDueDate) {
+        this.closestDueDate = closestDueDate;
+    }
 }

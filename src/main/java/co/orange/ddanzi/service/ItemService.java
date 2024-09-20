@@ -65,7 +65,8 @@ public class ItemService {
 
     @Transactional
     public ApiResponse<?> saveItem(SaveItemRequestDto requestDto){
-        if(requestDto.getReceivedDate().plusDays(7).isBefore(LocalDate.now()))
+        LocalDate dueDate = requestDto.getReceivedDate().plusDays(7);
+        if(dueDate.isBefore(LocalDate.now()))
             return ApiResponse.onFailure(Error.DUE_DATE_IS_INCORRECT, null);
 
         User user = authUtils.getUser();
@@ -84,6 +85,8 @@ public class ItemService {
 
         product.updateStock(product.getStock() + 1);
         log.info("상품의 재고 수량 업데이트 -> {}개",  product.getStock());
+        if(product.getClosestDueDate()==null || dueDate.isBefore(product.getClosestDueDate()))
+            product.updateClosestDueDate(dueDate);
 
         SaveItemResponseDto responseDto = SaveItemResponseDto.builder()
                 .itemId(newItem.getId())

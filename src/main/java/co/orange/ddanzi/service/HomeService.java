@@ -42,7 +42,7 @@ public class HomeService {
     public ApiResponse<?> getProductList(Pageable pageable) {
         User user = authUtils.getUser();
         Banner banner = bannerRepository.findByIsSelected(Boolean.TRUE);
-        Page<Product> productPage = productRepository.findAllByStock(pageable, 0);
+        Page<Product> productPage = productRepository.findAllByStockAAndClosestDueDate(pageable, 0);
 
         List<ProductInfo> productInfoList;
         if(user!=null) {

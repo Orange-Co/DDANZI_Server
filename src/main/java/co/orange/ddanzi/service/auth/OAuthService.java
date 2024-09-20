@@ -12,15 +12,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import io.jsonwebtoken.security.InvalidKeyException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -29,14 +31,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.PrivateKey;
-import java.security.Security;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -138,12 +145,14 @@ public class OAuthService {
 
     public String getAppleEmail(String authorizationCode) {
         log.info("애플 서버 통신 준비");
+        log.info("authorizationCode: {}", authorizationCode);
         String url = appleProperties.getAudience() + "/auth/token";
         MultiValueMap<String, String> requestParams = new LinkedMultiValueMap<>();
         requestParams.add("client_id", appleProperties.getClientId());
-        requestParams.add("client_secret", generateClientSecret());
+        requestParams.add("client_secret", createClientSecret());
         requestParams.add("grant_type", appleProperties.getGrantType());
         requestParams.add("code", authorizationCode);
+        log.info("설정 값 확인, grant_type: {}", requestParams.getFirst("grant_type"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -165,34 +174,80 @@ public class OAuthService {
         return payload.getEmail();
     }
 
-    private String generateClientSecret() {
+//    private String generateClientSecret() {
+//
+//        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
+//
+//        return Jwts.builder()
+//                .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
+//                .setIssuer(appleProperties.getTeamId())
+//                .setAudience(appleProperties.getAudience())
+//                .setSubject(appleProperties.getClientId())
+//                .setExpiration(Date.from(expiration.atZone(ZoneId.systemDefault()).toInstant()))
+//                .setIssuedAt(new Date())
+//                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
+//                .compact();
+//    }
 
-        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
+    public String createClientSecret() {
 
-        return Jwts.builder()
-                .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
-                .setIssuer(appleProperties.getTeamId())
-                .setAudience(appleProperties.getAudience())
-                .setSubject(appleProperties.getClientId())
-                .setExpiration(Date.from(expiration.atZone(ZoneId.systemDefault()).toInstant()))
-                .setIssuedAt(new Date())
-                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
-                .compact();
-    }
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(appleProperties.getKeyId()).build();
+        JWTClaimsSet claimsSet = new JWTClaimsSet();
+        Date now = new Date();
 
-    private PrivateKey getPrivateKey() {
-        Security.addProvider(new  org.bouncycastle.jce.provider.BouncyCastleProvider());
-        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+        claimsSet.setIssuer(appleProperties.getTeamId());
+        claimsSet.setIssueTime(now);
+        claimsSet.setExpirationTime(new Date(now.getTime() + 3600000));
+        claimsSet.setAudience(appleProperties.getAudience());
+        claimsSet.setSubject(appleProperties.getClientId());
 
+        SignedJWT jwt = new SignedJWT(header, claimsSet);
+
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(readPrivateKey());
         try {
-            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
-
-            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
-            return converter.getPrivateKey(privateKeyInfo);
-        } catch (Exception e) {
-            throw new RuntimeException("Error converting private key from String", e);
+            KeyFactory kf = KeyFactory.getInstance("EC");
+            ECPrivateKey ecPrivateKey = (ECPrivateKey) kf.generatePrivate(spec);
+            JWSSigner jwsSigner = new ECDSASigner(ecPrivateKey.getS());
+            jwt.sign(jwsSigner);
+        } catch (InvalidKeyException | JOSEException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
         }
+
+        return jwt.serialize();
     }
+
+    public byte[] readPrivateKey() {
+
+        Resource resource = new ClassPathResource(appleProperties.getPrivateKey());
+        byte[] content = null;
+
+        try (InputStream keyInputStream = resource.getInputStream();
+             InputStreamReader keyReader = new InputStreamReader(keyInputStream);
+             PemReader pemReader = new PemReader(keyReader)) {
+            PemObject pemObject = pemReader.readPemObject();
+            content = pemObject.getContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return content;
+    }
+
+//    private PrivateKey getPrivateKey() {
+//        Security.addProvider(new  org.bouncycastle.jce.provider.BouncyCastleProvider());
+//        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+//
+//        try {
+//            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
+//
+//            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
+//            return converter.getPrivateKey(privateKeyInfo);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Error converting private key from String", e);
+//        }
+//    }
 
 
     // TokenDecoder 메소드를 GetMemberInfoService 내부에 통합

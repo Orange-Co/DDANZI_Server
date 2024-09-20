@@ -1,4 +1,4 @@
-package co.orange.ddanzi.domain.product;
+package co.orange.ddanzi.domain.order;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,11 +10,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Table(name = "charge_infos")
 @Entity
-public class ChargeInfo {
+public class PaymentChargeInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "charge_info_id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "charge")
     private Float charge;

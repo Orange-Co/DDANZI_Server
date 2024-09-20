@@ -17,14 +17,14 @@ public class Account {
     @Column(name = "account_id")
     private Long id;                //계좌 고유 ID
 
-    @Column(name = "number", unique = true, nullable = false)
+    @Column(name = "number", nullable = false)
     private String number;          //계좌 번호
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;          //계좌 보유 유저
 

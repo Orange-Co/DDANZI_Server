@@ -14,17 +14,17 @@ public class Device {
     @Column(name = "device_token")
     private String deviceToken;
 
-    @Column(name = "type")
-    private String type;
+    @Column(name = "device_type")
+    private String deviceType;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Device(String deviceToken, String type, User user) {
+    public Device(String deviceToken, String deviceType, User user) {
         this.deviceToken = deviceToken;
-        this.type = type;
+        this.deviceType = deviceType;
         this.user = user;
     }
 }

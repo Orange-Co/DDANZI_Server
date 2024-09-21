@@ -157,14 +157,13 @@ public class AuthService {
         return phone.replace("-", "").replace(" ", "");
     }
 
-    private ApiResponse<?> setVerifyResponse(User user) {
-        VerifyResponseDto responseDto = VerifyResponseDto.builder()
+    private VerifyResponseDto setVerifyResponse(User user) {
+        return VerifyResponseDto.builder()
                 .nickname(user.getNickname())
                 .phone(user.getAuthentication().getPhone())
                 .status(user.getStatus())
                 .build();
-        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, responseDto);
-    }
+  }
 }
 
 

@@ -126,7 +126,7 @@ public class AuthService {
         if (!user.getAuthentication().getCi().equals(requestDto.getCi())) {
             return ApiResponse.onFailure(Error.AUTHENTICATION_CANNOT_CHANGE, null);
         }
-        return setVerifyResponse(user);
+        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, setVerifyResponse(user));
     }
 
     private User authenticateUser(SigninRequestDto requestDto) throws JsonProcessingException {

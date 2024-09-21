@@ -148,7 +148,7 @@ public class AuthService {
         Device device = Device.builder()
                 .user(user)
                 .deviceToken(requestDto.getDevicetoken())
-                .type(requestDto.getDeviceType())
+                .deviceType(requestDto.getDeviceType())
                 .build();
         deviceRepository.save(device);
     }

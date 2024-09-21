@@ -21,7 +21,7 @@ public class Authentication extends BaseTimeEntity {
     private Long id;      //멤버 고유 ID (PK/FK)
 
     @MapsId
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 

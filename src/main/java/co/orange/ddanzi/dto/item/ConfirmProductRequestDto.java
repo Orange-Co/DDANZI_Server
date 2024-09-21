@@ -13,17 +13,4 @@ public class ConfirmProductRequestDto {
     private String infoUrl;
     private String category;
     private Boolean isForbidden;
-
-    public Product toProduct(String id, Integer discountPrice, Category leafCategory){
-        return Product.builder()
-                .id(id)
-                .kakaoProductId(kakaoProductId)
-                .name(productName)
-                .originPrice(originPrice)
-                .imgUrl(imgUrl)
-                .infoUrl(infoUrl)
-                .leafCategory(leafCategory)
-                .stock(0)
-                .build();
-    }
 }

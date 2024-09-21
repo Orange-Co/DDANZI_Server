@@ -7,7 +7,7 @@ import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.Payment;
-import co.orange.ddanzi.domain.order.PaymentHistory;
+import co.orange.ddanzi.domain.order.PaymentChargeInfo;
 import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Item;
@@ -16,14 +16,10 @@ import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
-import co.orange.ddanzi.repository.ItemRepository;
-import co.orange.ddanzi.repository.PaymentHistoryRepository;
-import co.orange.ddanzi.repository.PaymentRepository;
-import co.orange.ddanzi.repository.ProductRepository;
+import co.orange.ddanzi.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +29,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @Slf4j
@@ -45,12 +40,10 @@ public class PaymentService {
     private final ProductRepository productRepository;
     private final ItemRepository itemRepository;
     private final PaymentRepository paymentRepository;
-    private final PaymentHistoryRepository paymentHistoryRepository;
+    private final PaymentChargeInfoRepository paymentChargeInfoRepository;
 
-    @Autowired
-    OrderService orderService;
-    @Autowired
-    HistoryService historyService;
+    private final OrderService orderService;
+    private final HistoryService historyService;
 
     @Value("${ddanzi.portone.key}")
     private String key;
@@ -70,7 +63,7 @@ public class PaymentService {
         newPayment = paymentRepository.save(newPayment);
         log.info("Start payment");
 
-        createPaymentHistory(buyer, newPayment);
+        historyService.createPaymentHistory(buyer, newPayment);
 
         CreatePaymentResponseDto responseDto = CreatePaymentResponseDto.builder()
                 .orderId(newOrder.getId())
@@ -99,10 +92,10 @@ public class PaymentService {
                 try {
                     refundPayment(buyer, order, payment);
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
-                    createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리");
+                    historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리");
                     return ApiResponse.onFailure(Error.NO_ITEM_ON_SALE, Map.of("orderId", order.getId()));
                 }catch (Exception e){
-                    createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
+                    historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
                     return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("orderId", order.getId()));
                 }
             }
@@ -132,7 +125,7 @@ public class PaymentService {
             product.updateStock(product.getStock() - 1);
         }
 
-        createPaymentHistory(buyer, payment);
+        historyService.createPaymentHistory(buyer, payment);
 
         UpdatePaymentResponseDto responseDto = UpdatePaymentResponseDto.builder()
                 .orderId(order.getId())
@@ -153,28 +146,8 @@ public class PaymentService {
     }
 
     public Integer calculateCharge(Integer salePrice){
-        return (int) Math.floor(salePrice*0.032);
-    }
-
-    private void createPaymentHistory(User user, Payment payment){
-        PaymentHistory paymentHistory = PaymentHistory.builder()
-                .buyerId(user.getId())
-                .payStatus(payment.getPayStatus())
-                .payment(payment)
-                .createAt(LocalDateTime.now())
-                .build();
-        paymentHistoryRepository.save(paymentHistory);
-    }
-
-    private void createPaymentHistoryWithError(User user, Payment payment, String error){
-        PaymentHistory paymentHistory = PaymentHistory.builder()
-                .buyerId(user.getId())
-                .payStatus(payment.getPayStatus())
-                .payment(payment)
-                .error(error)
-                .createAt(LocalDateTime.now())
-                .build();
-        paymentHistoryRepository.save(paymentHistory);
+        PaymentChargeInfo chargeInfo = paymentChargeInfoRepository.findById(1).orElseThrow(ItemNotFoundException::new);
+        return (int) Math.floor(salePrice * chargeInfo.getCharge());
     }
 
     private boolean isAvailableToChangePayment(User user, Payment payment){

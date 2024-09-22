@@ -77,7 +77,7 @@ public class AuthService {
 
         Authentication authentication = user.getAuthentication();
         if(authentication != null) {
-            verifyExistingAuthentication(user, requestDto);
+            return verifyExistingAuthentication(user, requestDto);
         }
         else{
             String phone = formatPhone(requestDto.getPhone());
@@ -90,8 +90,8 @@ public class AuthService {
             log.info("회원 정보 변경 완료 user_authentication_id -> {}", user.getAuthentication().getId());
 
             termService.createUserAgreements(user, requestDto.getIsAgreedMarketingTerm());
+            return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, setVerifyResponse(user));
         }
-        return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, setVerifyResponse(user));
     }
 
     @Transactional

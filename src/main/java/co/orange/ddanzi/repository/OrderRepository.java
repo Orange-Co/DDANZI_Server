@@ -17,8 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o from Order o where o.buyer  = :user AND o.status <>'ORDER_PENDING'")
     List<Order> findByBuyerAndStatus(User user);
 
-    @Query("SELECT o from Order o where o.item  = :item")
-    Optional<Order> findByItem(@Param("item") Item item);
+    @Query("SELECT o FROM Order o WHERE o.item = :item ORDER BY o.createdAt DESC LIMIT 1")
+    Optional<Order> findLatestOrderByItem(@Param("item") Item item);
 
     Integer countAllByBuyer(User user);
 

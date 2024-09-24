@@ -105,7 +105,9 @@ public class ItemService {
         if(!item.getSeller().equals(user))
             return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
-        Order order = orderRepository.findByItem(item).orElse(null);
+        //get latest order
+        Order order = orderRepository.findLatestOrderByItem(item).orElse(null);
+
         Payment payment = null;
         if(order!=null)
             payment = paymentRepository.findByOrder(order);

@@ -51,11 +51,10 @@ public class MyPageService {
     @Transactional
     public ApiResponse<?> getMyOrder(){
         User user = authUtils.getUser();
-        Integer totalCount = orderService.getMyOrderCount(user);
         List<MyOrder> orderProductList = orderService.getMyOrderList(user);
 
         return ApiResponse.onSuccess(Success.GET_MY_ORDER_LIST_SUCCESS, MyOrderResponseDto.builder()
-                .totalCount(totalCount)
+                .totalCount(orderProductList.size())
                 .orderProductList(orderProductList)
                 .build());
     }

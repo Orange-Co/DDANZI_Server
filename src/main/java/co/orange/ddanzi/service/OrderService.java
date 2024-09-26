@@ -10,6 +10,7 @@ import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.OptionDetail;
 import co.orange.ddanzi.domain.product.Product;
+import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.mypage.MyOrder;
@@ -18,6 +19,7 @@ import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
+import co.orange.ddanzi.service.common.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -175,6 +177,7 @@ public class OrderService {
      */
     @Transactional
     public void checkOrderPlacedOrder(){
+        //입금 후 1일(24시간)이 지났는데, 판매확정이 되지 않았을 시 - 거래 취소
         LocalDateTime oneDayLimit = LocalDateTime.now().minusMinutes(1);
         List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
         for(Order order : orderPlaceOrders){
@@ -271,15 +274,9 @@ public class OrderService {
                 .build();
     }
 
-    public Integer getMyOrderCount(User user){
-        return orderRepository.countAllByBuyer(user);
-    }
-
     public List<MyOrder> getMyOrderList(User user){
         List<Order> orderList = orderRepository.findByBuyerAndStatus(user);
-
         List<MyOrder> orderProductList = new ArrayList<>();
-
         for (Order order : orderList) {
             Product product = order.getItem().getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElse(null);

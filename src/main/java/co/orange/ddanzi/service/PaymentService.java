@@ -17,6 +17,7 @@ import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
+import co.orange.ddanzi.service.common.HistoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -102,6 +103,7 @@ public class PaymentService {
             else{
                 log.info("새로운 제품을 할당하였습니다.");
                 order.updateItem(newItem);
+                item = order.getItem();
             }
         }
         log.info("End payment");

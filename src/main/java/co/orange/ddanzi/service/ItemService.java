@@ -11,7 +11,6 @@ import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
-import co.orange.ddanzi.domain.user.InterestProduct;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.common.AddressSeparateInfo;
 import co.orange.ddanzi.dto.item.*;
@@ -21,7 +20,9 @@ import co.orange.ddanzi.common.response.Success;
 import co.orange.ddanzi.dto.mypage.MyItem;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
-import com.google.protobuf.Api;
+import co.orange.ddanzi.service.common.AddressService;
+import co.orange.ddanzi.service.common.GcsService;
+import co.orange.ddanzi.service.common.TermService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 @Slf4j
@@ -105,7 +105,9 @@ public class ItemService {
         if(!item.getSeller().equals(user))
             return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
-        Order order = orderRepository.findByItem(item).orElse(null);
+        //get latest order
+        Order order = orderRepository.findByItemAnAndStatus(item).orElse(null);
+
         Payment payment = null;
         if(order!=null)
             payment = paymentRepository.findByOrder(order);
@@ -181,10 +183,6 @@ public class ItemService {
 
         }
         return selectedOptionList;
-    }
-
-    public Integer getMyItemCount(User user){
-        return itemRepository.countAllBySeller(user);
     }
 
     public List<MyItem> getMyItemList(User user){

@@ -1,4 +1,4 @@
-package co.orange.ddanzi.service;
+package co.orange.ddanzi.service.common;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.domain.order.Order;
@@ -13,7 +13,7 @@ import co.orange.ddanzi.global.firebase.FirebaseUtils;
 import co.orange.ddanzi.repository.OrderRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
 import co.orange.ddanzi.repository.UserRepository;
-import co.orange.ddanzi.service.auth.AuthService;
+import co.orange.ddanzi.service.AlarmService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import jakarta.transaction.Transactional;

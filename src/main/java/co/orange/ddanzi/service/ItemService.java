@@ -106,7 +106,7 @@ public class ItemService {
             return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
         //get latest order
-        Order order = orderRepository.findLatestOrderByItem(item).orElse(null);
+        Order order = orderRepository.findByItemAnAndStatus(item).orElse(null);
 
         Payment payment = null;
         if(order!=null)
@@ -183,10 +183,6 @@ public class ItemService {
 
         }
         return selectedOptionList;
-    }
-
-    public Integer getMyItemCount(User user){
-        return itemRepository.countAllBySeller(user);
     }
 
     public List<MyItem> getMyItemList(User user){

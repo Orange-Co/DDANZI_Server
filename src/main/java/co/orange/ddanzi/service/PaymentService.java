@@ -103,6 +103,7 @@ public class PaymentService {
             else{
                 log.info("새로운 제품을 할당하였습니다.");
                 order.updateItem(newItem);
+                item = order.getItem();
             }
         }
         log.info("End payment");

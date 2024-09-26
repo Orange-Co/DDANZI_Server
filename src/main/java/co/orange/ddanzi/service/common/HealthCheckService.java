@@ -1,4 +1,4 @@
-package co.orange.ddanzi.service;
+package co.orange.ddanzi.service.common;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.response.ApiResponse;

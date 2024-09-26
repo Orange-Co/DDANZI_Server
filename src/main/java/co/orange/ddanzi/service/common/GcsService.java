@@ -1,4 +1,4 @@
-package co.orange.ddanzi.service;
+package co.orange.ddanzi.service.common;
 
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.HttpMethod;

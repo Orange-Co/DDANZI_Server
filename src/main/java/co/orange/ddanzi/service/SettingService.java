@@ -10,6 +10,7 @@ import co.orange.ddanzi.repository.AccountRepository;
 import co.orange.ddanzi.repository.AddressRepository;
 import co.orange.ddanzi.repository.BankRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
+import co.orange.ddanzi.service.common.AddressService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

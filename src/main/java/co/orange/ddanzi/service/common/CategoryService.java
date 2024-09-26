@@ -1,4 +1,4 @@
-package co.orange.ddanzi.service;
+package co.orange.ddanzi.service.common;
 
 import co.orange.ddanzi.domain.product.Category;
 import co.orange.ddanzi.domain.product.DefaultDiscount;

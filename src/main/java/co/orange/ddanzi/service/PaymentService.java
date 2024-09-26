@@ -17,6 +17,7 @@ import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
+import co.orange.ddanzi.service.common.HistoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

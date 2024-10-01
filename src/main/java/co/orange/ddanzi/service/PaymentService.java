@@ -14,9 +14,12 @@ import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
+import co.orange.ddanzi.service.common.FcmService;
+import co.orange.ddanzi.service.common.HistoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +47,7 @@ public class PaymentService {
 
     private final OrderService orderService;
     private final HistoryService historyService;
+    private final FcmService fcmService;
 
     @Value("${ddanzi.portone.key}")
     private String key;
@@ -93,6 +97,7 @@ public class PaymentService {
                     refundPayment(buyer, order, payment);
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리");
+                    fcmService.sendMessageToAdmin(FcmCase.C3);
                     return ApiResponse.onFailure(Error.NO_ITEM_ON_SALE, Map.of("orderId", order.getId()));
                 }catch (Exception e){
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
@@ -102,6 +107,7 @@ public class PaymentService {
             else{
                 log.info("새로운 제품을 할당하였습니다.");
                 order.updateItem(newItem);
+                item = order.getItem();
             }
         }
         log.info("End payment");
@@ -123,6 +129,7 @@ public class PaymentService {
             log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
+            fcmService.sendMessageToAdmin(FcmCase.C2);
         }
 
         historyService.createPaymentHistory(buyer, payment);

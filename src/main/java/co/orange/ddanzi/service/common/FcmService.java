@@ -1,4 +1,4 @@
-package co.orange.ddanzi.service;
+package co.orange.ddanzi.service.common;
 
 import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.domain.order.Order;
@@ -13,7 +13,7 @@ import co.orange.ddanzi.global.firebase.FirebaseUtils;
 import co.orange.ddanzi.repository.OrderRepository;
 import co.orange.ddanzi.repository.PushAlarmRepository;
 import co.orange.ddanzi.repository.UserRepository;
-import co.orange.ddanzi.service.auth.AuthService;
+import co.orange.ddanzi.service.AlarmService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import jakarta.transaction.Transactional;
@@ -84,4 +84,19 @@ public class FcmService {
         alarmService.createAlarm(user, fcmCase, order);
         return true;
     }
+
+    public boolean sendMessageToAdmin(FcmCase fcmCase) {
+        log.info("Sending FCM message to admin: {}", fcmCase.getTitle());
+        User sj = userRepository.findByEmail("tmdwns0527@naver.com").orElse(null);
+        User jh = userRepository.findByEmail("yaksh203@naver.com").orElse(null);
+        User sh = userRepository.findByEmail("mam07065@naver.com").orElse(null);
+        User ys = userRepository.findByEmail("kyssa@daum.net").orElse(null);
+
+        sendMessageToUser(sj, fcmCase, null);
+        sendMessageToUser(jh, fcmCase, null);
+        sendMessageToUser(sh, fcmCase, null);
+        sendMessageToUser(ys, fcmCase, null);
+        return true;
+    }
+
 }

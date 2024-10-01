@@ -84,4 +84,19 @@ public class FcmService {
         alarmService.createAlarm(user, fcmCase, order);
         return true;
     }
+
+    public boolean sendMessageToAdmin(FcmCase fcmCase) {
+        log.info("Sending FCM message to admin: {}", fcmCase.getTitle());
+        User sj = userRepository.findByEmail("tmdwns0527@naver.com").orElse(null);
+        User jh = userRepository.findByEmail("yaksh203@naver.com").orElse(null);
+        User sh = userRepository.findByEmail("mam07065@naver.com").orElse(null);
+        User ys = userRepository.findByEmail("kyssa@daum.net").orElse(null);
+
+        sendMessageToUser(sj, fcmCase, null);
+        sendMessageToUser(jh, fcmCase, null);
+        sendMessageToUser(sh, fcmCase, null);
+        sendMessageToUser(ys, fcmCase, null);
+        return true;
+    }
+
 }

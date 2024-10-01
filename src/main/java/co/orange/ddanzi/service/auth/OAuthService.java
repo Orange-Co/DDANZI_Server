@@ -1,6 +1,7 @@
 package co.orange.ddanzi.service.auth;
 
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
@@ -8,6 +9,7 @@ import co.orange.ddanzi.dto.oauth.AppleIdTokenPayload;
 import co.orange.ddanzi.dto.oauth.AppleProperties;
 import co.orange.ddanzi.dto.oauth.AppleSocialTokenInfoResponse;
 import co.orange.ddanzi.repository.UserRepository;
+import co.orange.ddanzi.service.common.FcmService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,6 +55,7 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final AppleProperties appleProperties;
+    private final FcmService fcmService;
 
     /**
      * KAKAO LOGIN
@@ -66,6 +69,7 @@ public class OAuthService {
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null){
+            fcmService.sendMessageToAdmin(FcmCase.C1);
             return kakaoSignUp(email);
         }
         return user;

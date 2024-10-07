@@ -175,10 +175,9 @@ public class PaymentService {
         headers.set("Authorization", "PortOne "+ key);
 
         RefundRequestDto requestDto = RefundRequestDto.builder()
-                .storeId(storeId)
                 .amount(payment.getTotalPrice())
                 .taxFreeAmount(payment.getTotalPrice())
-                .reason("현재 남은 재고가 없어 고객에게 결제 금액 환불합니다. ")
+                .reason("현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.")
                 .build();
 
         HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);

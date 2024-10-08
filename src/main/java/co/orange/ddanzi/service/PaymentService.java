@@ -86,16 +86,15 @@ public class PaymentService {
             return ApiResponse.onFailure(Error.PAYMENT_CANNOT_CHANGE, null);
         }
 
-        if(item.getStatus().equals(ItemStatus.IN_TRANSACTION)){
-            log.info("해당 제품은 이미 결제 되어 새로운 제품을 탐색합니다.");
+        if(item.getStatus().equals(ItemStatus.IN_TRANSACTION) || item.getStatus().equals(ItemStatus.DELETED)){
+            log.info("해당 제품은 거래불가능하여 새로운 제품을 탐색합니다.");
             Item newItem = itemRepository.findNearestExpiryItem(product).orElse(null);
             if(newItem == null){
                 log.info("환불을 진행합니다.");
                 try {
-                    refundPayment(buyer, order);
+                    refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.");
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
-                    historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리");
-                    fcmService.sendMessageToAdmin(FcmCase.C3);
+                    historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리 성공");
                     return ApiResponse.onFailure(Error.NO_ITEM_ON_SALE, Map.of("orderId", order.getId()));
                 }catch (Exception e){
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
@@ -146,7 +145,7 @@ public class PaymentService {
         User buyer = authUtils.getUser();
         Order order = orderService.getOrderRecord(requestDto.getOrderId());
         Payment payment = paymentRepository.findByOrder(order);
-        refundPayment(buyer, order);
+        refundPayment(buyer, order, "테스트용 환불입니다.");
         return ApiResponse.onSuccess(Success.SUCCESS, true);
     }
 
@@ -181,7 +180,7 @@ public class PaymentService {
         return response.getBody().getResponse().getAccess_token();
     }
 
-    public void refundPayment(User user, Order order){
+    public void refundPayment(User user, Order order, String reason){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
         String baseUrl = "https://api.iamport.kr/payments/cancel";
@@ -196,7 +195,7 @@ public class PaymentService {
 
         RefundRequestDto requestDto = RefundRequestDto.builder()
                 .merchant_uid(order.getId())
-                .reason("현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.")
+                .reason(reason)
                 .build();
 
         HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);
@@ -205,6 +204,7 @@ public class PaymentService {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.postForObject(url, entity, String.class);
         log.info("결제 취소 api 호출");
+        fcmService.sendMessageToAdmin(FcmCase.C3);
     }
 
 }

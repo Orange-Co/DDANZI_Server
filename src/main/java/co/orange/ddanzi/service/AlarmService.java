@@ -45,8 +45,8 @@ public class AlarmService {
                     .content(alarmCase.getBody())
                     .time(createAlarmTime(alarm.getCreatedAt()))
                     .isChecked(alarm.getIsChecked())
-                    .orderId(order.getId())
-                    .itemId(order.getItem().getId())
+                    .orderId(order==null? null:order.getId())
+                    .itemId(order==null? null: order.getItem().getId())
                     .build();
             myAlarmList.add(myAlarm);
         }

@@ -170,11 +170,6 @@ public class OrderService {
         return orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException());
     }
 
-    /**
-     * 환불 API 붙이기!!!!!!
-     *
-     *
-     */
     @Transactional
     public void checkOrderPlacedOrder(){
         //입금 후 1일(24시간)이 지났는데, 판매확정이 되지 않았을 시 - 거래 취소
@@ -183,6 +178,7 @@ public class OrderService {
         for(Order order : orderPlaceOrders){
             fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
+            paymentService.refundPayment(order.getBuyer(), order, "고객이 판매확정을 하지 않아 거래가 취소되어 결제 금액을 환불합니다.");
             order.updateStatus(OrderStatus.CANCELLED);
         }
     }

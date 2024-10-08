@@ -18,7 +18,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findByBuyerAndStatus(User user);
 
     @Query("SELECT o FROM Order o WHERE o.item = :item AND o.status <> 'ORDER_PENDING'")
-    Optional<Order> findByItemAnAndStatus(@Param("item") Item item);
+    Optional<Order> findByItemAndStatus(@Param("item") Item item);
 
     @Query("SELECT o FROM Order o WHERE o.status = :orderStatus AND o.updatedAt <= :dateTime")
     List<Order> findOverLimitTimeOrders(OrderStatus orderStatus, LocalDateTime dateTime);

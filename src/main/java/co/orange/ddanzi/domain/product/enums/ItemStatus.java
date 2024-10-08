@@ -7,7 +7,8 @@ public enum ItemStatus {
     ON_SALE("판매중"),
     IN_TRANSACTION("거래중"),
     EXPIRED("만료됨"),
-    CLOSED("거래완료")
+    CLOSED("거래완료"),
+    DELETED("삭제됨")
     ;
 
     private final String itemStatus;

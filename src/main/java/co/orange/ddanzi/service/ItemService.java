@@ -7,11 +7,13 @@ import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.OrderOptionDetail;
 import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
+import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.common.AddressSeparateInfo;
 import co.orange.ddanzi.dto.item.*;
 import co.orange.ddanzi.common.error.Error;
@@ -22,6 +24,7 @@ import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import co.orange.ddanzi.service.common.AddressService;
 import co.orange.ddanzi.service.common.GcsService;
+import co.orange.ddanzi.service.common.HistoryService;
 import co.orange.ddanzi.service.common.TermService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -48,14 +51,13 @@ public class ItemService {
     private final OrderOptionDetailRepository orderOptionDetailRepository;
     private final InterestProductRepository interestProductRepository;
 
-    @Autowired
-    GcsService gcsService;
-    @Autowired
-    TermService termService;
-    @Autowired
-    AddressService addressService;
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private final GcsService gcsService;
+    private final TermService termService;
+    private final AddressService addressService;
+    private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
+    private final HistoryService historyService;
+
 
     @Transactional
     public ApiResponse<?> createSignedUrl(String fileName){
@@ -106,7 +108,7 @@ public class ItemService {
             return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
         //get latest order
-        Order order = orderRepository.findByItemAnAndStatus(item).orElse(null);
+        Order order = orderRepository.findByItemAndStatus(item).orElse(null);
 
         Payment payment = null;
         if(order!=null)
@@ -132,6 +134,37 @@ public class ItemService {
         return ApiResponse.onSuccess(Success.GET_ITEM_PRODUCT_SUCCESS, responseDto);
     }
 
+    @Transactional
+    public ApiResponse<?> deleteItem(String itemId){
+        User user = authUtils.getUser();
+        Item item = itemRepository.findById(itemId).orElseThrow(ItemNotFoundException::new);
+        if(!item.getSeller().equals(user))
+            return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
+
+        Order order = orderRepository.findByItemAndStatus(item).orElse(null);
+        if(order==null){
+            log.info("거래 취소 중 - 거래중이지 않아 바로 제품을 삭제합니다.");
+            item.updateStatus(ItemStatus.DELETED);
+        }
+        else{
+            log.info("거래 취소 중 - 거래중인 상품이 있습니다. 대안을 탐색합니다.");
+            Item newItem = itemRepository.findNearestExpiryItem(item.getProduct()).orElse(null);
+            if(newItem == null) {
+                log.info("환불을 진행합니다.");
+                Payment payment  = paymentRepository.findByOrder(order);
+                User buyer = order.getBuyer();
+                try {
+                    paymentService.refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.");
+                    payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
+                    historyService.createPaymentHistoryWithError(buyer, payment, "재퓸 삭제- 환불 처리 성공");
+                }catch (Exception e){
+                    historyService.createPaymentHistoryWithError(buyer, payment, "제품 삭제 - 환불 처리 실패");
+                    return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("orderId", order.getId()));
+                }
+            }
+        }
+        return ApiResponse.onSuccess(Success.DELETE_ITEM_SUCCESS, true);
+    }
 
     @Transactional
     public ApiResponse<?> getAddressAndOption(String orderId){

@@ -48,6 +48,11 @@ public class ItemController {
         return itemService.getItem(id);
     }
 
+    @DeleteMapping("/{id}")
+    ApiResponse<?> deleteItem(@PathVariable("id") String id) {
+        return itemService.deleteItem(id);
+    }
+
     @GetMapping("/order/{id}")
     ApiResponse<?> getAddressAndOption(@PathVariable("id") String id) {
         return itemService.getAddressAndOption(id);

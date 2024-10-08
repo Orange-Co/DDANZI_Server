@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class RefundRequestDto {
-    private Integer amount;
-    private Integer taxFreeAmount;
+    private String merchant_uid;
     private String reason;
 }

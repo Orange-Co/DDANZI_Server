@@ -24,9 +24,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -49,10 +47,10 @@ public class PaymentService {
     private final HistoryService historyService;
     private final FcmService fcmService;
 
-    @Value("${ddanzi.portone.key}")
-    private String key;
-    @Value("${ddanzi.portone.store-id}")
-    private String storeId;
+    @Value("${ddanzi.portone.access-key}")
+    private String accessKey;
+    @Value("${ddanzi.portone.access-secret}")
+    private String accessSecret;
 
     @Transactional
     public ApiResponse<?> startPayment(CreatePaymentRequestDto requestDto){
@@ -94,7 +92,7 @@ public class PaymentService {
             if(newItem == null){
                 log.info("환불을 진행합니다.");
                 try {
-                    refundPayment(buyer, order, payment);
+                    refundPayment(buyer, order);
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리");
                     fcmService.sendMessageToAdmin(FcmCase.C3);
@@ -148,7 +146,7 @@ public class PaymentService {
         User buyer = authUtils.getUser();
         Order order = orderService.getOrderRecord(requestDto.getOrderId());
         Payment payment = paymentRepository.findByOrder(order);
-        refundPayment(buyer, order, payment);
+        refundPayment(buyer, order);
         return ApiResponse.onSuccess(Success.SUCCESS, true);
     }
 
@@ -161,22 +159,43 @@ public class PaymentService {
         return payment.getOrder().getBuyer().equals(user) && payment.getPayStatus().equals(PayStatus.PENDING);
     }
 
-    public void refundPayment(User user, Order order, Payment payment){
+    public String getPortOneAccessToken(){
+        String baseUrl = "https://api.iamport.kr/users/getToken";
+        String url = UriComponentsBuilder.fromUriString(baseUrl)
+                .toUriString();
+        log.info("포트원 Access key를 받아오는 url 생성, url-> {}", url);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        PortOneTokenRequestDto requestBody = PortOneTokenRequestDto.builder()
+                .impKey(accessKey)
+                .impSecret(accessSecret)
+                .build();
+
+        HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<PortOneTokenResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PortOneTokenResponseDto.class);
+        log.info("포트원 Access key Get 성공");
+        return response.getBody().getResponse().getAccess_token();
+    }
+
+    public void refundPayment(User user, Order order){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
-        String baseUrl = "https://api.portone.io/payments/{paymentId}/cancel";
+        String baseUrl = "https://api.iamport.kr/payments/cancel";
         String url = UriComponentsBuilder.fromUriString(baseUrl)
-                .buildAndExpand(order.getId())
                 .toUriString();
         log.info("결제 취소 url 생성, url-> {}", url);
 
+        String key = getPortOneAccessToken();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "PortOne "+ key);
+        headers.set("Authorization", key);
 
         RefundRequestDto requestDto = RefundRequestDto.builder()
-                .amount(payment.getTotalPrice())
-                .taxFreeAmount(payment.getTotalPrice())
+                .merchant_uid(order.getId())
                 .reason("현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.")
                 .build();
 

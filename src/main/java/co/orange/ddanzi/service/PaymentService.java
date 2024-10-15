@@ -14,7 +14,6 @@ import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
@@ -126,7 +125,7 @@ public class PaymentService {
             log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
-            fcmService.sendMessageToAdmin(FcmCase.C2);
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 구매실행", "결제가 실행되었습니다. orderId:" + order.getId());
         }
 
         historyService.createPaymentHistory(buyer, payment);
@@ -206,10 +205,10 @@ public class PaymentService {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.postForObject(url, entity, String.class);
             log.info("결제 취소 api 호출");
-            fcmService.sendMessageToAdmin(FcmCase.C3);
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불실행", "중복 결제로 인해 환불되었습니다. orderId:" + order.getId());
         }catch (Exception e){
             log.info("환불 실패");
-            fcmService.sendMessageToAdmin(FcmCase.C5);
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불 실패", "환불에 실패했습니다. orderId:" + order.getId());
         }
 
     }

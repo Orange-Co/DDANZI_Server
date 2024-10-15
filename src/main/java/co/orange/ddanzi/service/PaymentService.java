@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -176,10 +178,18 @@ public class PaymentService {
         HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        log.info("포트원 Access key 요청 생성");
-        ResponseEntity<PortOneTokenResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PortOneTokenResponseDto.class);
-        log.info("포트원 Access key Get 성공");
-        return response.getBody().getResponse().getAccess_token();
+        try {
+            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PortOneTokenResponseDto.class);
+            log.info("포트원 Access key Get 성공");
+            return response.getBody().getResponse().getAccess_token();
+        } catch (HttpClientErrorException e) {
+            log.error("HTTP 오류 발생: 상태 코드 {}, 응답 본문 {}", e.getStatusCode(), e.getResponseBodyAsString());
+        } catch (RestClientException e) {
+            log.error("REST 클라이언트 오류 발생: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("기타 오류 발생: {}", e.getMessage());
+        }
+        return null;
     }
 
     public boolean refundPayment(User user, Order order, String reason){

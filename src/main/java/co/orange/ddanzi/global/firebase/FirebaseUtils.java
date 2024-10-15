@@ -29,6 +29,20 @@ public class FirebaseUtils {
         }
     }
 
+    public String sendAdminMessage(String fcmToken,  String title, String body) {
+        try {
+            log.info("관리자 Sending FCM message: {}", title);
+            return FirebaseMessaging.getInstance().send(makeAdminMessage(fcmToken , title, body));
+        } catch (FirebaseMessagingException e) {
+            log.error("관리자 FirebaseMessagingException occurred: {}", e.getMessage());
+            return  "관리자 FCM 메시지 전송 실패: " + e.getMessage();
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return e.getMessage();
+        }
+    }
+
+
     public Message makeMessage(String fcmSendDto, FcmCase fcmCase) {
         Notification notification = Notification
                 .builder()
@@ -43,6 +57,22 @@ public class FirebaseUtils {
                 .setToken(fcmSendDto)
                 .build();
     }
+
+    public Message makeAdminMessage(String fcmSendDto, String title, String body) {
+        Notification notification = Notification
+                .builder()
+                .setTitle(title)
+                .setBody(body)
+                .build();
+        return Message
+                .builder()
+                .setNotification(notification)
+                .putData("title", title)
+                .putData("body",body)
+                .setToken(fcmSendDto)
+                .build();
+    }
+
 
     public MulticastMessage makeMessages(List<String> targetTokens, String title, String body) {
         Notification notification = Notification.builder()

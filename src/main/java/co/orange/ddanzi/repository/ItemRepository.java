@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, String> {
-    List<Item> findAllBySeller(User user);
+    @Query("SELECT i FROM Item i WHERE i.seller = :user AND i.status <> 'DELETED'")
+    List<Item> findAllBySellerAndNotDeleted(User user);
 
-    Integer countAllBySeller(User user);
 
     @Query("SELECT MAX(CAST(RIGHT(i.id, 2) AS integer)) FROM Item i WHERE i.product = :product")
     Integer findMaxSequenceNumberByProduct(@Param("product") Product product);

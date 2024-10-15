@@ -85,18 +85,27 @@ public class FcmService {
         return true;
     }
 
-    public boolean sendMessageToAdmin(FcmCase fcmCase) {
-        log.info("Sending FCM message to admin: {}", fcmCase.getTitle());
+    public boolean sendMessageToAdmin(User user, String title, String body) {
+        PushAlarm pushAlarm = pushAlarmRepository.findByUser(user).orElse(null);
+        if(pushAlarm == null)
+            return false;
+        String fcmToken = pushAlarm.getFcmToken();
+        firebaseUtils.sendAdminMessage(fcmToken, title, body);
+        alarmService.createAlarm(user, FcmCase.C1, null);
+        return true;
+    }
+
+    public boolean sendMessageToAdmins(String title, String body) {
+        log.info("Sending FCM message to admins: {}", title);
         User sj = userRepository.findByEmail("tmdwns0527@naver.com").orElse(null);
         User jh = userRepository.findByEmail("yaksh203@naver.com").orElse(null);
         User sh = userRepository.findByEmail("mam07065@naver.com").orElse(null);
         User ys = userRepository.findByEmail("kyssa@daum.net").orElse(null);
 
-        sendMessageToUser(sj, fcmCase, null);
-        sendMessageToUser(jh, fcmCase, null);
-        sendMessageToUser(sh, fcmCase, null);
-        sendMessageToUser(ys, fcmCase, null);
+        sendMessageToAdmin(sj, title, body);
+        sendMessageToAdmin(jh, title, body);
+        sendMessageToAdmin(sh, title, body);
+        sendMessageToAdmin(ys, title, body);
         return true;
     }
-
 }

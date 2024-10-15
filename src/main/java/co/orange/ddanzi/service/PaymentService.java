@@ -14,7 +14,6 @@ import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.payment.*;
 import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
@@ -126,7 +125,7 @@ public class PaymentService {
             log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
-            fcmService.sendMessageToAdmin(FcmCase.C2);
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 구매실행", "결제가 실행되었습니다. orderId:" + order.getId());
         }
 
         historyService.createPaymentHistory(buyer, payment);
@@ -168,8 +167,8 @@ public class PaymentService {
         headers.set("Content-Type", "application/json");
 
         PortOneTokenRequestDto requestBody = PortOneTokenRequestDto.builder()
-                .impKey(accessKey)
-                .impSecret(accessSecret)
+                .imp_key(accessKey)
+                .imp_secret(accessSecret)
                 .build();
 
         HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
@@ -183,28 +182,35 @@ public class PaymentService {
     public void refundPayment(User user, Order order, String reason){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
-        String baseUrl = "https://api.iamport.kr/payments/cancel";
-        String url = UriComponentsBuilder.fromUriString(baseUrl)
-                .toUriString();
-        log.info("결제 취소 url 생성, url-> {}", url);
 
-        String key = getPortOneAccessToken();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", key);
+        try{
+            String baseUrl = "https://api.iamport.kr/payments/cancel";
+            String url = UriComponentsBuilder.fromUriString(baseUrl)
+                    .toUriString();
+            log.info("결제 취소 url 생성, url-> {}", url);
 
-        RefundRequestDto requestDto = RefundRequestDto.builder()
-                .merchant_uid(order.getId())
-                .reason(reason)
-                .build();
+            String key = getPortOneAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", key);
 
-        HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);
-        log.info("헤더 및 request body 생성");
+            RefundRequestDto requestDto = RefundRequestDto.builder()
+                    .merchant_uid(order.getId())
+                    .reason(reason)
+                    .build();
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.postForObject(url, entity, String.class);
-        log.info("결제 취소 api 호출");
-        fcmService.sendMessageToAdmin(FcmCase.C3);
+            HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);
+            log.info("헤더 및 request body 생성");
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.postForObject(url, entity, String.class);
+            log.info("결제 취소 api 호출");
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불실행", "중복 결제로 인해 환불되었습니다. orderId:" + order.getId());
+        }catch (Exception e){
+            log.info("환불 실패");
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불 실패", "환불에 실패했습니다. orderId:" + order.getId());
+        }
+
     }
 
 }

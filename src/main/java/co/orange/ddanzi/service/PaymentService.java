@@ -176,10 +176,11 @@ public class PaymentService {
                 .build();
 
         HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
-
+        log.info("Access Key: {}", accessKey); // 확인 용도
+        log.info("Access Secret: {}", accessSecret);
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PortOneTokenResponseDto.class);
+            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, entity, PortOneTokenResponseDto.class);
             log.info("포트원 Access key Get 성공");
             return response.getBody().getResponse().getAccess_token();
         } catch (HttpClientErrorException e) {

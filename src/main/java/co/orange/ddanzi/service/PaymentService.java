@@ -19,6 +19,8 @@ import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import co.orange.ddanzi.service.common.FcmService;
 import co.orange.ddanzi.service.common.HistoryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -176,8 +178,11 @@ public class PaymentService {
                 .build();
 
         HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
-        log.info("Access Key: {}", accessKey); // 확인 용도
-        log.info("Access Secret: {}", accessSecret);
+        try {
+            log.info("Request Body: {}", new ObjectMapper().writeValueAsString(requestBody));
+        } catch (JsonProcessingException e) {
+            log.error("JSON 직렬화 오류: {}", e.getMessage());
+        }
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, entity, PortOneTokenResponseDto.class);

@@ -33,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -172,12 +173,12 @@ public class PaymentService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        PortOneTokenRequestDto requestBody = PortOneTokenRequestDto.builder()
-                .imp_key(accessKey)
-                .imp_secret(accessSecret)
-                .build();
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("imp_key", accessKey);
+        requestBody.put("imp_secret", accessSecret);
 
-        HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
+
         try {
             log.info("Request Body: {}", new ObjectMapper().writeValueAsString(requestBody));
         } catch (JsonProcessingException e) {

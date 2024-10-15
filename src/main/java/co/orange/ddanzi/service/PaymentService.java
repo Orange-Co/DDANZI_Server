@@ -174,6 +174,7 @@ public class PaymentService {
         HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
 
         RestTemplate restTemplate = new RestTemplate();
+        log.info("포트원 Access key 요청 생성");
         ResponseEntity<PortOneTokenResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PortOneTokenResponseDto.class);
         log.info("포트원 Access key Get 성공");
         return response.getBody().getResponse().getAccess_token();
@@ -182,7 +183,6 @@ public class PaymentService {
     public void refundPayment(User user, Order order, String reason){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
-
         try{
             String baseUrl = "https://api.iamport.kr/payments/cancel";
             String url = UriComponentsBuilder.fromUriString(baseUrl)

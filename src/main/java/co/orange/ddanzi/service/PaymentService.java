@@ -168,8 +168,8 @@ public class PaymentService {
         headers.set("Content-Type", "application/json");
 
         PortOneTokenRequestDto requestBody = PortOneTokenRequestDto.builder()
-                .impKey(accessKey)
-                .impSecret(accessSecret)
+                .imp_key(accessKey)
+                .imp_secret(accessSecret)
                 .build();
 
         HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
@@ -183,28 +183,35 @@ public class PaymentService {
     public void refundPayment(User user, Order order, String reason){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
-        String baseUrl = "https://api.iamport.kr/payments/cancel";
-        String url = UriComponentsBuilder.fromUriString(baseUrl)
-                .toUriString();
-        log.info("결제 취소 url 생성, url-> {}", url);
 
-        String key = getPortOneAccessToken();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", key);
+        try{
+            String baseUrl = "https://api.iamport.kr/payments/cancel";
+            String url = UriComponentsBuilder.fromUriString(baseUrl)
+                    .toUriString();
+            log.info("결제 취소 url 생성, url-> {}", url);
 
-        RefundRequestDto requestDto = RefundRequestDto.builder()
-                .merchant_uid(order.getId())
-                .reason(reason)
-                .build();
+            String key = getPortOneAccessToken();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", key);
 
-        HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);
-        log.info("헤더 및 request body 생성");
+            RefundRequestDto requestDto = RefundRequestDto.builder()
+                    .merchant_uid(order.getId())
+                    .reason(reason)
+                    .build();
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.postForObject(url, entity, String.class);
-        log.info("결제 취소 api 호출");
-        fcmService.sendMessageToAdmin(FcmCase.C3);
+            HttpEntity<Object> entity = new HttpEntity<>(requestDto, headers);
+            log.info("헤더 및 request body 생성");
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.postForObject(url, entity, String.class);
+            log.info("결제 취소 api 호출");
+            fcmService.sendMessageToAdmin(FcmCase.C3);
+        }catch (Exception e){
+            log.info("환불 실패");
+            fcmService.sendMessageToAdmin(FcmCase.C5);
+        }
+
     }
 
 }

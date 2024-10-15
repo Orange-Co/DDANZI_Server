@@ -1,7 +1,6 @@
 package co.orange.ddanzi.service.auth;
 
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.domain.user.enums.LoginType;
 import co.orange.ddanzi.domain.user.enums.UserStatus;
 import co.orange.ddanzi.dto.auth.SigninRequestDto;
@@ -69,7 +68,7 @@ public class OAuthService {
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null){
-            fcmService.sendMessageToAdmin(FcmCase.C1);
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 카카오 회원가입", "새로운 유저가 등록되었습니다. 총 유저 수: " + userRepository.count());
             return kakaoSignUp(email);
         }
         return user;
@@ -132,6 +131,7 @@ public class OAuthService {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             log.info("애플 회원가입 시작");
+            fcmService.sendMessageToAdmins("⚠️관리자 알림: 애플 회원가입", "새로운 유저가 등록되었습니다. 총 유저 수: " + userRepository.count());
             return appleSignup(email);
         }
         return user;
@@ -178,21 +178,6 @@ public class OAuthService {
         return payload.getEmail();
     }
 
-//    private String generateClientSecret() {
-//
-//        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
-//
-//        return Jwts.builder()
-//                .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
-//                .setIssuer(appleProperties.getTeamId())
-//                .setAudience(appleProperties.getAudience())
-//                .setSubject(appleProperties.getClientId())
-//                .setExpiration(Date.from(expiration.atZone(ZoneId.systemDefault()).toInstant()))
-//                .setIssuedAt(new Date())
-//                .signWith(getPrivateKey(), SignatureAlgorithm.ES256)
-//                .compact();
-//    }
-
     public String createClientSecret() {
 
         JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(appleProperties.getKeyId()).build();
@@ -238,21 +223,6 @@ public class OAuthService {
 
         return content;
     }
-
-//    private PrivateKey getPrivateKey() {
-//        Security.addProvider(new  org.bouncycastle.jce.provider.BouncyCastleProvider());
-//        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-//
-//        try {
-//            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
-//
-//            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
-//            return converter.getPrivateKey(privateKeyInfo);
-//        } catch (Exception e) {
-//            throw new RuntimeException("Error converting private key from String", e);
-//        }
-//    }
-
 
     // TokenDecoder 메소드를 GetMemberInfoService 내부에 통합
     private <T> T decodePayload(String token, Class<T> targetClass) {

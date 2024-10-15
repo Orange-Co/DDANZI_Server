@@ -176,10 +176,10 @@ public class OrderService {
         LocalDateTime oneDayLimit = LocalDateTime.now().minusMinutes(1);
         List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
         for(Order order : orderPlaceOrders){
-            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
-            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
             paymentService.refundPayment(order.getBuyer(), order, "고객이 판매확정을 하지 않아 거래가 취소되어 결제 금액을 환불합니다.");
             order.updateStatus(OrderStatus.CANCELLED);
+            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
+            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
         }
     }
 

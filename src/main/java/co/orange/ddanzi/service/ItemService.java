@@ -138,31 +138,39 @@ public class ItemService {
     public ApiResponse<?> deleteItem(String itemId){
         User user = authUtils.getUser();
         Item item = itemRepository.findById(itemId).orElseThrow(ItemNotFoundException::new);
+
         if(!item.getSeller().equals(user))
             return ApiResponse.onFailure(Error.ITEM_UNAUTHORIZED_USER, null);
 
         Order order = orderRepository.findByItemAndStatus(item).orElse(null);
-        if(order==null){
-            log.info("거래 취소 중 - 거래중이지 않아 바로 제품을 삭제합니다.");
-            item.updateStatus(ItemStatus.DELETED);
-        }
-        else{
+        if(order!=null){
             log.info("거래 취소 중 - 거래중인 상품이 있습니다. 대안을 탐색합니다.");
             Item newItem = itemRepository.findNearestExpiryItem(item.getProduct()).orElse(null);
             if(newItem == null) {
-                log.info("환불을 진행합니다.");
+                log.info("대안이 없음 - 거래를 취소하고 환불을 진행합니다.");
                 Payment payment  = paymentRepository.findByOrder(order);
                 User buyer = order.getBuyer();
                 try {
                     paymentService.refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.");
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
-                    historyService.createPaymentHistoryWithError(buyer, payment, "재퓸 삭제- 환불 처리 성공");
+                    historyService.createPaymentHistoryWithError(buyer, payment, "제품 삭제- 환불 처리 성공");
                 }catch (Exception e){
+                    log.info("환불이 불가능하여 제품 삭제에 실패했습니다.");
                     historyService.createPaymentHistoryWithError(buyer, payment, "제품 삭제 - 환불 처리 실패");
-                    return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("orderId", order.getId()));
+                    return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("itemId", item.getId()));
                 }
             }
+            else{
+                log.info("대안이 있음 - 거래에 새로운 제품을 할당합니다.");
+                order.updateItem(newItem);
+            }
         }
+        log.info("제품을 삭제합니다.");
+        item.updateStatus(ItemStatus.DELETED);
+        log.info("재고를 감소시킵니다.");
+        Product product = item.getProduct();
+        product.updateStock(product.getStock() - 1);
+
         return ApiResponse.onSuccess(Success.DELETE_ITEM_SUCCESS, true);
     }
 
@@ -219,7 +227,7 @@ public class ItemService {
     }
 
     public List<MyItem> getMyItemList(User user){
-        List<Item> itemList = itemRepository.findAllBySeller(user);
+        List<Item> itemList = itemRepository.findAllBySellerAndNotDeleted(user);
         List<MyItem> myItemList = new ArrayList<>();
         for(Item item : itemList){
             Product product = item.getProduct();

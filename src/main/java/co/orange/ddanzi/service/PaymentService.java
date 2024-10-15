@@ -173,14 +173,15 @@ public class PaymentService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("imp_key", accessKey);
-        requestBody.put("imp_secret", accessSecret);
+        PortOneTokenRequestDto requestDto = PortOneTokenRequestDto.builder()
+                .imp_key(accessKey)
+                .imp_secret(accessSecret)
+                .build();
 
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
+        HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestDto, headers);
 
         try {
-            log.info("Request Body: {}", new ObjectMapper().writeValueAsString(requestBody));
+            log.info("Request Body: {}", new ObjectMapper().writeValueAsString(entity));
         } catch (JsonProcessingException e) {
             log.error("JSON 직렬화 오류: {}", e.getMessage());
         }

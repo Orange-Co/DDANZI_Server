@@ -90,12 +90,14 @@ public class PaymentService {
             Item newItem = itemRepository.findNearestExpiryItem(product).orElse(null);
             if(newItem == null){
                 log.info("환불을 진행합니다.");
-                try {
-                    refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.");
+                if(refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.")){
+                    fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불 성공", "중복 결제로 인해 환불되었습니다. orderId:" + order.getId());
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리 성공");
                     return ApiResponse.onFailure(Error.NO_ITEM_ON_SALE, Map.of("orderId", order.getId()));
-                }catch (Exception e){
+                }
+                else{
+                    fcmService.sendMessageToAdmins("‼️관리자 알림: 환불 실패", "중복 결제로 인한 환불에 실패하였습니다. orderId:" + order.getId());
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
                     return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("orderId", order.getId()));
                 }
@@ -180,7 +182,7 @@ public class PaymentService {
         return response.getBody().getResponse().getAccess_token();
     }
 
-    public void refundPayment(User user, Order order, String reason){
+    public boolean refundPayment(User user, Order order, String reason){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
         try{
@@ -205,10 +207,10 @@ public class PaymentService {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.postForObject(url, entity, String.class);
             log.info("결제 취소 api 호출");
-            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불실행", "중복 결제로 인해 환불되었습니다. orderId:" + order.getId());
+            return true;
         }catch (Exception e){
             log.info("환불 실패");
-            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불 실패", "환불에 실패했습니다. orderId:" + order.getId());
+            return false;
         }
 
     }

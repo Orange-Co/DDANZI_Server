@@ -176,10 +176,15 @@ public class OrderService {
         LocalDateTime oneDayLimit = LocalDateTime.now().minusDays(1);
         List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
         for(Order order : orderPlaceOrders){
-            paymentService.refundPayment(order.getBuyer(), order, "고객이 판매확정을 하지 않아 거래가 취소되어 결제 금액을 환불합니다.");
-            order.updateStatus(OrderStatus.CANCELLED);
-            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
-            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
+            if(paymentService.refundPayment(order.getBuyer(), order, "고객이 판매확정을 하지 않아 거래가 취소되어 결제 금액을 환불합니다.")){
+                fcmService.sendMessageToAdmins("⚠️ 관리자 알림: 환불 성공", "거래 취소로 인해 환불되었습니다. orderId:" + order.getId());
+                order.updateStatus(OrderStatus.CANCELLED);
+                fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
+                fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
+            }
+            else{
+                fcmService.sendMessageToAdmins("‼️관리자 알림: 환불 실패", "거래가 취소로 인한 환불에 실패하였습니다. orderId:" + order.getId());
+            }
         }
     }
 

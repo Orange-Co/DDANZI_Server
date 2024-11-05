@@ -178,16 +178,9 @@ public class PaymentService {
                 .imp_secret(accessSecret)
                 .build();
 
-        HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestDto, headers);
-
-        try {
-            log.info("Request Body: {}", new ObjectMapper().writeValueAsString(entity));
-        } catch (JsonProcessingException e) {
-            log.error("JSON 직렬화 오류: {}", e.getMessage());
-        }
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, entity, PortOneTokenResponseDto.class);
+            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, new HttpEntity<>(requestDto, headers), PortOneTokenResponseDto.class);
             log.info("포트원 Access key Get 성공");
             return response.getBody().getResponse().getAccess_token();
         } catch (HttpClientErrorException e) {

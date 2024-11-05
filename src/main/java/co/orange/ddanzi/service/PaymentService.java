@@ -50,6 +50,8 @@ public class PaymentService {
     private final OrderService orderService;
     private final HistoryService historyService;
     private final FcmService fcmService;
+    private final ProductService productService;
+    private final ItemService itemService;
 
     @Value("${ddanzi.portone.access-key}")
     private String accessKey;
@@ -132,6 +134,8 @@ public class PaymentService {
             log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
+            productService.updateClosestDueDate(product);
+            log.info("가장 가까운 마감일을 수정합 -> {}", product.getClosestDueDate());
             fcmService.sendMessageToAdmins("⚠️관리자 알림: 구매실행", "결제가 실행되었습니다. orderId:" + order.getId());
         }
 

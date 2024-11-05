@@ -30,6 +30,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Slf4j
@@ -54,6 +56,7 @@ public class ItemService {
     private final GcsService gcsService;
     private final TermService termService;
     private final AddressService addressService;
+    private final ProductService productService;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final HistoryService historyService;
@@ -87,8 +90,12 @@ public class ItemService {
 
         product.updateStock(product.getStock() + 1);
         log.info("상품의 재고 수량 업데이트 -> {}개",  product.getStock());
-        if(product.getClosestDueDate()==null || dueDate.isBefore(product.getClosestDueDate()))
+
+        if(product.getClosestDueDate()==null || dueDate.isBefore(product.getClosestDueDate())) {
             product.updateClosestDueDate(dueDate);
+            log.info("가장 가까운 마감일을 수정 -> {}", dueDate);
+
+        }
 
         SaveItemResponseDto responseDto = SaveItemResponseDto.builder()
                 .itemId(newItem.getId())
@@ -167,9 +174,14 @@ public class ItemService {
         }
         log.info("제품을 삭제합니다.");
         item.updateStatus(ItemStatus.DELETED);
-        log.info("재고를 감소시킵니다.");
+
         Product product = item.getProduct();
         product.updateStock(product.getStock() - 1);
+        log.info("재고를 감소시킴 -> {}개", product.getClosestDueDate());
+
+        productService.updateClosestDueDate(product);
+
+        log.info("가장 가까운 마감일을 수정합 -> {}", product.getClosestDueDate());
 
         return ApiResponse.onSuccess(Success.DELETE_ITEM_SUCCESS, true);
     }

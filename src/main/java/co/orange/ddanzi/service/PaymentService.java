@@ -19,16 +19,21 @@ import co.orange.ddanzi.global.jwt.AuthUtils;
 import co.orange.ddanzi.repository.*;
 import co.orange.ddanzi.service.common.FcmService;
 import co.orange.ddanzi.service.common.HistoryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -45,6 +50,8 @@ public class PaymentService {
     private final OrderService orderService;
     private final HistoryService historyService;
     private final FcmService fcmService;
+    private final ProductService productService;
+    private final ItemService itemService;
 
     @Value("${ddanzi.portone.access-key}")
     private String accessKey;
@@ -90,12 +97,14 @@ public class PaymentService {
             Item newItem = itemRepository.findNearestExpiryItem(product).orElse(null);
             if(newItem == null){
                 log.info("환불을 진행합니다.");
-                try {
-                    refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.");
+                if(refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.")){
+                    fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불 성공", "중복 결제로 인해 환불되었습니다. orderId:" + order.getId());
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음- 환불 처리 성공");
                     return ApiResponse.onFailure(Error.NO_ITEM_ON_SALE, Map.of("orderId", order.getId()));
-                }catch (Exception e){
+                }
+                else{
+                    fcmService.sendMessageToAdmins("‼️관리자 알림: 환불 실패", "중복 결제로 인한 환불에 실패하였습니다. orderId:" + order.getId());
                     historyService.createPaymentHistoryWithError(buyer, payment, "재고 없음 - 환불 처리 실패");
                     return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("orderId", order.getId()));
                 }
@@ -125,6 +134,8 @@ public class PaymentService {
             log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
+            productService.updateClosestDueDate(product);
+            log.info("가장 가까운 마감일을 수정합 -> {}", product.getClosestDueDate());
             fcmService.sendMessageToAdmins("⚠️관리자 알림: 구매실행", "결제가 실행되었습니다. orderId:" + order.getId());
         }
 
@@ -166,23 +177,29 @@ public class PaymentService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        PortOneTokenRequestDto requestBody = PortOneTokenRequestDto.builder()
+        PortOneTokenRequestDto requestDto = PortOneTokenRequestDto.builder()
                 .imp_key(accessKey)
                 .imp_secret(accessSecret)
                 .build();
 
-        HttpEntity<PortOneTokenRequestDto> entity = new HttpEntity<>(requestBody, headers);
-
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<PortOneTokenResponseDto> response = restTemplate.exchange(url, HttpMethod.POST, entity, PortOneTokenResponseDto.class);
-        log.info("포트원 Access key Get 성공");
-        return response.getBody().getResponse().getAccess_token();
+        try {
+            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, new HttpEntity<>(requestDto, headers), PortOneTokenResponseDto.class);
+            log.info("포트원 Access key Get 성공");
+            return response.getBody().getResponse().getAccess_token();
+        } catch (HttpClientErrorException e) {
+            log.error("HTTP 오류 발생: 상태 코드 {}, 응답 본문 {}", e.getStatusCode(), e.getResponseBodyAsString());
+        } catch (RestClientException e) {
+            log.error("REST 클라이언트 오류 발생: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("기타 오류 발생: {}", e.getMessage());
+        }
+        return null;
     }
 
-    public void refundPayment(User user, Order order, String reason){
+    public boolean refundPayment(User user, Order order, String reason){
         if(!user.equals(order.getBuyer()))
             throw new RuntimeException("결제자와 요청자가 다르므로 환불이 어렵습니다.");
-
         try{
             String baseUrl = "https://api.iamport.kr/payments/cancel";
             String url = UriComponentsBuilder.fromUriString(baseUrl)
@@ -205,10 +222,10 @@ public class PaymentService {
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.postForObject(url, entity, String.class);
             log.info("결제 취소 api 호출");
-            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불실행", "중복 결제로 인해 환불되었습니다. orderId:" + order.getId());
+            return true;
         }catch (Exception e){
             log.info("환불 실패");
-            fcmService.sendMessageToAdmins("⚠️관리자 알림: 환불 실패", "환불에 실패했습니다. orderId:" + order.getId());
+            return false;
         }
 
     }

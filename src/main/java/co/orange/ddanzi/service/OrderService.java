@@ -173,20 +173,25 @@ public class OrderService {
     @Transactional
     public void checkOrderPlacedOrder(){
         //입금 후 1일(24시간)이 지났는데, 판매확정이 되지 않았을 시 - 거래 취소
-        LocalDateTime oneDayLimit = LocalDateTime.now().minusMinutes(1);
+        LocalDateTime oneDayLimit = LocalDateTime.now().minusDays(1);
         List<Order> orderPlaceOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.ORDER_PLACE, oneDayLimit);
         for(Order order : orderPlaceOrders){
-            paymentService.refundPayment(order.getBuyer(), order, "고객이 판매확정을 하지 않아 거래가 취소되어 결제 금액을 환불합니다.");
-            order.updateStatus(OrderStatus.CANCELLED);
-            fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
-            fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
+            if(paymentService.refundPayment(order.getBuyer(), order, "고객이 판매확정을 하지 않아 거래가 취소되어 결제 금액을 환불합니다.")){
+                fcmService.sendMessageToAdmins("⚠️ 관리자 알림: 환불 성공", "거래 취소로 인해 환불되었습니다. orderId:" + order.getId());
+                order.updateStatus(OrderStatus.CANCELLED);
+                fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A2, order);
+                fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B1, order);
+            }
+            else{
+                fcmService.sendMessageToAdmins("‼️관리자 알림: 환불 실패", "거래가 취소로 인한 환불에 실패하였습니다. orderId:" + order.getId());
+            }
         }
     }
 
     @Transactional
     public void checkShippingOrder(){
         //판매확정 후 3일 (72시간)이 지났는데, 구매확정이 되지 않았을 시
-        LocalDateTime threeDayLimit = LocalDateTime.now().minusMinutes(3);
+        LocalDateTime threeDayLimit = LocalDateTime.now().minusDays(3);
         List<Order> shippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.SHIPPING, threeDayLimit);
         for(Order order : shippingOrders){
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B3, order);
@@ -197,7 +202,7 @@ public class OrderService {
     @Transactional
     public void checkDelayedShippingOrder(){
         //판매확정 후 6일 (144시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않았을 시
-        LocalDateTime sixDayLimit = LocalDateTime.now().minusMinutes(3);
+        LocalDateTime sixDayLimit = LocalDateTime.now().minusDays(3);
         List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.DELAYED_SHIPPING, sixDayLimit);
         for(Order order : delayedShippingOrders){
             fcmService.sendMessageToUser(order.getBuyer(), FcmCase.B4, order);
@@ -208,7 +213,7 @@ public class OrderService {
     @Transactional
     public void checkWarningOrder(){
         //판매확정 후 7일 (168시간)이 지났는데, 구매확정이 되지 않았고, 신고도 하지 않았을 시
-        LocalDateTime sevenDayLimit = LocalDateTime.now().minusMinutes(1);
+        LocalDateTime sevenDayLimit = LocalDateTime.now().minusDays(1);
         List<Order> delayedShippingOrders = orderRepository.findOverLimitTimeOrders(OrderStatus.WARNING, sevenDayLimit);
         for(Order order : delayedShippingOrders){
             fcmService.sendMessageToUser(order.getItem().getSeller(), FcmCase.A3, order);

@@ -177,7 +177,7 @@ public class ItemService {
 
         Product product = item.getProduct();
         product.updateStock(product.getStock() - 1);
-        log.info("재고를 감소시킴 -> {}개", product.getClosestDueDate());
+        log.info("재고를 감소시킴 -> {}개", product.getStock());
 
         productService.updateClosestDueDate(product);
 
@@ -249,7 +249,7 @@ public class ItemService {
                     .productId(product.getId())
                     .itemId(item.getId())
                     .productName(product.getName())
-                    .imgUrl(item.getImgUrl())
+                    .imgUrl(product.getImgUrl())
                     .originPrice(product.getOriginPrice())
                     .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
                     .isInterested(interestProductRepository.existsByIdUserAndIdProduct(user,product))

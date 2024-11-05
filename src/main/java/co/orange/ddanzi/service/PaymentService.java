@@ -51,7 +51,6 @@ public class PaymentService {
     private final HistoryService historyService;
     private final FcmService fcmService;
     private final ProductService productService;
-    private final ItemService itemService;
 
     @Value("${ddanzi.portone.access-key}")
     private String accessKey;

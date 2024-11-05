@@ -1,12 +1,11 @@
 package co.orange.ddanzi.service;
 
-import co.orange.ddanzi.common.error.Error;
 import co.orange.ddanzi.common.exception.DiscountNotFoundException;
 import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.product.Discount;
+import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.user.Account;
-import co.orange.ddanzi.domain.user.Address;
 import co.orange.ddanzi.domain.user.User;
 import co.orange.ddanzi.common.response.ApiResponse;
 import co.orange.ddanzi.common.response.Success;
@@ -25,6 +24,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 @Slf4j
@@ -33,6 +33,7 @@ import java.util.Map;
 public class ProductService {
     private final AuthUtils authUtils;
     private final ProductRepository productRepository;
+    private final ItemRepository itemRepository;
     private final DiscountRepository discountRepository;
     private final AccountRepository accountRepository;
 
@@ -90,6 +91,13 @@ public class ProductService {
         }
     }
 
+    public void updateClosestDueDate(Product product){
+        Optional<Item> item = itemRepository.findNearestExpiryItem(product);
+        if(item.isPresent())
+            product.updateClosestDueDate(item.get().getDueDate());
+        else
+            product.updateClosestDueDate(null);
+    }
 
     /*
     @Transactional

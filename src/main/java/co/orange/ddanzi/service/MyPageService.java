@@ -26,10 +26,8 @@ public class MyPageService {
     private final HomeService homeService;
     private final InterestProductRepository interestProductRepository;
 
-    @Autowired
-    OrderService orderService;
-    @Autowired
-    ItemService itemService;
+    private final OrderService orderService;
+    private final ItemService itemService;
 
     @Transactional
     public ApiResponse<?> getMyPage(){

@@ -50,6 +50,7 @@ public class PaymentService {
     private final OrderService orderService;
     private final HistoryService historyService;
     private final FcmService fcmService;
+    private final ProductService productService;
 
     @Value("${ddanzi.portone.access-key}")
     private String accessKey;
@@ -132,6 +133,8 @@ public class PaymentService {
             log.info("Payment is paid!!");
             item.updateStatus(ItemStatus.CLOSED);
             product.updateStock(product.getStock() - 1);
+            productService.updateClosestDueDate(product);
+            log.info("가장 가까운 마감일을 수정합 -> {}", product.getClosestDueDate());
             fcmService.sendMessageToAdmins("⚠️관리자 알림: 구매실행", "결제가 실행되었습니다. orderId:" + order.getId());
         }
 
@@ -173,20 +176,14 @@ public class PaymentService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("imp_key", accessKey);
-        requestBody.put("imp_secret", accessSecret);
+        PortOneTokenRequestDto requestDto = PortOneTokenRequestDto.builder()
+                .imp_key(accessKey)
+                .imp_secret(accessSecret)
+                .build();
 
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
-
-        try {
-            log.info("Request Body: {}", new ObjectMapper().writeValueAsString(requestBody));
-        } catch (JsonProcessingException e) {
-            log.error("JSON 직렬화 오류: {}", e.getMessage());
-        }
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, entity, PortOneTokenResponseDto.class);
+            ResponseEntity<PortOneTokenResponseDto> response = restTemplate.postForEntity(url, new HttpEntity<>(requestDto, headers), PortOneTokenResponseDto.class);
             log.info("포트원 Access key Get 성공");
             return response.getBody().getResponse().getAccess_token();
         } catch (HttpClientErrorException e) {

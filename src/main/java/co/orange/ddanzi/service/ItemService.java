@@ -35,10 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Slf4j
@@ -241,6 +238,9 @@ public class ItemService {
     public List<MyItem> getMyItemList(User user){
         List<Item> itemList = itemRepository.findAllBySellerAndNotDeleted(user);
         List<MyItem> myItemList = new ArrayList<>();
+
+        Collections.reverse(itemList);
+
         for(Item item : itemList){
             Product product = item.getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);

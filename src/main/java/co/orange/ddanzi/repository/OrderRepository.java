@@ -17,7 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o from Order o where o.buyer  = :user AND o.status <>'ORDER_PENDING'")
     List<Order> findByBuyerAndStatus(User user);
 
-    @Query("SELECT o FROM Order o WHERE o.item = :item AND o.status <> 'ORDER_PENDING'")
+    @Query("SELECT o FROM Order o WHERE o.item = :item AND o.status NOT IN ('ORDER_PENDING', 'CANCELLED')")
     Optional<Order> findByItemAndStatus(@Param("item") Item item);
 
     @Query("SELECT o FROM Order o WHERE o.status = :orderStatus AND o.updatedAt <= :dateTime")

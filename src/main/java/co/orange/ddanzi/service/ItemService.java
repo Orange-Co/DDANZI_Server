@@ -7,13 +7,13 @@ import co.orange.ddanzi.common.exception.ProductNotFoundException;
 import co.orange.ddanzi.domain.order.Order;
 import co.orange.ddanzi.domain.order.OrderOptionDetail;
 import co.orange.ddanzi.domain.order.Payment;
+import co.orange.ddanzi.domain.order.enums.OrderStatus;
 import co.orange.ddanzi.domain.order.enums.PayStatus;
 import co.orange.ddanzi.domain.product.Discount;
 import co.orange.ddanzi.domain.product.Item;
 import co.orange.ddanzi.domain.product.Product;
 import co.orange.ddanzi.domain.product.enums.ItemStatus;
 import co.orange.ddanzi.domain.user.User;
-import co.orange.ddanzi.domain.user.enums.FcmCase;
 import co.orange.ddanzi.dto.common.AddressSeparateInfo;
 import co.orange.ddanzi.dto.item.*;
 import co.orange.ddanzi.common.error.Error;
@@ -29,16 +29,11 @@ import co.orange.ddanzi.service.common.TermService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Slf4j
@@ -160,10 +155,11 @@ public class ItemService {
                 try {
                     paymentService.refundPayment(buyer, order, "현재 남은 재고가 없어 고객에게 결제 금액 환불합니다.");
                     payment.updatePaymentStatusAndEndedAt(PayStatus.CANCELLED);
-                    historyService.createPaymentHistoryWithError(buyer, payment, "제품 삭제- 환불 처리 성공");
+                    order.updateStatus(OrderStatus.CANCELLED);
+                    historyService.createPaymentHistoryWithError(buyer, payment, "판매자에 의해 제품 삭제- 환불 처리 성공");
                 }catch (Exception e){
                     log.info("환불이 불가능하여 제품 삭제에 실패했습니다.");
-                    historyService.createPaymentHistoryWithError(buyer, payment, "제품 삭제 - 환불 처리 실패");
+                    historyService.createPaymentHistoryWithError(buyer, payment, "판매자에 의해 제품 삭제 - 환불 처리 실패");
                     return ApiResponse.onFailure(Error.REFUND_FAILED, Map.of("itemId", item.getId()));
                 }
             }
@@ -177,7 +173,7 @@ public class ItemService {
 
         Product product = item.getProduct();
         product.updateStock(product.getStock() - 1);
-        log.info("재고를 감소시킴 -> {}개", product.getClosestDueDate());
+        log.info("재고를 감소시킴 -> {}개", product.getStock());
 
         productService.updateClosestDueDate(product);
 
@@ -241,6 +237,9 @@ public class ItemService {
     public List<MyItem> getMyItemList(User user){
         List<Item> itemList = itemRepository.findAllBySellerAndNotDeleted(user);
         List<MyItem> myItemList = new ArrayList<>();
+
+        Collections.reverse(itemList);
+
         for(Item item : itemList){
             Product product = item.getProduct();
             Discount discount = discountRepository.findById(product.getId()).orElseThrow(DiscountNotFoundException::new);
@@ -249,7 +248,7 @@ public class ItemService {
                     .productId(product.getId())
                     .itemId(item.getId())
                     .productName(product.getName())
-                    .imgUrl(item.getImgUrl())
+                    .imgUrl(product.getImgUrl())
                     .originPrice(product.getOriginPrice())
                     .salePrice(product.getOriginPrice() - discount.getDiscountPrice())
                     .isInterested(interestProductRepository.existsByIdUserAndIdProduct(user,product))

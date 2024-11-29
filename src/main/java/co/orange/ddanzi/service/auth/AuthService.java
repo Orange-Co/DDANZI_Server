@@ -123,9 +123,10 @@ public class AuthService {
     }
 
     private ApiResponse<?> verifyExistingAuthentication(User user, VerifyRequestDto requestDto) {
-        if (!user.getAuthentication().getCi().equals(requestDto.getCi())) {
+        if (!user.getAuthentication().getCi().equals(requestDto.getCi()))
             return ApiResponse.onFailure(Error.AUTHENTICATION_CANNOT_CHANGE, null);
-        }
+        else
+            user.updateStatus(UserStatus.ACTIVATE);
         return ApiResponse.onSuccess(Success.CREATE_AUTHENTICATION_SUCCESS, setVerifyResponse(user));
     }
 
